@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Current Account Opening Form</title>
+    <style>
+        :root {
+            --primary: #236bbd;
+            --primary-dark: #174f85;
+            --bg-light: #f5f7fb;
+            --border: #d8dee6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 40px;
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 18px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 40px;
+            row-gap: 40px;
+        }
+
+        section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 5px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fafafa;
+            transition: border-color .2s, box-shadow .2s, background-color .2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.1);
+            background-color: #fff;
+        }
+
+        .inline-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .inline-group>div {
+            flex: 1;
+        }
+
+        .file-box {
+            margin-top: 8px;
+            padding: 15px;
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fafafa;
+            transition: border-color .2s, background-color .2s;
+            position: relative;
+        }
+
+        .file-box:hover {
+            border-color: var(--primary);
+            background-color: #f0f6ff;
+        }
+
+        .file-box input[type=file] {
+            display: none;
+        }
+
+        .file-box span {
+            font-size: 13px;
+            color: #555;
+            display: block;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #236bbd;
+            word-break: break-all;
+        }
+
+        .file-error {
+            color: #d9534f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 28px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .inline-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Current Account Opening Form</h2>
+        <form id="accountFormV2" enctype="multipart/form-data" novalidate>
+            <div class="form-grid">
+                <!-- Left Column -->
+                <div>
+                    <section>
+                        <h3>Business Details</h3>
+                        <label for="businessName">Business Name</label>
+                        <input type="text" id="businessName" name="businessName" required>
+                        <label for="ownerName">Owner's Name</label>
+                        <input type="text" id="ownerName" name="ownerName" required>
+                        <label for="businessType">Type of Business</label>
+                        <select id="businessType" name="businessType" required>
+                            <option value="">--Select--</option>
+                            <option>Proprietorship</option>
+                            <option>Partnership</option>
+                            <option>Private Limited</option>
+                            <option>Public Limited</option>
+                            <option>LLP</option>
+                        </select>
+                        <label for="registrationNumber">Business Registration Number</label>
+                        <input type="text" id="registrationNumber" name="registrationNumber" required>
+                    </section>
+                    <section>
+                        <h3>Contact Information</h3>
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" placeholder="10-digit Mobile Number"
+                            pattern="[6-9]{1}[0-9]{9}" required>
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                        <label for="address">Business Address</label>
+                        <textarea id="address" name="address" rows="2" required></textarea>
+                        <label for="state">State</label>
+                        <select id="state" name="state" required>
+                            <option value="">--Select State--</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Bihar">Bihar</option>
+                        </select>
+                        <label for="district">District</label>
+                        <select id="district" name="district" required>
+                            <option value="">--Select District--</option>
+                        </select>
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" required>
+                        <label for="pincode">Pin Code</label>
+                        <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" required>
+                    </section>
+                </div>
+                <!-- Right Column -->
+                <div>
+                    <section>
+                        <h3>Documents and Identity</h3>
+                        <label for="gstNumber">GST Number</label>
+                        <input type="text" id="gstNumber" name="gstNumber" placeholder="15-digit GST Number"
+                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" required>
+                        <label for="pan">PAN Number</label>
+                        <input type="text" id="pan" name="pan" placeholder="ABCDE1234F"
+                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
+                        <label>Business Registration Certificate (PDF/Image)</label>
+                        <label class="file-box" id="businessRegBox">
+                            <input type="file" id="businessRegFile" name="businessRegFile" accept=".pdf,image/*" required>
+                            <span>Click to upload Business Registration Certificate</span>
+                            <span class="file-name" id="businessRegFileName"></span>
+                            <span class="file-error" id="businessRegFileError"></span>
+                        </label>
+                        <label>GST Certificate (PDF/Image)</label>
+                        <label class="file-box" id="gstCertBox">
+                            <input type="file" id="gstCertFile" name="gstCertFile" accept=".pdf,image/*" required>
+                            <span>Click to upload GST Certificate</span>
+                            <span class="file-name" id="gstCertFileName"></span>
+                            <span class="file-error" id="gstCertFileError"></span>
+                        </label>
+                        <label>PAN Card (PDF/Image)</label>
+                        <label class="file-box" id="panFileBox">
+                            <input type="file" id="panFile" name="panFile" accept=".pdf,image/*" required>
+                            <span>Click to upload PAN Card</span>
+                            <span class="file-name" id="panFileName"></span>
+                            <span class="file-error" id="panFileError"></span>
+                        </label>
+                        <label>Address Proof (PDF/Image)</label>
+                        <label class="file-box" id="addressProofFileBox">
+                            <input type="file" id="addressProofFile" name="addressProofFile" accept=".pdf,image/*" required>
+                            <span>Click to upload Address Proof</span>
+                            <span class="file-name" id="addressProofFileName"></span>
+                            <span class="file-error" id="addressProofFileError"></span>
+                        </label>
+                    </section>
+                    <section>
+                        <h3>Account Preferences</h3>
+                        <label for="branch">Preferred Branch Name</label>
+                        <select id="branch" name="branch" required>
+                            <option value="">--Select Branch--</option>
+                            <option>Mumbai - Fort</option>
+                            <option>Pune - Camp</option>
+                            <option>Kolhapur - Shahupuri</option>
+                            <option>Satara - Main</option>
+                            <option>Nashik - College Road</option>
+                            <option>Delhi - Connaught Place</option>
+                            <option>Bengaluru - MG Road</option>
+                            <option>Chennai - T Nagar</option>
+                            <option>Kolkata - Salt Lake</option>
+                            <option>Ahmedabad - Navrangpura</option>
+                        </select>
+                        <label for="nomineeName">Authorized Signatory Name</label>
+                        <input type="text" id="nomineeName" name="nomineeName" required>
+                        <div class="inline-group">
+                            <div>
+                                <label for="nomineeRelation">Relation with Authorized Signatory</label>
+                                <input type="text" id="nomineeRelation" name="nomineeRelation" required>
+                            </div>
+                            <div>
+                                <label for="nomineeDOB">Authorized Signatory DOB</label>
+                                <input type="date" id="nomineeDOB" name="nomineeDOB">
+                            </div>
+                        </div>
+                        <label for="accountType">Account Type</label>
+                        <select id="accountType" name="accountType" required>
+                            <option value="">--Select--</option>
+                            <option>Current Account</option>
+                            <option>Overdraft Account</option>
+                        </select>
+                        <label class="checkbox">
+                            <input type="checkbox" name="declaration" required>
+                            I hereby declare that all information provided is true and valid. I agree to abide by the bank's terms and conditions.
+                        </label>
+                    </section>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <button type="submit" class="btn">Submit Application</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        const stateDistrictMap = {
+            "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
+            "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
+            "Tamil Nadu": ["Chennai", "Madurai", "Erode", "Salem", "Coimbatore"],
+            "Uttar Pradesh": ["Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi"],
+            "West Bengal": ["Kolkata", "Howrah", "Darjeeling", "Nadia", "Asansol"],
+            "Gujarat": ["Ahmedabad", "Surat", "Rajkot", "Vadodara"],
+            "Madhya Pradesh": ["Bhopal", "Indore", "Ujjain", "Gwalior"],
+            "Rajasthan": ["Jaipur", "Jodhpur", "Ajmer", "Udaipur"],
+            "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"]
+        };
+
+        document.getElementById('state').addEventListener('change', function () {
+            const state = this.value;
+            const districtSelect = document.getElementById('district');
+            districtSelect.innerHTML = '<option value="">--Select District--</option>';
+            if (stateDistrictMap[state]) {
+                stateDistrictMap[state].forEach(d => {
+                    let opt = document.createElement('option');
+                    opt.value = d;
+                    opt.text = d;
+                    districtSelect.appendChild(opt);
+                });
+            }
+        });
+
+        document.getElementById('district').addEventListener('change', function () {
+            const cityInput = document.getElementById('city');
+            if (this.value) cityInput.value = this.value;
+        });
+
+        const fileInputs = [
+            { id: 'businessRegFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+            { id: 'gstCertFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+            { id: 'panFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
+            { id: 'addressProofFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 }
+        ];
+
+        fileInputs.forEach(f => {
+            const input = document.getElementById(f.id);
+            const nameSpan = document.getElementById(f.id + 'Name');
+            const errorSpan = document.getElementById(f.id + 'Error');
+            const box = document.getElementById(f.id + 'Box');
+            if (!input || !nameSpan || !errorSpan) return;
+            box.addEventListener('click', () => input.click());
+
+            input.addEventListener('change', function () {
+                if (input.files.length) {
+                    const file = input.files[0];
+                    let validType = f.types.includes(file.type);
+                    let validSize = file.size <= f.max;
+                    if (!validType) {
+                        errorSpan.textContent = 'Invalid file type!';
+                        nameSpan.textContent = '';
+                        input.value = '';
+                    } else if (!validSize) {
+                        errorSpan.textContent = 'File size must be under 2MB!';
+                        nameSpan.textContent = '';
+                        input.value = '';
+                    } else {
+                        errorSpan.textContent = '';
+                        nameSpan.textContent = file.name;
+                    }
+                } else {
+                    nameSpan.textContent = '';
+                    errorSpan.textContent = '';
+                }
+            });
+        });
+
+        document.getElementById('accountFormV2').addEventListener('submit', function (e) {
+            let valid = true;
+            fileInputs.forEach(f => {
+                const input = document.getElementById(f.id);
+                const errorSpan = document.getElementById(f.id + 'Error');
+                if (input.hasAttribute('required') && !input.files.length) {
+                    valid = false;
+                    errorSpan.textContent = 'Please upload the required file.';
+                }
+            });
+            if (!valid) {
+                e.preventDefault();
+                return;
+            }
+            e.preventDefault();
+            alert("Your Current Account Application has been submitted successfully!");
+        });
+    </script>
+</body>
+
+</html>

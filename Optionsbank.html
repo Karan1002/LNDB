@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Bank Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #236bbd;
+            font-size: 26px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-size: 18px;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #236bbd;
+            color: white;
+            font-size: 16px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 8px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #174f85;
+        }
+
+        .note {
+            font-size: 14px;
+            color: #888;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px 6px;
+                width: 98vw;
+            }
+
+            form label {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Open a Bank Account</h2>
+        <form id="accountForm" method="post">
+            <label>
+                <input type="radio" name="account_type" value="saving" required />
+                Saving Account
+            </label>
+            <label>
+                <input type="radio" name="account_type" value="current" required />
+                Current Account
+            </label>
+            <input type="submit" value="Open Account" />
+        </form>
+        <div class="note">Please select one account type before submitting.</div>
+    </div>
+    <script>
+        document.getElementById('accountForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const selectedAccount = document.querySelector('input[name="account_type"]:checked').value;
+            if (selectedAccount === 'saving') {
+                window.location.href = 'Saving.html';
+            } else if (selectedAccount === 'current') {
+                window.location.href = 'Current.html';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

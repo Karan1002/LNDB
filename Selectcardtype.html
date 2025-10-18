@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Apply for Card</title>
+    <style>
+        :root {
+            --primary: #236bbd;
+            --primary-dark: #174f85;
+            --bg-light: #f5f7fb;
+            --border: #d8dee6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .apply-card-container {
+            max-width: 420px;
+            width: 100%;
+            background: #fff;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-bottom: 40px;
+            font-size: 30px;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+        }
+
+        label {
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: #fafafa;
+            transition: border-color .2s, box-shadow .2s, background-color .2s;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.1);
+            background-color: #fff;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s, transform .1s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px;
+                height: auto;
+            }
+
+            .apply-card-container {
+                padding: 25px 20px;
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            h2 {
+                font-size: 24px;
+                margin-bottom: 30px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 12px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="apply-card-container">
+        <h2>Apply for a Card</h2>
+        <form id="cardApplyForm">
+            <label for="cardType">Select Card Type</label>
+            <select id="cardType" name="cardType" required>
+                <option value="" disabled selected>--Select Card Type--</option>
+                <option value="credit">Credit Card</option>
+                <option value="debit">Debit Card</option>
+            </select>
+            <button type="submit" class="btn">Apply Now</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('cardApplyForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const selectedCard = document.getElementById('cardType').value;
+            if (selectedCard === 'credit') {
+                window.location.href = 'creditcardapply.html';
+            } else if (selectedCard === 'debit') {
+                window.location.href = 'Debitcardapply.html';
+            } else {
+                alert('Please select a card type to proceed.');
+            }
+        });
+    </script>
+</body>
+
+</html>

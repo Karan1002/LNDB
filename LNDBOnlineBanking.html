@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>LNDB Online Banking</title>
+    <style>
+        {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            color: #004a8f;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 20px 0;
+        }
+
+        header {
+            background-color: #0b4782;
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: auto;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            color: #004a8f;
+            user-select: none;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #004a8f;
+            box-shadow: 0 0 8px rgba(0, 74, 143, 0.5);
+        }
+
+        button {
+            margin-top: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+            background-color: #004a8f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            width: 100%;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover:not(:disabled),
+        button:focus:not(:disabled) {
+            background-color: #002e5c;
+            outline: none;
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .switch-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #0b4782;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-decoration: underline;
+            user-select: none;
+        }
+
+        .switch-link:hover,
+        .switch-link:focus {
+            color: #002e5c;
+            outline: none;
+        }
+
+        .balance {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 18px;
+            user-select: text;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus {
+            outline: none;
+            border-color: #004a8f;
+            box-shadow: 0 0 8px rgba(0, 74, 143, 0.4);
+        }
+
+        button {
+            margin-top: 20px;
+        }
+
+        .message {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .switch-link {
+            color: #0b4782;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+            {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            color: #004a8f;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            padding: 20px 0;
+        }
+
+        header {
+            background-color: #0b4782;
+            color: white;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: auto;
+            background: white;
+            padding: 24px 32px;
+            border-radius: 8px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            color: #004a8f;
+            user-select: none;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #004a8f;
+            box-shadow: 0 0 8px rgba(0, 74, 143, 0.5);
+        }
+
+        button {
+            margin-top: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+            background-color: #004a8f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            width: 100%;
+            user-select: none;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover:not(:disabled),
+        button:focus:not(:disabled) {
+            background-color: #002e5c;
+            outline: none;
+        }
+
+        button:disabled {
+            background-color: #888;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .switch-link {
+            display: inline-block;
+            margin-top: 16px;
+            color: #0b4782;
+            cursor: pointer;
+            font-size: 0.95rem;
+            text-decoration: underline;
+            user-select: none;
+        }
+
+        .switch-link:hover,
+        .switch-link:focus {
+            color: #002e5c;
+            outline: none;
+        }
+
+        .balance {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 18px;
+            user-select: text;
+        }
+    </style>
+</head>
+
+<body>
+    <header>LNDB Online Banking</header>
+    <div class="container" id="loginSection">
+        <h2>Login</h2>
+        <label for="loginUsername">Username:</label>
+        <input type="text" id="loginUsername" placeholder="Enter your username" />
+        <label for="loginAccountNumber">Account Number:</label>
+        <input type="text" id="loginAccountNumber" placeholder="Enter your account number" />
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" />
+        <label><input type="checkbox" id="loginShowPassword" /> Show Password</label>
+        <button id="loginBtn">Login</button>
+        <div id="loginMsg" class="message hidden"></div>
+        <span class="switch-link" id="showRegister">Don't have an account? Register here</span>
+    </div>
+
+    <div class="container hidden" id="registerSection">
+        <h2>Register</h2>
+        <label for="regUsername">Username:</label>
+        <input type="text" id="regUsername" placeholder="Choose a username" />
+        <label for="regAccountNumber">Account Number:</label>
+        <input type="text" id="regAccountNumber" placeholder="Enter your 12-digit account number" />
+        <label for="regPhone">Phone Number:</label>
+        <input type="tel" id="regPhone" placeholder="Enter your 10-digit phone number" />
+        <label for="regEmail">Email ID:</label>
+        <input type="email" id="regEmail" placeholder="Enter your email ID" />
+        <label for="regPassword">Password:</label>
+        <input type="password" id="regPassword" placeholder="Enter the password" />
+        <label><input type="checkbox" id="regShowPassword" /> Show Password</label>
+        <button id="registerBtn">Register</button>
+        <div id="registerMsg" class="message hidden"></div>
+        <span class="switch-link" id="showLogin">Already have an account? Login here</span>
+    </div>
+
+    <div class="container hidden" id="bankingSection">
+        <h2>Welcome, <span id="displayUsername"></span></h2>
+        <div class="balance">Your Balance: ₹<span id="balanceAmount">0.00</span></div>
+
+        <h3>Fixed Deposit Investment</h3>
+        <label for="fdAmount">Investment Amount (₹):</label>
+        <input type="number" id="fdAmount" min="1000" placeholder="Minimum 1000" />
+        <label for="fdTerm">Select Term (Years):</label>
+        <select id="fdTerm">
+            <option value="1">1 Year</option>
+            <option value="2">2 Years</option>
+            <option value="3">3 Years</option>
+            <option value="5">5 Years</option>
+        </select>
+        <button id="fdInvestBtn">Invest in FD</button>
+        <div id="fdMsg" class="message hidden"></div>
+
+        <hr style="margin: 20px 0;" />
+
+        <label for="transferAmount">Transfer Amount (₹):</label>
+        <input type="number" id="transferAmount" min="1" placeholder="Enter amount" />
+        <label for="transferTo">Recipient Account Number:</label>
+        <input type="text" id="transferTo" placeholder="Enter recipient account number" />
+        <button id="transferBtn" disabled>Transfer Money</button>
+        <div id="transferMsg" class="message hidden"></div>
+
+        <button id="logoutBtn" style="margin-top: 20px; background:#a83232;">Logout</button>
+    </div>
+
+    <script>
+        const loginSection = document.getElementById('loginSection');
+        const registerSection = document.getElementById('registerSection');
+        const bankingSection = document.getElementById('bankingSection');
+
+        const loginUsername = document.getElementById('loginUsername');
+        const loginAccountNumber = document.getElementById('loginAccountNumber');
+        const loginPassword = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginMsg = document.getElementById('loginMsg');
+
+        const regUsername = document.getElementById('regUsername');
+        const regAccountNumber = document.getElementById('regAccountNumber');
+        const regPhone = document.getElementById('regPhone');
+        const regEmail = document.getElementById('regEmail');
+        const regPassword = document.getElementById('regPassword');
+        const registerBtn = document.getElementById('registerBtn');
+        const registerMsg = document.getElementById('registerMsg');
+
+        const displayUsername = document.getElementById('displayUsername');
+        const balanceAmount = document.getElementById('balanceAmount');
+
+        const fdAmount = document.getElementById('fdAmount');
+        const fdTerm = document.getElementById('fdTerm');
+        const fdInvestBtn = document.getElementById('fdInvestBtn');
+        const fdMsg = document.getElementById('fdMsg');
+
+        const transferAmount = document.getElementById('transferAmount');
+        const transferTo = document.getElementById('transferTo');
+        const transferBtn = document.getElementById('transferBtn');
+        const transferMsg = document.getElementById('transferMsg');
+
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+
+        const users = {};
+        let currentUser = null;
+
+        showRegister.onclick = () => {
+            loginSection.classList.add('hidden');
+            registerSection.classList.remove('hidden');
+            clearMessages();
+            clearAllInputs();
+        };
+
+        showLogin.onclick = () => {
+            registerSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            clearMessages();
+            clearAllInputs();
+        };
+
+        registerBtn.onclick = () => {
+            clearMessages();
+            const username = regUsername.value.trim();
+            const accountNumber = regAccountNumber.value.trim();
+            const phone = regPhone.value.trim();
+            const email = regEmail.value.trim();
+            const password = regPassword.value;
+
+            if (!username || !accountNumber || !phone || !email || !password) {
+                registerMsg.textContent = "Please fill all fields.";
+                registerMsg.className = "message error";
+                registerMsg.classList.remove('hidden');
+                return;
+            }
+            if (accountNumber.length !== 12 || !/^\d{12}$/.test(accountNumber)) {
+                registerMsg.textContent = "Account number must be exactly 12 digits.";
+                registerMsg.className = "message error";
+                registerMsg.classList.remove('hidden');
+                return;
+            }
+            if (phone.length !== 10 || !/^\d{10}$/.test(phone)) {
+                registerMsg.textContent = "Phone number must be exactly 10 digits.";
+                registerMsg.className = "message error";
+                registerMsg.classList.remove('hidden');
+                return;
+            }
+            if (users[username]) {
+                registerMsg.textContent = "Username already exists.";
+                registerMsg.className = "message error";
+                registerMsg.classList.remove('hidden');
+                return;
+            }
+            users[username] = {
+                accountNumber,
+                phone,
+                email,
+                password,
+                balance: 10000,
+            };
+            registerMsg.textContent = "Registration successful! Please login.";
+            registerMsg.className = "message success";
+            registerMsg.classList.remove('hidden');
+            clearAllInputs();
+        };
+
+        loginBtn.onclick = () => {
+            clearMessages();
+            const username = loginUsername.value.trim();
+            const accountNumber = loginAccountNumber.value.trim();
+            const password = loginPassword.value;
+
+            if (!username || !accountNumber || !password) {
+                loginMsg.textContent = "Please fill all fields.";
+                loginMsg.className = "message error";
+                loginMsg.classList.remove('hidden');
+                return;
+            }
+            if (accountNumber.length !== 12 || !/^\d{12}$/.test(accountNumber)) {
+                loginMsg.textContent = "Account number must be exactly 12 digits.";
+                loginMsg.className = "message error";
+                loginMsg.classList.remove('hidden');
+                return;
+            }
+
+            const user = users[username];
+            if (!user || user.password !== password || user.accountNumber !== accountNumber) {
+                loginMsg.textContent = "Invalid login credentials.";
+                loginMsg.className = "message error";
+                loginMsg.classList.remove('hidden');
+                return;
+            }
+
+            currentUser = username;
+            displayUsername.textContent = currentUser;
+            balanceAmount.textContent = user.balance.toFixed(2);
+            loginSection.classList.add('hidden');
+            bankingSection.classList.remove('hidden');
+            clearAllInputs();
+        };
+
+        function validateTransferInputs() {
+            const amount = parseFloat(transferAmount.value);
+            const recipient = transferTo.value.trim();
+            if (
+                amount > 0 &&
+                currentUser &&
+                amount <= users[currentUser].balance &&
+                recipient.length > 0
+            ) {
+                transferBtn.disabled = false;
+            } else {
+                transferBtn.disabled = true;
+            }
+        }
+
+        transferAmount.addEventListener('input', validateTransferInputs);
+        transferTo.addEventListener('input', validateTransferInputs);
+
+        transferBtn.onclick = () => {
+            clearMessages();
+            const amount = parseFloat(transferAmount.value);
+            const recipient = transferTo.value.trim();
+
+            if (!users[recipient]) {
+                transferMsg.textContent = "Recipient account not found.";
+                transferMsg.className = "message error";
+                transferMsg.classList.remove('hidden');
+                return;
+            }
+            if (amount > users[currentUser].balance) {
+                transferMsg.textContent = "Insufficient balance.";
+                transferMsg.className = "message error";
+                transferMsg.classList.remove('hidden');
+                return;
+            }
+
+            users[currentUser].balance -= amount;
+            users[recipient].balance += amount;
+
+            balanceAmount.textContent = users[currentUser].balance.toFixed(2);
+            transferMsg.textContent = `₹${amount.toFixed(2)} successfully transferred to ${recipient}.`;
+            transferMsg.className = "message success";
+            transferMsg.classList.remove('hidden');
+
+            transferAmount.value = '';
+            transferTo.value = '';
+            transferBtn.disabled = true;
+        };
+        fdInvestBtn.onclick = () => {
+            clearMessages();
+            const amount = parseFloat(fdAmount.value);
+            const term = parseInt(fdTerm.value, 10);
+
+            if (isNaN(amount) || amount < 1000) {
+                fdMsg.textContent = "Minimum FD investment amount is ₹1000.";
+                fdMsg.className = "message error";
+                fdMsg.classList.remove('hidden');
+                return;
+            }
+            if (amount > users[currentUser].balance) {
+                fdMsg.textContent = "Insufficient balance for FD investment.";
+                fdMsg.className = "message error";
+                fdMsg.classList.remove('hidden');
+                return;
+            }
+            const interestRate = 0.07;
+            const maturityAmount = amount * (1 + interestRate * term);
+
+            users[currentUser].balance -= amount; invested amount immediately
+
+            balanceAmount.textContent = users[currentUser].balance.toFixed(2);
+            fdMsg.innerHTML = `Invested ₹${amount.toFixed(2)} for ${term} year(s).<br>
+                Maturity amount will be ₹${maturityAmount.toFixed(2)} after ${term} year(s).`;
+            fdMsg.className = "message success";
+            fdMsg.classList.remove('hidden');
+
+            fdAmount.value = '';
+            fdTerm.value = '1';
+            validateTransferInputs();
+        };
+
+        logoutBtn.onclick = () => {
+            currentUser = null;
+            bankingSection.classList.add('hidden');
+            loginSection.classList.remove('hidden');
+            clearAllInputs();
+            clearMessages();
+        };
+
+        function clearMessages() {
+            loginMsg.classList.add('hidden');
+            registerMsg.classList.add('hidden');
+            transferMsg.classList.add('hidden');
+            fdMsg.classList.add('hidden');
+        }
+
+        function clearAllInputs() {
+            loginUsername.value = '';
+            loginAccountNumber.value = '';
+            loginPassword.value = '';
+            regUsername.value = '';
+            regAccountNumber.value = '';
+            regPhone.value = '';
+            regEmail.value = '';
+            regPassword.value = '';
+            transferAmount.value = '';
+            transferTo.value = '';
+            fdAmount.value = '';
+            fdTerm.value = '1';
+            transferBtn.disabled = true;
+        }
+
+        document.getElementById('regShowPassword').addEventListener('change', function () {
+            const regPassInput = document.getElementById('regPassword');
+            regPassInput.type = this.checked ? 'text' : 'password';
+        });
+
+        document.getElementById('loginShowPassword').addEventListener('change', function () {
+            const loginPassInput = document.getElementById('loginPassword');
+            loginPassInput.type = this.checked ? 'text' : 'password';
+        });
+    </script>
+</body>
+
+</html>

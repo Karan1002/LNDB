@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LNDB Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: url('LNDBback.PNG') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .form-container {
+            background: rgba(15, 12, 12, 0.15);
+            border-radius: 20px;
+            border: 1.5px solid rgba(36, 28, 28, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 380px;
+            width: 100%;
+            padding: 40px 35px;
+            color: #181616;
+            animation: fadeIn 0.7s ease forwards;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        h1 {
+            text-align: center;
+            color: #e9e9f4;
+            font-weight: 800;
+            margin-bottom: 30px;
+            font-size: 2.4rem;
+            letter-spacing: 1.2px;
+            user-select: none;
+        }
+        .toggle-buttons {
+            text-align: center;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+        }
+        .toggle-buttons button {
+            background-color: rgba(24, 24, 24, 0.25);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 12px 28px;
+            cursor: pointer;
+            color: #e9e9f4;
+            border-radius: 30px;
+            outline: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgb(0 0 0 / 0.2);
+            backdrop-filter: blur(3px);
+        }
+        .toggle-buttons button.active {
+            background: rgba(255, 255, 255, 0.5);
+            color: #1a55d1;
+            box-shadow: 0 4px 18px rgba(26, 85, 209, 0.7);
+        }
+        .toggle-buttons button:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.35);
+            color: #a7baf4;
+        }
+        form {
+            display: none;
+            transition: opacity 0.45s ease;
+        }
+        form.active {
+            display: block;
+            opacity: 1;
+        }
+        .input-group {
+            margin-bottom: 26px;
+            position: relative;
+        }
+        .input-field {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            padding: 0 16px;
+            height: 48px;
+            color: #fff;
+        }
+        .input-field:focus-within {
+            border-color: #8cbaff;
+            box-shadow: 0 0 15px 2px #8cbaffaa;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .input-field i {
+            color: #c3d0ffdd;
+            font-size: 20px;
+            margin-right: 12px;
+            user-select: none;
+            pointer-events: none;
+            min-width: 24px;
+            text-align: center;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            border-radius: 14px;
+            background-color: transparent;
+            color: #f0f0f5;
+            transition: background-color 0.3s ease;
+            padding: 10px 0;
+            font-weight: 500;
+        }
+        input::placeholder {
+            color: rgba(240, 240, 245, 0.7);
+            font-weight: 400;
+        }
+        input:focus {
+            background-color: rgba(255, 255, 255, 0.12);
+        }
+        input[type="submit"] {
+            width: 100%;
+            background: linear-gradient(135deg, #91abffcc, #5385e6cc);
+            border: none;
+            padding: 15px 0;
+            font-size: 1.15rem;
+            border-radius: 14px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.35s ease;
+            box-shadow: 0 7px 20px rgba(37, 117, 252, 0.6);
+            user-select: none;
+        }
+        input[type="submit"]:hover {
+            background: linear-gradient(135deg, #6690ffee, #3d5cd9ee);
+            box-shadow: 0 8px 24px rgba(26, 85, 209, 0.85);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 22px;
+            font-size: 0.9rem;
+            color: #d8d8f7;
+            user-select: none;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin: 0;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #6690ff;
+            border-radius: 4px;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 26px;
+        }
+        .forgot-password a {
+            color: #8bb1ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+        .forgot-password a:hover {
+            color: #4268f4;
+            text-decoration: underline;
+        }
+        .error {
+            color: #ff7b7b;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            font-weight: 600;
+            min-height: 18px;
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container" role="main" aria-label="Authentication form container">
+        <div class="toggle-buttons" role="tablist" aria-label="Toggle between Sign Up and Sign In forms">
+            <button role="tab" aria-selected="true" aria-controls="signup-form" id="btn-signup" class="active">Sign Up</button>
+            <button role="tab" aria-selected="false" aria-controls="signin-form" id="btn-signin">Sign In</button>
+        </div>
+        <form id="signup-form" class="active" novalidate aria-labelledby="btn-signup" tabindex="0">
+            <h1>Sign Up</h1>
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <input type="text" id="signup-name" name="signup-name" placeholder="Full Name" autocomplete="name"
+                        aria-required="true" aria-describedby="signup-name-error" />
+                </div>
+                <div id="signup-name-error" class="error" aria-live="polite"></div>
+            </div>
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <input type="email" id="signup-email" name="signup-email" placeholder="Email Address"
+                        autocomplete="email" aria-required="true" aria-describedby="signup-email-error" />
+                </div>
+                <div id="signup-email-error" class="error" aria-live="polite"></div>
+            </div>
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <input type="password" id="signup-password" name="signup-password" placeholder="Password"
+                        autocomplete="new-password" aria-required="true" aria-describedby="signup-password-error" />
+                </div>
+                <div id="signup-password-error" class="error" aria-live="polite"></div>
+            </div>
+            <input type="submit" value="Sign Up" aria-label="Submit Sign Up form" />
+        </form>
+        <form id="signin-form" novalidate aria-labelledby="btn-signin" tabindex="0">
+            <h1>Sign In</h1>
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                    <input type="email" id="signin-email" name="signin-email" placeholder="Email Address"
+                        autocomplete="email" aria-required="true" aria-describedby="signin-email-error" />
+                </div>
+                <div id="signin-email-error" class="error" aria-live="polite"></div>
+            </div>
+            <div class="input-group">
+                <div class="input-field">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <input type="password" id="signin-password" name="signin-password" placeholder="Password"
+                        autocomplete="current-password" aria-required="true" aria-describedby="signin-password-error" />
+                </div>
+                <div id="signin-password-error" class="error" aria-live="polite"></div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember-me" name="remember-me" />
+                <label for="remember-me">Remember Me</label>
+            </div>
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link" tabindex="0">Forgot Password?</a>
+            </div>
+            <input type="submit" value="Sign In" aria-label="Submit Sign In form" />
+        </form>
+    </div>
+    <!-- FontAwesome CDN -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        const btnSignup = document.getElementById('btn-signup');
+        const btnSignin = document.getElementById('btn-signin');
+        const signupForm = document.getElementById('signup-form');
+        const signinForm = document.getElementById('signin-form');
+
+        btnSignup.addEventListener('click', () => {
+            btnSignup.classList.add('active');
+            btnSignin.classList.remove('active');
+            signupForm.classList.add('active');
+            signinForm.classList.remove('active');
+            btnSignup.setAttribute('aria-selected', 'true');
+            btnSignin.setAttribute('aria-selected', 'false');
+            signupForm.setAttribute('tabindex', '0');
+            signinForm.setAttribute('tabindex', '-1');
+            signupForm.focus();
+        });
+
+        btnSignin.addEventListener('click', () => {
+            btnSignin.classList.add('active');
+            btnSignup.classList.remove('active');
+            signinForm.classList.add('active');
+            signupForm.classList.remove('active');
+            btnSignin.setAttribute('aria-selected', 'true');
+            btnSignup.setAttribute('aria-selected', 'false');
+            signinForm.setAttribute('tabindex', '0');
+            signupForm.setAttribute('tabindex', '-1');
+            signinForm.focus();
+        });
+
+        signupForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            ['signup-name', 'signup-email', 'signup-password'].forEach(id => {
+                document.getElementById(id + '-error').textContent = '';
+            });
+
+            let name = document.getElementById('signup-name').value.trim();
+            let email = document.getElementById('signup-email').value.trim();
+            let password = document.getElementById('signup-password').value;
+
+            let valid = true;
+
+            if (name === '') {
+                document.getElementById('signup-name-error').textContent = 'Please enter your full name';
+                valid = false;
+            }
+            if (email === '') {
+                document.getElementById('signup-email-error').textContent = 'Please enter your email address';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('signup-email-error').textContent = 'Please enter a valid email';
+                valid = false;
+            }
+            if (password === '') {
+                document.getElementById('signup-password-error').textContent = 'Please enter a password';
+                valid = false;
+            } else if (password.length < 6) {
+                document.getElementById('signup-password-error').textContent = 'Password must be at least 6 characters long';
+                valid = false;
+            }
+            if (valid) {
+                alert('Sign Up successful!');
+                this.reset();
+            }
+        });
+
+        signinForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            ['signin-email', 'signin-password'].forEach(id => {
+                document.getElementById(id + '-error').textContent = '';
+            });
+
+            let email = document.getElementById('signin-email').value.trim();
+            let password = document.getElementById('signin-password').value;
+
+            let valid = true;
+
+            if (email === '') {
+                document.getElementById('signin-email-error').textContent = 'Please enter your email address';
+                valid = false;
+            } else if (!validateEmail(email)) {
+                document.getElementById('signin-email-error').textContent = 'Please enter a valid email';
+                valid = false;
+            }
+            if (password === '') {
+                document.getElementById('signin-password-error').textContent = 'Please enter your password';
+                valid = false;
+            }
+            if (valid) {
+                const rememberMe = document.getElementById('remember-me').checked;
+                window.location.href = "index..html";
+            }
+        });
+
+        document.getElementById('forgot-password-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            alert('Redirect to password recovery page or show recovery modal.');
+        });
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email.toLowerCase());
+        }
+    </script>
+</body>
+</html>

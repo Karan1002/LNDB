@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Credit Card Application Form</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .form-container {
+            max-width: 500px;
+            width: 100%;
+            background: #fff;
+            padding: 35px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #236bbd;
+            font-weight: 700;
+            font-size: 30px;
+        }
+
+        label {
+            display: block;
+            margin: 20px 0 8px;
+            font-weight: 600;
+            font-size: 15px;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="date"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d8dee6;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #236bbd;
+            background-color: #fff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.15);
+        }
+
+        button {
+            margin-top: 30px;
+            width: 100%;
+            padding: 14px 0;
+            background-color: #236bbd;
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #174f85;
+            box-shadow: 0 6px 14px rgba(23, 79, 133, 0.35);
+        }
+
+        .error-message {
+            color: #d9534f;
+            font-size: 13px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        #cardLimit {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <h2>Credit Card Application</h2>
+        <form id="creditCardForm" action="/submit-credit-card-application" method="post" novalidate>
+            <label for="accountNumber">Account Number</label>
+            <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your bank account number" required />
+            <div class="error-message" id="accountNumberError">Please enter a valid account number (minimum 8 digits).</div>
+
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Your full name" required />
+            <div class="error-message" id="fullnameError">Please enter your full name.</div>
+
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" name="dob" required />
+            <div class="error-message" id="dobError">You must be at least 18 years old to apply.</div>
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required />
+            <div class="error-message" id="emailError">Please enter a valid email address.</div>
+
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="+91-1234567890" pattern="^\+?\d{10,15}$" required />
+            <div class="error-message" id="phoneError">Please enter a valid phone number.</div>
+
+            <label for="address">Residential Address</label>
+            <input type="text" id="address" name="address" placeholder="Your full address" required />
+            <div class="error-message" id="addressError">Please enter your address.</div>
+
+            <label for="income">Monthly Income (INR)</label>
+            <input type="number" id="income" name="income" placeholder="Your monthly income" required min="0" />
+            <div class="error-message" id="incomeError">Please enter a valid income (non-negative).</div>
+
+            <label for="cardLimit">Estimated Annual Card Limit (INR)</label>
+            <input type="text" id="cardLimit" name="cardLimit" readonly placeholder="Card limit will appear here" />
+
+            <label for="employment">Employment Status</label>
+            <select id="employment" name="employment" required>
+                <option value="">Select status</option>
+                <option value="employed">Employed</option>
+                <option value="self-employed">Self-employed</option>
+                <option value="unemployed">Unemployed</option>
+                <option value="retired">Retired</option>
+            </select>
+            <div class="error-message" id="employmentError">Please select your employment status.</div>
+
+            <button type="submit">Apply Now</button>
+        </form>
+    </div>
+
+    <script>
+        function isAdult(dob) {
+            const today = new Date();
+            const birthDate = new Date(dob);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age >= 18;
+        }
+
+        function updateCardLimit() {
+            const incomeInput = document.getElementById('income');
+            const cardLimitInput = document.getElementById('cardLimit');
+            let income = Number(incomeInput.value);
+            if (!isNaN(income) && income >= 0) {
+                const annualLimit = income * 20;
+                cardLimitInput.value = annualLimit.toLocaleString('en-IN');
+            } else {
+                cardLimitInput.value = '';
+            }
+        }
+
+        document.getElementById('income').addEventListener('input', updateCardLimit);
+
+        document.getElementById('creditCardForm').addEventListener('submit', function (e) {
+            let valid = true;
+
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+            const accNum = this.accountNumber.value.trim();
+            if (!/^\d{8,}$/.test(accNum)) {
+                valid = false;
+                document.getElementById('accountNumberError').style.display = 'block';
+            }
+
+            if (!this.fullname.value.trim()) {
+                valid = false;
+                document.getElementById('fullnameError').style.display = 'block';
+            }
+
+            if (!this.dob.value || !isAdult(this.dob.value)) {
+                valid = false;
+                document.getElementById('dobError').style.display = 'block';
+            }
+
+            if (!this.email.value.trim()) {
+                valid = false;
+                document.getElementById('emailError').style.display = 'block';
+            }
+
+            if (!/^\+?\d{10,15}$/.test(this.phone.value.trim())) {
+                valid = false;
+                document.getElementById('phoneError').style.display = 'block';
+            }
+
+            if (!this.address.value.trim()) {
+                valid = false;
+                document.getElementById('addressError').style.display = 'block';
+            }
+
+            if (this.income.value === '' || isNaN(this.income.value) || Number(this.income.value) < 0) {
+                valid = false;
+                document.getElementById('incomeError').style.display = 'block';
+            }
+
+            if (!this.employment.value) {
+                valid = false;
+                document.getElementById('employmentError').style.display = 'block';
+            }
+
+            if (!valid) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        updateCardLimit();
+    </script>
+</body>
+
+</html>
