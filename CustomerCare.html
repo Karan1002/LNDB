@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Customer Care - Lena Dena Bank (LNDB)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eaf3ff, #ffffff);
+            color: #003380;
+            min-height: 100vh;
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #004a8f;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        p.intro {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #004a8f;
+            margin-bottom: 35px;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        .care-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .care-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 74, 143, 0.12);
+            padding: 25px 30px;
+            flex: 1 1 320px;
+            transition: all 0.3s ease;
+        }
+
+        .care-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.18);
+        }
+
+        .care-card i {
+            font-size: 32px;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .care-card h3 {
+            color: #003380;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .care-card p {
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .contact-options {
+            background-color: #f4f8fb;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            padding: 25px;
+            margin-top: 35px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .contact-options h2 {
+            text-align: center;
+            color: #003380;
+            margin-bottom: 20px;
+        }
+
+        .option-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 20px;
+        }
+
+        .option-item {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 74, 143, 0.1);
+            padding: 15px 20px;
+            text-align: center;
+            flex: 1 1 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .option-item:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .option-item i {
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .option-item p {
+            font-weight: 500;
+        }
+
+        .contact-form {
+            background: #fff;
+            margin-top: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 74, 143, 0.1);
+            padding: 25px 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .contact-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #003380;
+        }
+
+        .contact-form label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #003380;
+        }
+
+        .contact-form input,
+        .contact-form select,
+        .contact-form textarea {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .contact-form textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        .contact-form button {
+            margin-top: 20px;
+            width: 100%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        .contact-form button:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 700px) {
+            .care-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LNDB Customer Care</h1>
+    <p class="intro">
+        We are always here to help you. Whether you have a query, need to report a transaction,
+        or want to get information about our products — our dedicated support team is available 24×7.
+    </p>
+
+    <div class="care-container">
+        <div class="care-card">
+            <i class="fa-solid fa-phone-volume"></i>
+            <h3>24×7 Toll-Free Support</h3>
+            <p>Call us anytime at <strong>1800-123-4567</strong> or <strong>022-555-9000</strong> for account or
+                card-related queries.</p>
+        </div>
+
+        <div class="care-card">
+            <i class="fa-solid fa-envelope"></i>
+            <h3>Email Support</h3>
+            <p>Write to us at <strong>care@lndb.co.in</strong> for help with loans, investments, or complaints. Our team
+                responds within 24 hours.</p>
+        </div>
+
+        <div class="care-card">
+            <i class="fa-solid fa-building-columns"></i>
+            <h3>Visit Our Branch</h3>
+            <p>Find your nearest LNDB branch and meet our customer relationship manager for personalized support and
+                services.</p>
+        </div>
+
+        <div class="care-card">
+            <i class="fa-solid fa-comments"></i>
+            <h3>Live Chat Support</h3>
+            <p>Chat with our virtual assistant on our website or mobile app to get instant solutions and service
+                requests.</p>
+        </div>
+    </div>
+
+    <div class="contact-options">
+        <h2>Quick Contact Options</h2>
+        <div class="option-list">
+            <div class="option-item"><i class="fa-solid fa-credit-card"></i>
+                <p>Card Lost / Block</p>
+            </div>
+            <div class="option-item"><i class="fa-solid fa-lock"></i>
+                <p>Account Login Issue</p>
+            </div>
+            <div class="option-item"><i class="fa-solid fa-bug"></i>
+                <p>Report Fraud / Suspicious Activity</p>
+            </div>
+            <div class="option-item"><i class="fa-solid fa-circle-info"></i>
+                <p>Service Inquiry</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="contact-form">
+        <h2>Report an Issue / Raise a Request</h2>
+        <form id="supportForm">
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" required>
+
+            <label for="issue">Issue Type:</label>
+            <select id="issue" required>
+                <option value="">-- Select Issue --</option>
+                <option>Account Related</option>
+                <option>Card Lost / Block</option>
+                <option>Login Problem</option>
+                <option>Fraud / Dispute</option>
+                <option>General Inquiry</option>
+            </select>
+
+            <label for="message">Describe Your Issue:</label>
+            <textarea id="message" required></textarea>
+
+            <button type="submit">Submit Request</button>
+        </form>
+    </div>
+
+    <footer>© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</footer>
+
+    <script>
+        document.getElementById("supportForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            window.location.href = "Customersub.html";
+        });
+    </script>
+</body>
+
+</html>

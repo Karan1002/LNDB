@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Us - Lena Dena Bank (LNDB)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f4f8fb, #eaf2ff);
+            color: #003380;
+            min-height: 100vh;
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #004a8f;
+        }
+
+        .contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .contact-box {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 74, 143, 0.12);
+            padding: 25px 30px;
+            flex: 1 1 420px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.18);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .contact-info div {
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            color: #004a8f;
+        }
+
+        .contact-info i {
+            font-size: 22px;
+            color: #007bff;
+            margin-right: 12px;
+            width: 25px;
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input,
+        textarea {
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #c2d4ef;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        textarea {
+            resize: none;
+            height: 120px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #005ecb;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 700px) {
+            .contact-box {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Contact Lena Dena Bank (LNDB)</h1>
+
+    <div class="contact-container">
+
+        <div class="contact-box">
+            <h2 style="margin-bottom: 15px; color:#003380;">Get in Touch</h2>
+            <div class="contact-info">
+                <div><i class="fa-solid fa-location-dot"></i> LNDB Tower, Central Road, Mumbai - 400001</div>
+                <div><i class="fa-solid fa-phone"></i> +91 1800-123-4567 (Toll Free)</div>
+                <div><i class="fa-solid fa-envelope"></i> support@lndb.co.in</div>
+                <div><i class="fa-solid fa-clock"></i> Mon - Sat: 9:30 AM - 6:00 PM</div>
+            </div>
+
+            <h3 style="margin-top: 18px; color:#003380;">Follow Us</h3>
+            <div style="margin-top:10px;">
+                <a href="#" style="color:#007bff; margin-right:12px;"><i class="fab fa-facebook fa-lg"></i></a>
+                <a href="#" style="color:#007bff; margin-right:12px;"><i class="fab fa-twitter fa-lg"></i></a>
+                <a href="#" style="color:#007bff; margin-right:12px;"><i class="fab fa-instagram fa-lg"></i></a>
+                <a href="#" style="color:#007bff;"><i class="fab fa-linkedin fa-lg"></i></a>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            <h2 style="margin-bottom: 15px; color:#003380;">Send Us a Message</h2>
+            <form id="contactForm" onsubmit="sendMessage(event)">
+                <input type="text" id="name" placeholder="Your Name" required>
+                <input type="email" id="email" placeholder="Your Email" required>
+                <input type="text" id="subject" placeholder="Subject" required>
+                <textarea id="message" placeholder="Write your message here..." required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</footer>
+
+    <script>
+        function sendMessage(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            alert(`Thank you, ${name}! Your message has been sent successfully.`);
+            document.getElementById("contactForm").reset();
+        }
+    </script>
+</body>
+
+</html>

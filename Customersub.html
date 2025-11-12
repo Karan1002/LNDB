@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Customer Care Request Submitted - LNDB</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f8fb;
+            color: #004a8f;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #003380;
+            margin-bottom: 24px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .ref-box {
+            background-color: #eaf3ff;
+            border-left: 5px solid #236bbd;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #003380;
+        }
+
+        ul {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+        }
+
+        ul li {
+            margin: 12px 0;
+            font-size: 1.05rem;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #236bbd;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #174f85;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Your Customer Care Request Has Been Submitted!</h1>
+    <p>
+        Thank you for contacting <strong>Lena Dena Bank (LNDB)</strong>.<br>
+        Your support request has been successfully received. Our team will review it and respond soon.
+    </p>
+
+    <div class="ref-box">
+        Reference Number: <span id="refNo"></span>
+    </div>
+
+    <p>Please keep this reference number for future communication with our support team.</p>
+
+    <ul>
+        <li>Our representatives will contact you within 24 working hours.</li>
+        <li>You can track your request using the reference number above.</li>
+        <li>For urgent queries, call us at <strong>1800-123-4567</strong>.</li>
+        <li>Email support: <strong>care@lndb.co.in</strong></li>
+    </ul>
+
+    <button onclick="window.location.href='index.html'">Return to Home</button>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
+
+    <script>
+        const ref = 'CC' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('refNo').textContent = ref;
+    </script>
+</body>
+
+</html>

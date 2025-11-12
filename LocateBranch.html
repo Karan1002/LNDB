@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Locate Branch - Lena Dena Bank (LNDB)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #eaf3ff, #ffffff);
+            color: #003380;
+            min-height: 100vh;
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #004a8f;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        p.intro {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #004a8f;
+            margin-bottom: 35px;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+
+        .search-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 74, 143, 0.12);
+            padding: 15px 25px;
+            max-width: 700px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-container button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .branch-list {
+            margin-top: 35px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .branch-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 74, 143, 0.12);
+            padding: 20px 25px;
+            flex: 1 1 300px;
+            transition: all 0.3s ease;
+        }
+
+        .branch-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 74, 143, 0.18);
+        }
+
+        .branch-card h3 {
+            color: #003380;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .branch-card p {
+            color: #333;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .branch-card i {
+            color: #007bff;
+            margin-right: 6px;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 700px) {
+            .search-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container button {
+                width: 100%;
+            }
+
+            .branch-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Locate Nearest LNDB Branch</h1>
+    <p class="intro">Find your nearest Lena Dena Bank branch for easy access to our services. Enter your city or PIN
+        code to view nearby branches.</p>
+
+    <div class="search-container">
+        <input type="text" id="branchSearch" placeholder="Enter city or PIN code...">
+        <button onclick="searchBranch()">Search</button>
+    </div>
+
+    <div class="branch-list" id="branchList">
+        <div class="branch-card">
+            <h3><i class="fa-solid fa-location-dot"></i> Mumbai Main Branch</h3>
+            <p><i class="fa-solid fa-map-marker-alt"></i> LNDB Tower, Fort, Mumbai - 400001</p>
+            <p><i class="fa-solid fa-phone"></i> 022-4444-1234</p>
+            <p><i class="fa-solid fa-clock"></i> Mon–Sat: 9:30 AM – 5:30 PM</p>
+        </div>
+
+        <div class="branch-card">
+            <h3><i class="fa-solid fa-location-dot"></i> Delhi Connaught Place Branch</h3>
+            <p><i class="fa-solid fa-map-marker-alt"></i> 21-A CP Circle, New Delhi - 110001</p>
+            <p><i class="fa-solid fa-phone"></i> 011-5555-6789</p>
+            <p><i class="fa-solid fa-clock"></i> Mon–Sat: 9:30 AM – 5:30 PM</p>
+        </div>
+
+        <div class="branch-card">
+            <h3><i class="fa-solid fa-location-dot"></i> Pune Camp Branch</h3>
+            <p><i class="fa-solid fa-map-marker-alt"></i> 12 MG Road, Camp, Pune - 411001</p>
+            <p><i class="fa-solid fa-phone"></i> 020-3333-4567</p>
+            <p><i class="fa-solid fa-clock"></i> Mon–Sat: 9:30 AM – 5:30 PM</p>
+        </div>
+
+        <div class="branch-card">
+            <h3><i class="fa-solid fa-location-dot"></i> Ahmedabad SG Highway Branch</h3>
+            <p><i class="fa-solid fa-map-marker-alt"></i> Plot 19, SG Highway, Ahmedabad - 380015</p>
+            <p><i class="fa-solid fa-phone"></i> 079-2222-7890</p>
+            <p><i class="fa-solid fa-clock"></i> Mon–Sat: 9:30 AM – 5:30 PM</p>
+        </div>
+    </div>
+
+    <footer>© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</footer>
+
+    <script>
+        function searchBranch() {
+            const query = document.getElementById("branchSearch").value.toLowerCase();
+            const branches = document.querySelectorAll(".branch-card");
+            let found = false;
+            branches.forEach(branch => {
+                const text = branch.innerText.toLowerCase();
+                if (text.includes(query)) {
+                    branch.style.display = "block";
+                    found = true;
+                } else {
+                    branch.style.display = "none";
+                }
+            });
+            if (!found && query.trim() !== "") {
+                document.getElementById("branchList").innerHTML = `<p style="color:#003380;font-weight:600;">No branches found for "${query}". Please try another location.</p>`;
+            } else if (query.trim() === "") {
+                branches.forEach(branch => branch.style.display = "block");
+            }
+        }
+    </script>
+</body>
+
+</html>
