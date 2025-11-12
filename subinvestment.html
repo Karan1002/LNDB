@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Personal Loan Application Submitted</title>
+    <title>Investment Application Submitted</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,19 +25,6 @@
             text-align: center;
             font-size: 1.1rem;
             margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .ref-box {
-            background-color: #eaf3ff;
-            border-left: 5px solid #236bbd;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #003380;
         }
 
         ul {
@@ -49,7 +36,6 @@
 
         ul li {
             margin: 12px 0;
-            font-size: 1.05rem;
         }
 
         button {
@@ -57,16 +43,15 @@
             margin: 30px auto 0;
             padding: 12px 25px;
             font-size: 16px;
-            background-color: #236bbd;
+            background-color: #0056b3;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #174f85;
+            background-color: #003f7d;
         }
 
         .footer {
@@ -75,35 +60,42 @@
             margin-top: 30px;
             color: #555;
         }
+
+        .ref-box {
+            text-align: center;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #003380;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Your Personal Loan Application Has Been Submitted!</h1>
-    <p>Thank you for applying for a <strong>Personal Loan</strong> with
-        <strong>Lena Dena Bank (LNDB)</strong>.<br>
-        Your application has been successfully received.
-    </p>
-
-    <div class="ref-box">
-        Reference Number: <span id="refNo"></span>
-    </div>
-
-    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
+    <h1>Your Investment Application Has Been Submitted!</h1>
+    <div class="ref-box">Application Reference No: <span id="refNo"></span></div>
+    <p>Thank you for choosing <strong>Lena Dena Bank (LNDB)</strong> for your investment.</p>
+    <p>Please keep the following documents ready for verification:</p>
 
     <ul>
-        <li>Photo ID and Address Proof</li>
-        <li>Income Proof (Salary Slip or Bank Statement)</li>
-        <li>PAN Card</li>
-        <li>Employment Verification Letter</li>
-        <li>Recent Photograph</li>
+        <li>Valid Photo ID (Aadhaar / PAN / Passport)</li>
+        <li>Proof of Address</li>
+        <li>PAN Card (mandatory for investment verification)</li>
+        <li>Recent Bank Statement (3 months)</li>
+        <li>Recent Passport-size Photograph</li>
     </ul>
 
     <button onclick="window.location.href='index.html'">Return to Home</button>
-    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
+
+    <div class="footer">
+        © 2025 Lena Dena Bank (LNDB) — All Rights Reserved.
+    </div>
 
     <script>
-        const ref = 'PL' + Math.floor(100000 + Math.random() * 900000);
+        const ref = 'INV' + Math.floor(100000 + Math.random() * 900000);
         document.getElementById('refNo').textContent = ref;
     </script>
 </body>

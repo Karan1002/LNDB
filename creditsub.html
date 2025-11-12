@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Personal Loan Application Submitted</title>
+    <title>Credit Card Application Submitted</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,12 +13,26 @@
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
-            text-align: center;
             color: #003380;
-            margin-bottom: 24px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .ref-box {
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 10px auto 25px;
+            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            font-weight: bold;
+            color: #236bbd;
+            font-size: 1.1rem;
+            width: fit-content;
         }
 
         p {
@@ -28,23 +42,12 @@
             line-height: 1.6;
         }
 
-        .ref-box {
-            background-color: #eaf3ff;
-            border-left: 5px solid #236bbd;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #003380;
-        }
-
         ul {
             background: white;
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            list-style-type: disc;
         }
 
         ul li {
@@ -79,31 +82,29 @@
 </head>
 
 <body>
-    <h1>Your Personal Loan Application Has Been Submitted!</h1>
-    <p>Thank you for applying for a <strong>Personal Loan</strong> with
-        <strong>Lena Dena Bank (LNDB)</strong>.<br>
-        Your application has been successfully received.
-    </p>
+    <h1>Your Credit Card Application Has Been Submitted!</h1>
 
     <div class="ref-box">
-        Reference Number: <span id="refNo"></span>
+        Reference No: <span id="refNo">CC000000</span>
     </div>
 
-    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
+    <p>Thank you for applying for a <strong>Credit Card</strong> with <strong>Lena Dena Bank (LNDB)</strong>.<br>
+        Please visit your nearest branch and submit the following required documents to complete your verification:</p>
 
     <ul>
-        <li>Photo ID and Address Proof</li>
-        <li>Income Proof (Salary Slip or Bank Statement)</li>
-        <li>PAN Card</li>
-        <li>Employment Verification Letter</li>
-        <li>Recent Photograph</li>
+        <li>Valid Photo ID (Aadhar Card, Passport, or Voter ID)</li>
+        <li>Proof of Address (Utility Bill, Rent Agreement, etc.)</li>
+        <li>PAN Card or Tax Identification Number</li>
+        <li>Latest Salary Slip or Bank Statement (last 3 months)</li>
+        <li>Recent Passport Size Photograph</li>
     </ul>
 
     <button onclick="window.location.href='index.html'">Return to Home</button>
+
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
-        const ref = 'PL' + Math.floor(100000 + Math.random() * 900000);
+        const ref = 'CC' + Math.floor(100000 + Math.random() * 900000);
         document.getElementById('refNo').textContent = ref;
     </script>
 </body>

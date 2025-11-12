@@ -222,10 +222,12 @@
                             <option>Widowed</option>
                         </select>
                     </section>
+
                     <section>
                         <h3>Contact Information</h3>
                         <label for="mobile">Mobile Number</label>
-                        <input type="tel" id="mobile" name="mobile" placeholder="10-digit Mobile Number" pattern="[6-9]{1}[0-9]{9}" required>
+                        <input type="tel" id="mobile" name="mobile" placeholder="10-digit Mobile Number"
+                            pattern="[6-9]{1}[0-9]{9}" required>
                         <label for="email">Email Address</label>
                         <input type="email" id="email" name="email" required>
                         <label for="address">Permanent Address</label>
@@ -253,13 +255,18 @@
                         <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" required>
                     </section>
                 </div>
+
+                <!-- Right Column -->
                 <div>
                     <section>
                         <h3>Identity and Documents</h3>
                         <label for="aadhar">Aadhaar Number</label>
-                        <input type="text" id="aadhar" name="aadhar" placeholder="12-digit Aadhaar Number" pattern="[0-9]{12}" required>
+                        <input type="text" id="aadhar" name="aadhar" placeholder="12-digit Aadhaar Number"
+                            pattern="[0-9]{12}" required>
                         <label for="pan">PAN Number</label>
-                        <input type="text" id="pan" name="pan" placeholder="ABCDE1234F" pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
+                        <input type="text" id="pan" name="pan" placeholder="ABCDE1234F"
+                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
+
                         <label>Passport Size Photo
                             <div class="file-box" id="photoBox">
                                 <input type="file" id="photo" name="photo" accept="image/jpeg,image/png" required>
@@ -268,46 +275,57 @@
                                 <span class="file-error" id="photoError"></span>
                             </div>
                         </label>
+
                         <label>Aadhaar Card (PDF/Image)
                             <div class="file-box" id="aadharFileBox">
-                                <input type="file" id="aadharFile" name="aadharFile" accept=".pdf,image/jpeg,image/png" required>
+                                <input type="file" id="aadharFile" name="aadharFile" accept=".pdf,image/jpeg,image/png"
+                                    required>
                                 <span>Click to upload Aadhaar</span>
                                 <span class="file-name" id="aadharFileName"></span>
                                 <span class="file-error" id="aadharFileError"></span>
                             </div>
                         </label>
+
                         <label>PAN Card (PDF/Image)
                             <div class="file-box" id="panFileBox">
-                                <input type="file" id="panFile" name="panFile" accept=".pdf,image/jpeg,image/png" required>
+                                <input type="file" id="panFile" name="panFile" accept=".pdf,image/jpeg,image/png"
+                                    required>
                                 <span>Click to upload PAN</span>
                                 <span class="file-name" id="panFileName"></span>
                                 <span class="file-error" id="panFileError"></span>
                             </div>
                         </label>
+
                         <label>Signature (Image)
                             <div class="file-box" id="signatureFileBox">
-                                <input type="file" id="signatureFile" name="signatureFile" accept="image/jpeg,image/png" required>
+                                <input type="file" id="signatureFile" name="signatureFile" accept="image/jpeg,image/png"
+                                    required>
                                 <span>Click to upload Signature</span>
                                 <span class="file-name" id="signatureFileName"></span>
                                 <span class="file-error" id="signatureFileError"></span>
                             </div>
                         </label>
+
                         <label>Address Proof (PDF/Image)
                             <div class="file-box" id="addressProofFileBox">
-                                <input type="file" id="addressProofFile" name="addressProofFile" accept=".pdf,image/jpeg,image/png" required>
+                                <input type="file" id="addressProofFile" name="addressProofFile"
+                                    accept=".pdf,image/jpeg,image/png" required>
                                 <span>Click to upload Address Proof</span>
                                 <span class="file-name" id="addressProofFileName"></span>
                                 <span class="file-error" id="addressProofFileError"></span>
                             </div>
                         </label>
+
                         <label>Income Proof (Optional PDF/Image)
                             <div class="file-box" id="incomeProofFileBox">
-                                <input type="file" id="incomeProofFile" name="incomeProofFile" accept=".pdf,image/jpeg,image/png">
+                                <input type="file" id="incomeProofFile" name="incomeProofFile"
+                                    accept=".pdf,image/jpeg,image/png">
                                 <span>Click to upload Income Proof</span>
                                 <span class="file-name" id="incomeProofFileName"></span>
                             </div>
                         </label>
                     </section>
+
                     <section>
                         <h3>Account Preferences</h3>
                         <label for="branch">Preferred Branch Name</label>
@@ -344,7 +362,8 @@
                         </select>
                         <label class="checkbox">
                             <input type="checkbox" name="declaration" required>
-                            I hereby declare that all information provided is true and valid. I agree to abide by the bank's terms and conditions.
+                            I hereby declare that all information provided is true and valid. I agree to abide by the
+                            bank's terms and conditions.
                         </label>
                     </section>
                 </div>
@@ -354,6 +373,7 @@
             </div>
         </form>
     </div>
+
     <script>
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
@@ -386,7 +406,6 @@
             if (this.value) cityInput.value = this.value;
         });
 
-        // Improved File Upload Functionality
         const fileInputs = [
             { id: 'photo', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
             { id: 'aadharFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
@@ -402,7 +421,7 @@
             const errorSpan = document.getElementById(f.id + 'Error');
             const box = document.getElementById(f.id + 'Box');
             if (!input || !nameSpan || !errorSpan) return;
-            box.addEventListener('click', () => input.click()); // clicking box triggers input
+            box.addEventListener('click', () => input.click());
 
             input.addEventListener('change', function () {
                 if (input.files.length) {
@@ -429,7 +448,6 @@
         });
 
         document.getElementById('accountFormV2').addEventListener('submit', function (e) {
-            // Age eligibility check
             const dobInput = document.getElementById('dob').value;
             if (!dobInput) {
                 alert('Please enter your Date of Birth.');
@@ -465,7 +483,7 @@
             }
 
             e.preventDefault();
-            alert("Your Saving Account Application has been submitted successfully!");
+            window.location.href = "savingsub.html";
         });
     </script>
 </body>

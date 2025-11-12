@@ -8,8 +8,8 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f8fb;
-            color: #004a8f;
+            background-color: #fffaf0;
+            color: #5a4600;
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
@@ -17,36 +17,92 @@
         }
 
         h1 {
-            color: #003380;
             text-align: center;
+            color: #4d3a00;
             margin-bottom: 24px;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .ref-box {
+            background-color: #fff5cc;
+            border-left: 5px solid #d4af37;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #4d3a00;
         }
 
         ul {
             background: white;
             padding: 20px 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            box-shadow: 0 2px 10px rgba(100, 80, 0, 0.1);
             list-style-type: disc;
         }
 
         ul li {
             margin: 12px 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #bfa12f;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            color: #555;
         }
     </style>
 </head>
 
 <body>
-    <h1>Your Gold Loan Application Is Submitted Successfully!</h1>
-    <p>Please visit your bank and submit the following required documents for gold loan processing:</p>
+    <h1>Your Gold Loan Application Has Been Submitted!</h1>
+    <p>Thank you for applying for a <strong>Gold Loan</strong> with <strong>Lena Dena Bank (LNDB)</strong>.<br>
+        Please carry your gold articles and the following documents to your nearest LNDB branch:</p>
+
+    <div class="ref-box">
+        Reference Number: <span id="refNo"></span>
+    </div>
+
     <ul>
-        <li>Valid Photo ID (Aadhar Card, Passport, etc.)</li>
-        <li>Proof of Address (Utility Bill, Rent Agreement, etc.)</li>
-        <li>Gold Hallmark Certificate</li>
-        <li>Loan Application Form</li>
-        <li>PAN Card or Tax Identification Number</li>
+        <li>Valid Photo ID Proof (Aadhar, Passport, or Voter ID)</li>
+        <li>Address Proof (Utility Bill, Rent Agreement, etc.)</li>
+        <li>PAN Card</li>
+        <li>Recent Passport Size Photograph</li>
     </ul>
+
+    <button onclick="window.location.href='index.html'">Return to Home</button>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
+
+    <script>
+        const ref = 'GL' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('refNo').textContent = ref;
+    </script>
 </body>
 
 </html>

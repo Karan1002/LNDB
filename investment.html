@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Debit Card Application - LNDB</title>
+    <title>Investment Application - LNDB</title>
     <style>
         :root {
             --primary: #236bbd;
@@ -52,7 +52,8 @@
         }
 
         input,
-        select {
+        select,
+        textarea {
             width: 100%;
             padding: 11px 13px;
             margin-top: 5px;
@@ -65,7 +66,8 @@
         }
 
         input:focus,
-        select:focus {
+        select:focus,
+        textarea:focus {
             border-color: var(--primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.1);
@@ -91,60 +93,59 @@
             background: var(--primary-dark);
             transform: translateY(-1px);
         }
-
-        @media (max-width: 640px) {
-            .container {
-                padding: 30px 20px;
-                margin: 20px;
-            }
-
-            h2 {
-                font-size: 24px;
-            }
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>Debit Card Application</h2>
-        <form id="debitCardForm" novalidate>
+        <h2>Investment Application</h2>
+        <form id="investmentForm" novalidate>
             <label for="accountNumber">Account Number</label>
-            <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your bank account number"
+            <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your LNDB account number"
                 required />
 
             <label for="fullname">Full Name</label>
             <input type="text" id="fullname" name="fullname" placeholder="Your full name" required />
 
-            <label for="dob">Date of Birth</label>
-            <input type="date" id="dob" name="dob" required />
-
             <label for="email">Email Address</label>
             <input type="email" id="email" name="email" placeholder="you@example.com" required />
 
             <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" placeholder="+91-1234567890" required pattern="^\+?\d{10,15}$" />
+            <input type="tel" id="phone" name="phone" placeholder="+91-9876543210" required pattern="^\+?\d{10,15}$" />
 
-            <label for="address">Residential Address</label>
-            <input type="text" id="address" name="address" placeholder="Your full address" required />
-
-            <label for="debitCardType">Select Debit Card Type</label>
-            <select id="debitCardType" name="debitCardType" required>
-                <option value="">Choose card type</option>
-                <option value="mastercard">MasterCard</option>
-                <option value="visa">Visa</option>
-                <option value="maestro">Maestro</option>
-                <option value="rupay">RuPay</option>
+            <label for="investmentType">Investment Type</label>
+            <select id="investmentType" name="investmentType" required>
+                <option value="">Select Investment Type</option>
+                <option value="mutualfund">Mutual Fund</option>
+                <option value="sip">SIP (Systematic Investment Plan)</option>
+                <option value="goldbond">Gold Bond</option>
+                <option value="nps">NPS (Pension Plan)</option>
+                <option value="stocks">Stocks / Shares</option>
             </select>
+
+            <label for="investmentAmount">Investment Amount (₹)</label>
+            <input type="number" id="investmentAmount" name="investmentAmount" min="1000" placeholder="Minimum ₹1,000"
+                required />
+
+            <label for="tenure">Investment Tenure (Months)</label>
+            <input type="number" id="tenure" name="tenure" min="1" max="240" placeholder="Enter tenure in months"
+                required />
+
+            <label for="goal">Investment Goal (optional)</label>
+            <input type="text" id="goal" name="goal" placeholder="e.g., Retirement, Education, Home" />
+
+            <label for="remarks">Additional Remarks</label>
+            <textarea id="remarks" name="remarks" rows="3"
+                placeholder="Any additional information (optional)"></textarea>
 
             <button type="submit">Apply Now</button>
         </form>
     </div>
 
     <script>
-        document.getElementById('debitCardForm').addEventListener('submit', function (e) {
+        document.getElementById('investmentForm').addEventListener('submit', function (e) {
             e.preventDefault();
-            const inputs = this.querySelectorAll('input, select');
+            const inputs = this.querySelectorAll('input, select, textarea');
             let allValid = true;
             inputs.forEach(inp => {
                 if (!inp.checkValidity()) {
@@ -156,9 +157,9 @@
             });
 
             if (allValid) {
-                window.location.href = 'subdebitcard.html';
+                window.location.href = 'subinvestment.html';
             } else {
-                alert('Please fill out all required fields correctly before submitting.');
+                alert('⚠️ Please fill out all required fields correctly before submitting.');
             }
         });
     </script>

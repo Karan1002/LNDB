@@ -17,9 +17,29 @@
         }
 
         h1 {
-            color: #003380;
             text-align: center;
-            margin-bottom: 24px;
+            color: #003380;
+            margin-bottom: 10px;
+        }
+
+        .ref-box {
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 10px auto 25px;
+            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            font-weight: bold;
+            color: #007bff;
+            font-size: 1.1rem;
+            width: fit-content;
+        }
+
+        p {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
 
         ul {
@@ -27,27 +47,59 @@
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
-            list-style-type: disc;
         }
 
         ul li {
             margin: 12px 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005ecb;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            color: #555;
         }
     </style>
 </head>
 
 <body>
-    <h1>Your Education Loan Application Is Submitted Successfully!</h1>
-    <p>Please visit your bank and submit the following required documents for education loan processing:</p>
+    <h1>Your Education Loan Application Has Been Submitted!</h1>
+    <div class="ref-box">
+        Reference No: <span id="refNo">ED000000</span>
+    </div>
+    <p>Thank you for applying for an <strong>Education Loan</strong> with LNDB.<br>
+        Please submit these documents at your nearest branch:</p>
     <ul>
-        <li>Valid Photo ID (Aadhar Card, Passport, etc.)</li>
-        <li>Proof of Address (Utility Bill, Rent Agreement, etc.)</li>
-        <li>Loan Application Form</li>
-        <li>Admission Letter from Educational Institution</li>
-        <li>Fee Structure/Invoice</li>
-        <li>PAN Card or Tax Identification Number</li>
+        <li>Admission Letter from Institution</li>
+        <li>Fee Structure / Prospectus</li>
+        <li>Student and Co-applicant ID Proof</li>
+        <li>Income Proof of Co-applicant (Parent/Guardian)</li>
+        <li>Address Proof and PAN Card</li>
     </ul>
+    <button onclick="window.location.href='index.html'">Return to Home</button>
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
+
+    <script>
+        const ref = 'ED' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('refNo').textContent = ref;
+    </script>
 </body>
 
 </html>

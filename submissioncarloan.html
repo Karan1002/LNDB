@@ -22,6 +22,25 @@
             margin-bottom: 24px;
         }
 
+        p {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .ref-box {
+            background-color: #eaf3ff;
+            border-left: 5px solid #236bbd;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #003380;
+        }
+
         ul {
             background: white;
             padding: 20px 30px;
@@ -32,22 +51,65 @@
 
         ul li {
             margin: 12px 0;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+        }
+
+        button {
+            display: block;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #236bbd;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #174f85;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            color: #555;
         }
     </style>
 </head>
 
 <body>
-    <h1>Your Car Loan Application Is Submitted Successfully!</h1>
-    <p>Please visit your bank and submit the following required documents for car loan processing:</p>
+    <h1>Your Car Loan Application Has Been Submitted!</h1>
+
+    <p>Thank you for applying for a <strong>Car Loan</strong> with
+        <strong>Lena Dena Bank (LNDB)</strong>.<br>
+        Your loan application has been successfully received.
+    </p>
+
+    <div class="ref-box">
+        Reference Number: <span id="refNo"></span>
+    </div>
+
+    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
+
     <ul>
-        <li>Valid Photo ID (Aadhar Card, Passport, etc.)</li>
+        <li>Valid Photo ID (Aadhar, Passport, or Voter ID)</li>
         <li>Proof of Address (Utility Bill, Rent Agreement, etc.)</li>
-        <li>Income Proof (Salary Slip, Bank Statement)</li>
-        <li>Loan Application Form</li>
-        <li>Car Purchase Invoice/Bill</li>
-        <li>Car Registration Documents</li>
+        <li>Income Proof (Salary Slip or Bank Statement)</li>
+        <li>Car Quotation / Invoice</li>
+        <li>PAN Card</li>
     </ul>
+
+    <button onclick="window.location.href='index.html'">Return to Home</button>
+
+    <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
+
+    <script>
+        const ref = 'CL' + Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('refNo').textContent = ref;
+    </script>
 </body>
 
 </html>

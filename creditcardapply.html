@@ -108,10 +108,12 @@
 <body>
     <div class="form-container">
         <h2>Credit Card Application</h2>
-        <form id="creditCardForm" action="/submit-credit-card-application" method="post" novalidate>
+        <form id="creditCardForm" novalidate>
             <label for="accountNumber">Account Number</label>
-            <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your bank account number" required />
-            <div class="error-message" id="accountNumberError">Please enter a valid account number (minimum 8 digits).</div>
+            <input type="text" id="accountNumber" name="accountNumber" placeholder="Enter your bank account number"
+                required />
+            <div class="error-message" id="accountNumberError">Please enter a valid account number (minimum 8 digits).
+            </div>
 
             <label for="fullname">Full Name</label>
             <input type="text" id="fullname" name="fullname" placeholder="Your full name" required />
@@ -181,8 +183,9 @@
         document.getElementById('income').addEventListener('input', updateCardLimit);
 
         document.getElementById('creditCardForm').addEventListener('submit', function (e) {
-            let valid = true;
+            e.preventDefault(); // prevent normal form submission
 
+            let valid = true;
             document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
 
             const accNum = this.accountNumber.value.trim();
@@ -227,9 +230,10 @@
             }
 
             if (!valid) {
-                e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
             }
+            window.location.href = "creditsub.html";
         });
 
         updateCardLimit();
