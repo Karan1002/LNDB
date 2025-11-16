@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LNDB Login System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #013a78, #005bb5);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+
+        .modal {
+            background: #ffffff;
+            width: 90%;
+            max-width: 380px;
+            padding: 32px;
+            border-radius: 20px;
+            color: #003366;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            display: none;
+            animation: popIn .35s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .active {
+            display: block;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border-radius: 12px;
+            border: 2px solid #ccd9f2;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            border-color: #005bb5;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 91, 181, 0.4);
+        }
+
+        .eye {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #555;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            background: #ffcc00;
+            color: #003366;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: .3s ease;
+        }
+
+        button:hover {
+            background: #ffe076;
+        }
+
+        .switch {
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .switch a {
+            font-weight: 600;
+            cursor: pointer;
+            color: #005bb5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loginModal" class="modal active">
+        <h2>🔐 Login</h2>
+        <form id="loginForm">
+            <div class="input-box">
+                <input type="text" id="loginUsername" placeholder="Username" required>
+            </div>
+            <div class="input-box">
+                <input type="password" id="loginPassword" placeholder="Password" required>
+                <i class="fa-solid fa-eye eye" id="loginEye"></i>
+            </div>
+            <button type="submit">Login</button>
+            <p class="switch">New User? <a id="toRegister">Register Now</a></p>
+        </form>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <h2>📝 Register</h2>
+        <form id="registerForm">
+            <div class="input-box">
+                <input type="text" id="registerName" placeholder="Full Name" required>
+            </div>
+            <div class="input-box">
+                <input type="email" id="registerEmail" placeholder="Email" required>
+            </div>
+            <div class="input-box">
+                <input type="password" id="registerPassword" placeholder="Create Password" required>
+                <i class="fa-solid fa-eye eye" id="registerEye"></i>
+            </div>
+            <button type="submit">Register</button>
+            <p class="switch">Already a user? <a id="toLogin">Login Here</a></p>
+        </form>
+    </div>
+
+    <script>
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const toRegister = document.getElementById('toRegister');
+        const toLogin = document.getElementById('toLogin');
+
+        toRegister.onclick = () => {
+            loginModal.classList.remove("active");
+            registerModal.classList.add("active");
+        };
+        toLogin.onclick = () => {
+            registerModal.classList.remove("active");
+            loginModal.classList.add("active");
+        };
+
+        document.getElementById('loginEye').onclick = () => {
+            let p = document.getElementById('loginPassword');
+            p.type = p.type === "password" ? "text" : "password";
+        }
+        document.getElementById('registerEye').onclick = () => {
+            let p = document.getElementById('registerPassword');
+            p.type = p.type === "password" ? "text" : "password";
+        }
+
+        document.getElementById("registerForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const fullName = document.getElementById("registerName").value;
+
+            localStorage.setItem("lndbCurrentUser", fullName);
+
+            window.location.href = "index.html";
+        });
+
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const username = document.getElementById("loginUsername").value;
+
+            localStorage.setItem("lndbCurrentUser", username);
+
+            window.location.href = "index.html";
+        });
+    </script>
+
+
+</body>
+
+</html>

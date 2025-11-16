@@ -372,149 +372,6 @@
                 justify-content: flex-start;
             }
         }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 51, 102, 0.6);
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #ffffff;
-            padding: 32px 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s ease;
-            text-align: center;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(60px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-content h2 {
-            color: #004a8f;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 45px 12px 15px;
-            border: 2px solid #d0d7e6;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input:focus {
-            border-color: #004a8f;
-            box-shadow: 0 0 8px rgba(0, 74, 143, 0.3);
-            outline: none;
-        }
-
-        .input-group .icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            font-size: 1rem;
-            color: #004a8f;
-        }
-
-        .remember-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-
-        .remember-row a {
-            color: #004a8f;
-            text-decoration: underline;
-            font-weight: 600;
-        }
-
-        .modal-actions button {
-            background: linear-gradient(135deg, #ffd84d, #ffcc00);
-            color: #003366;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            width: 100%;
-            transition: 0.3s ease;
-        }
-
-        .modal-actions button:hover {
-            background: linear-gradient(135deg, #ffe580, #f0c200);
-            box-shadow: 0 6px 16px rgba(255, 204, 0, 0.4);
-        }
-
-        .switch-form {
-            margin-top: 18px;
-            font-size: 0.9rem;
-        }
-
-        .switch-form a {
-            color: #004a8f;
-            font-weight: 600;
-            text-decoration: underline;
-        }
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #004a8f;
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 10px;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            font-weight: 600;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
     </style>
 </head>
 
@@ -523,25 +380,19 @@
         <div class="scroll-container">
             <div class="scroll-text">Welcome to Lena Dena Bank (LNDB)</div>
         </div>
-
-        <div class="links" id="authLinks">
-            <a href="#" id="openLogin">Login</a>
-            <a href="#" id="openRegister">Register</a>
-        </div>
-        <div class="links" id="userMenu" style="display:none">
-            <span id="welcomeUser"></span>
-            <a href="#" id="logoutBtn">Logout</a>
-        </div>
     </div>
 
     <header>
         <div class="logo"><img src="LNDB.PNG" alt="LNDB"><strong>LNDB</strong></div>
         <div class="header-center"><input type="search" placeholder="Search services..."></div>
         <div class="header-right">
-            <a href="CustomerCare.html">Customer Care</a>
-            <a href="LocateBranch.html">Locate Branch</a>
-            <a href="LNDBOnlineBanking.html">Online Banking</a>
+            <span id="usernameDisplay" style="display:none; font-weight:700; margin-right:10px;"></span>
+            <button id="logoutBtn" onclick="logoutUser()"
+                style="display:none;background:#ffcc00;padding:8px 14px;border-radius:10px;">Logout</button>
+
+            <a id="loginLink" href="login.html">Login</a>
         </div>
+
     </header>
 
     <nav>
@@ -559,8 +410,7 @@
     <section class="banner">
         <div class="banner-content">
             <div class="banner-buttons">
-                <button class="btn-primary" onclick="window.location.href='Optionsbank.html'">Open an
-                    Account</button>
+                <button class="btn-primary" onclick="window.location.href='Optionsbank.html'">Open an Account</button>
                 <button class="btn-secondary" onclick="window.location.href='Selectcardtype.html'">Apply for
                     Loan</button>
             </div>
@@ -612,134 +462,41 @@
         </section>
     </main>
 
-    <footer style="text-align:center;padding:14px;background:#003366;color:#fff">&copy; 2025 Lena Dena Bank. All rights
-        reserved.</footer>
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <h2>🔐 Login</h2>
-            <form id="loginForm">
-                <div class="input-group"><input id="loginUsername" type="text" placeholder="Email or Name" required>
-                </div>
-                <div class="input-group">
-                    <input id="loginPassword" type="password" placeholder="Password" required>
-                    <button type="button" class="icon" data-target="loginPassword"><i class="fa fa-eye"></i></button>
-                </div>
-                <div class="remember-row">
-                    <label><input type="checkbox" id="rememberMe"> Remember me</label>
-                    <a href="#" id="forgotPasswordLink">Forgot password?</a>
-                </div>
-                <div class="modal-actions"><button type="submit">Login</button></div>
-                <div class="switch-form">New user? <a href="#" id="switchToRegister">Create account</a></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <h2>📝 Register</h2>
-            <form id="registerForm">
-                <div class="input-group"><input id="registerName" type="text" placeholder="Full Name" required></div>
-                <div class="input-group"><input id="registerEmail" type="email" placeholder="Email" required></div>
-                <div class="input-group">
-                    <input id="registerPassword" type="password" placeholder="Create Password" required>
-                    <button type="button" class="icon" data-target="registerPassword"><i class="fa fa-eye"></i></button>
-                </div>
-                <div class="modal-actions"><button type="submit">Register</button></div>
-                <div class="switch-form">Already have an account? <a href="#" id="switchToLogin">Login here</a></div>
-            </form>
-        </div>
-    </div>
-
-    <div id="forgotModal" class="modal">
-        <div class="modal-content">
-            <h2>🔑 Reset Password</h2>
-            <form id="forgotForm">
-                <div class="input-group"><input id="forgotEmail" type="email" placeholder="Enter your registered email"
-                        required></div>
-                <div class="modal-actions"><button type="submit">Reset</button></div>
-                <div class="switch-form"><a href="#" id="backToLogin">Back to Login</a></div>
-            </form>
-        </div>
-    </div>
-
-    <button id="backToTop">⬆</button>
-    <div id="toast" class="toast"></div>
+    <footer style="text-align:center;padding:14px;background:#003366;color:#fff">
+        &copy; 2025 Lena Dena Bank. All rights reserved.
+    </footer>
 
     <script>
-        const openLogin = document.getElementById('openLogin');
-        const openRegister = document.getElementById('openRegister');
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const forgotModal = document.getElementById('forgotModal');
-        const switchToRegister = document.getElementById('switchToRegister');
-        const switchToLogin = document.getElementById('switchToLogin');
-        const forgotLink = document.getElementById('forgotPasswordLink');
-        const backToLogin = document.getElementById('backToLogin');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const forgotForm = document.getElementById('forgotForm');
-        const authLinks = document.getElementById('authLinks');
-        const userMenu = document.getElementById('userMenu');
-        const welcomeUser = document.getElementById('welcomeUser');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const toast = document.getElementById('toast');
-        const backToTop = document.getElementById('backToTop');
-        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
-        function openModal(m) { m.classList.add('active'); document.body.style.overflow = 'hidden'; }
-        function closeModal(m) { m.classList.remove('active'); document.body.style.overflow = ''; }
-        openLogin.onclick = e => { e.preventDefault(); openModal(loginModal) };
-        openRegister.onclick = e => { e.preventDefault(); openModal(registerModal) };
-        switchToRegister.onclick = e => { e.preventDefault(); closeModal(loginModal); openModal(registerModal) };
-        switchToLogin.onclick = e => { e.preventDefault(); closeModal(registerModal); openModal(loginModal) };
-        forgotLink.onclick = e => { e.preventDefault(); closeModal(loginModal); openModal(forgotModal) };
-        backToLogin.onclick = e => { e.preventDefault(); closeModal(forgotModal); openModal(loginModal) };
-        window.onclick = e => { if (e.target.classList.contains('modal')) closeModal(e.target) };
-        window.onkeydown = e => { if (e.key === 'Escape') document.querySelectorAll('.modal.active').forEach(m => closeModal(m)) };
-        document.querySelectorAll('.icon[data-target]').forEach(btn => {
-            btn.onclick = () => {
-                const id = btn.dataset.target; const inp = document.getElementById(id);
-                if (inp.type === 'password') { inp.type = 'text'; btn.firstElementChild.classList.replace('fa-eye', 'fa-eye-slash') }
-                else { inp.type = 'password'; btn.firstElementChild.classList.replace('fa-eye-slash', 'fa-eye') }
+        function checkLogin() {
+            const user = localStorage.getItem("lndbCurrentUser");
+            if (user) {
+                document.getElementById("usernameDisplay").innerText = "Welcome, " + user;
+                document.getElementById("usernameDisplay").style.display = "inline-block";
+                document.getElementById("logoutBtn").style.display = "inline-block";
+                document.getElementById("loginLink").style.display = "none";
+
+                document.getElementById("usernameDisplay").style.cursor = "pointer";
+                document.getElementById("usernameDisplay").onclick = () => {
+                    window.location.href = "profile.html";
+                };
+            } else {
+                document.getElementById("usernameDisplay").style.display = "none";
+                document.getElementById("logoutBtn").style.display = "none";
+                document.getElementById("loginLink").style.display = "inline-block";
             }
-        });
-        function loadUsers() { return JSON.parse(localStorage.getItem('lndbUsers') || '[]'); }
-        function saveUsers(u) { localStorage.setItem('lndbUsers', JSON.stringify(u)); }
-        function showUserMenu(n) { authLinks.style.display = 'none'; userMenu.style.display = 'flex'; welcomeUser.textContent = `👋 Welcome, ${n}`; }
-        function hideUserMenu() { authLinks.style.display = ''; userMenu.style.display = 'none'; }
-        const current = localStorage.getItem('rememberUser') || localStorage.getItem('lndbCurrentUser');
-        if (current) showUserMenu(current);
-        registerForm.onsubmit = e => {
-            e.preventDefault();
-            const name = registerName.value.trim(), email = registerEmail.value.trim().toLowerCase(), pass = registerPassword.value;
-            if (!name || !email || !pass) { showToast('⚠️ Fill all fields'); return; }
-            const users = loadUsers(); if (users.some(u => u.email === email)) { showToast('⚠️ Email already exists'); return; }
-            users.push({ name, email, password: pass }); saveUsers(users); showToast('🎉 Registration successful'); closeModal(registerModal); showUserMenu(name);
-        };
-        loginForm.onsubmit = e => {
-            e.preventDefault();
-            const uname = loginUsername.value.trim(), pass = loginPassword.value; const remember = rememberMe.checked;
-            const users = loadUsers();
-            const user = users.find(u => (u.email === uname.toLowerCase() || u.name.toLowerCase() === uname.toLowerCase()) && u.password === pass);
-            if (!user) { showToast('❌ Invalid login'); return; }
-            showToast('✅ Logged in'); closeModal(loginModal); showUserMenu(user.name);
-            localStorage.setItem(remember ? 'rememberUser' : 'lndbCurrentUser', user.name);
-        };
-        logoutBtn.onclick = e => { e.preventDefault(); hideUserMenu(); localStorage.removeItem('lndbCurrentUser'); localStorage.removeItem('rememberUser'); showToast('👋 Logged out'); };
-        forgotForm.onsubmit = e => {
-            e.preventDefault();
-            const email = forgotEmail.value.trim().toLowerCase();
-            const users = loadUsers(); const user = users.find(u => u.email === email);
-            if (!user) { showToast('❌ Email not found'); return; }
-            const newPass = prompt('Enter new password:');
-            if (!newPass) return;
-            user.password = newPass; saveUsers(users); showToast('🔑 Password reset successful'); closeModal(forgotModal); openModal(loginModal);
-        };
-        document.querySelectorAll('.accordion-header').forEach(h => {
-            h.onclick = () => { h.classList.toggle('open'); const c = h.nextElementSibling; c.style.display = c.style.display === 'block' ? 'none' : 'block'; };
-        });
-        window.onscroll = () => { backToTop.style.display = window.scrollY > 240 ? 'block' : 'none'; };
-        backToTop.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function logoutUser() {
+            localStorage.removeItem("lndbCurrentUser");
+            setTimeout(() => {
+                window.location.replace("login.html");
+            }, 200);
+        }
+
+        checkLogin();
     </script>
+
+
 </body>
 
 </html>
