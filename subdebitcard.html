@@ -107,9 +107,21 @@
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
-        const ref = 'DC' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('refNo').textContent = ref;
+        window.onload = function () {
+
+            const ref = localStorage.getItem("latestDebitRef");
+
+            if (ref) {
+                document.getElementById("refNo").textContent = ref;
+            } else {
+                document.getElementById("refNo").textContent = "N/A";
+            }
+
+        };
     </script>
+
+
+
 </body>
 
 </html>

@@ -448,43 +448,55 @@
         });
 
         document.getElementById('accountFormV2').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Age validation (same as previous)
             const dobInput = document.getElementById('dob').value;
-            if (!dobInput) {
-                alert('Please enter your Date of Birth.');
-                e.preventDefault();
-                return;
-            }
             const dob = new Date(dobInput);
             const today = new Date();
             let age = today.getFullYear() - dob.getFullYear();
             const month = today.getMonth() - dob.getMonth();
-            if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) {
-                age--;
-            }
+            if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
 
             if (age < 18) {
                 alert('You must be at least 18 years old to open a bank account.');
-                e.preventDefault();
                 return;
             }
 
-            let valid = true;
-            fileInputs.forEach(f => {
-                const input = document.getElementById(f.id);
-                const errorSpan = document.getElementById(f.id + 'Error');
-                if (input.hasAttribute('required') && !input.files.length) {
-                    valid = false;
-                    errorSpan.textContent = 'Please upload the required file.';
-                }
-            });
-            if (!valid) {
-                e.preventDefault();
-                return;
-            }
+            // Collect form data
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                fatherName: document.getElementById('fatherName').value,
+                motherName: document.getElementById('motherName').value,
+                dob: dobInput,
+                gender: document.getElementById('gender').value,
+                maritalStatus: document.getElementById('maritalStatus').value,
+                mobile: document.getElementById('mobile').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                state: document.getElementById('state').value,
+                district: document.getElementById('district').value,
+                city: document.getElementById('city').value,
+                pincode: document.getElementById('pincode').value,
+                aadhar: document.getElementById('aadhar').value,
+                pan: document.getElementById('pan').value,
+                branch: document.getElementById('branch').value,
+                nomineeName: document.getElementById('nomineeName').value,
+                nomineeRelation: document.getElementById('nomineeRelation').value,
+                nomineeDOB: document.getElementById('nomineeDOB').value,
+                accountType: document.getElementById('accountType').value,
+                status: "Pending"
+            };
 
-            e.preventDefault();
+
+            let apps = JSON.parse(localStorage.getItem("accountApplications")) || [];
+            apps.push(formData);
+            localStorage.setItem("accountApplications", JSON.stringify(apps));
+
+            alert("Application Submitted Successfully!");
             window.location.href = "savingsub.html";
         });
+
     </script>
 </body>
 

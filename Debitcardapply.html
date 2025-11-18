@@ -91,17 +91,6 @@
             background: var(--primary-dark);
             transform: translateY(-1px);
         }
-
-        @media (max-width: 640px) {
-            .container {
-                padding: 30px 20px;
-                margin: 20px;
-            }
-
-            h2 {
-                font-size: 24px;
-            }
-        }
     </style>
 </head>
 
@@ -131,10 +120,10 @@
             <label for="debitCardType">Select Debit Card Type</label>
             <select id="debitCardType" name="debitCardType" required>
                 <option value="">Choose card type</option>
-                <option value="mastercard">MasterCard</option>
-                <option value="visa">Visa</option>
-                <option value="maestro">Maestro</option>
-                <option value="rupay">RuPay</option>
+                <option value="MasterCard">MasterCard</option>
+                <option value="Visa">Visa</option>
+                <option value="Maestro">Maestro</option>
+                <option value="RuPay">RuPay</option>
             </select>
 
             <button type="submit">Apply Now</button>
@@ -142,26 +131,83 @@
     </div>
 
     <script>
-        document.getElementById('debitCardForm').addEventListener('submit', function (e) {
+
+        function generateRefNo() {
+            return "DC" + Math.floor(100000 + Math.random() * 900000);
+        }
+
+        // 🎯 SET CORRECT DATE LIMITS FOR DOB
+        const dobInput = document.getElementById("dob");
+
+        let today = new Date();
+        today.setFullYear(today.getFullYear() - 18); // Minimum age: 18+
+        dobInput.max = today.toISOString().split("T")[0];
+
+        let minDate = new Date();
+        minDate.setFullYear(minDate.getFullYear() - 100); // Max age: 100 yrs
+        dobInput.min = minDate.toISOString().split("T")[0];
+
+        document.getElementById("debitCardForm").addEventListener("submit", function (e) {
             e.preventDefault();
-            const inputs = this.querySelectorAll('input, select');
-            let allValid = true;
-            inputs.forEach(inp => {
-                if (!inp.checkValidity()) {
-                    inp.style.borderColor = 'red';
-                    allValid = false;
-                } else {
-                    inp.style.borderColor = '';
-                }
+
+            const account = document.getElementById("accountNumber").value.trim();
+            const fullname = document.getElementById("fullname").value.trim();
+            const dob = document.getElementById("dob").value;
+            const email = document.getElementById("email").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const address = document.getElementById("address").value.trim();
+            const cardType = document.getElementById("debitCardType").value;
+
+            if (!account || !fullname || !dob || !email || !phone || !address || !cardType) {
+                alert("Please fill all fields!");
+                return;
+            }
+
+            if (!/^\d{12}$/.test(account)) {
+                alert("Account Number must be exactly 12 digits!");
+                return;
+            }
+
+            if (!/^\d{10}$/.test(phone)) {
+                alert("Phone Number must be exactly 10 digits!");
+                return;
+            }
+
+            // 🧮 Age Validation 18+
+            const birthDate = new Date(dob);
+            const ageDiff = Date.now() - birthDate.getTime();
+            const age = new Date(ageDiff).getUTCFullYear() - 1970;
+
+            if (age < 18) {
+                alert("You must be at least 18 years old to apply for a Debit Card!");
+                return;
+            }
+
+            let applications = JSON.parse(localStorage.getItem("lndbApplications")) || [];
+
+            const refNo = generateRefNo();
+
+            applications.push({
+                refNo,
+                name: fullname,
+                dob,
+                email,
+                account,
+                phone,
+                address,
+                type: cardType + " Debit Card",
+                status: "Pending",
+                date: new Date().toLocaleDateString()
             });
 
-            if (allValid) {
-                window.location.href = 'subdebitcard.html';
-            } else {
-                alert('Please fill out all required fields correctly before submitting.');
-            }
+            localStorage.setItem("lndbApplications", JSON.stringify(applications));
+            localStorage.setItem("latestDebitRef", refNo);
+            window.location.href = "subdebitcard.html";
         });
+
     </script>
+
+
 </body>
 
 </html>

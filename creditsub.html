@@ -85,11 +85,13 @@
     <h1>Your Credit Card Application Has Been Submitted!</h1>
 
     <div class="ref-box">
-        Reference No: <span id="refNo">CC000000</span>
+        Reference No: <span id="refNo">Loading...</span>
     </div>
 
-    <p>Thank you for applying for a <strong>Credit Card</strong> with <strong>Lena Dena Bank (LNDB)</strong>.<br>
-        Please visit your nearest branch and submit the following required documents to complete your verification:</p>
+    <p>Thank you for applying for a <strong>Credit Card</strong> with
+        <strong>Lena Dena Bank (LNDB)</strong>.
+        Keep your reference number safe — our team will contact you soon for further verification.
+    </p>
 
     <ul>
         <li>Valid Photo ID (Aadhar Card, Passport, or Voter ID)</li>
@@ -104,9 +106,20 @@
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
-        const ref = 'CC' + Math.floor(100000 + Math.random() * 900000);
-        document.getElementById('refNo').textContent = ref;
+        window.onload = function () {
+            const savedRef = localStorage.getItem("lastCreditRef");
+
+            if (savedRef) {
+                document.getElementById("refNo").textContent = savedRef;
+            } else {
+                document.getElementById("refNo").textContent = "Unavailable";
+            }
+
+            // Optional cleanup
+            localStorage.removeItem("lastCreditRef");
+        };
     </script>
+
 </body>
 
 </html>

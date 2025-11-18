@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin Panel - LNDB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef4ff;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #003366;
+        }
+
+        table {
+            width: 100%;
+            background: #fff;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            border: 1px solid #aac4ff;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background: #005bb5;
+            color: white;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: none;
+            margin-right: 6px;
+            margin-top: 6px;
+        }
+
+        .tab-btn {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-accept {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .btn-reject {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        #logoutBtn {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background: darkred;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #searchBar {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #888;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        .sub-tab {
+            margin-top: 10px;
+        }
+
+        .sub-section {
+            display: none;
+        }
+
+        .sub-section.active {
+            display: block;
+        }
+
+        /* Responsive design */
+        @media (max-width: 780px) {
+            body {
+                padding: 5px;
+            }
+
+            #searchBar {
+                width: 100%;
+            }
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+                width: 100%;
+            }
+
+            th,
+            td {
+                text-align: left;
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            th {
+                background: #2563eb;
+                color: #fff;
+            }
+
+            .btn,
+            .tab-btn,
+            .btn-accept,
+            .btn-reject {
+                margin-top: 8px;
+                width: 100%;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>📋 LNDB — Admin Control Panel</h2>
+    <button id="logoutBtn" onclick="adminLogout()">Logout</button>
+    <input type="text" id="searchBar" placeholder="🔍 Search by Ref No / Name / Phone" onkeyup="searchApplication()" />
+    <br /><br />
+
+    <div>
+        <button class="btn tab-btn" onclick="showMainSection('loanSection')">Loan Requests</button>
+        <button class="btn tab-btn" onclick="showMainSection('cardApplySection')">Card Apply Request</button>
+        <button class="btn tab-btn" onclick="showMainSection('accountSection')">Account Opening Requests</button>
+        <button class="btn tab-btn" onclick="showMainSection('investmentSection')">Investment Requests</button>
+    </div>
+
+    <!-- LOAN REQUESTS -->
+    <div id="loanSection" class="section active">
+        <div class="sub-tab">
+            <button class="btn tab-btn" onclick="showSubSection('loanPending')">Pending</button>
+            <button class="btn tab-btn" onclick="showSubSection('loanAccepted')">Accepted</button>
+            <button class="btn tab-btn" onclick="showSubSection('loanRejected')">Rejected</button>
+        </div>
+        <div id="loanPending" class="sub-section active">
+            <h3>⏳ Pending Loan Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Type of Loan</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="loanPendingBody"></tbody>
+            </table>
+        </div>
+        <div id="loanAccepted" class="sub-section">
+            <h3>✔ Accepted Loan Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Type of Loan</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="loanAcceptedBody"></tbody>
+            </table>
+        </div>
+        <div id="loanRejected" class="sub-section">
+            <h3>❌ Rejected Loan Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Type of Loan</th>
+                        <th>Phone</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="loanRejectedBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CARD APPLICATIONS -->
+    <div id="cardApplySection" class="section">
+        <div class="sub-tab">
+            <button class="btn tab-btn" onclick="showCardTypeSection('debitCardSection')">Debit Card Requests</button>
+            <button class="btn tab-btn" onclick="showCardTypeSection('creditCardSection')">Credit Card Requests</button>
+        </div>
+
+        <!-- Debit Card Requests -->
+        <div id="debitCardSection" class="card-type-section active">
+            <div class="sub-tab">
+                <button class="btn tab-btn" onclick="showSubSection('dcPending')">Pending</button>
+                <button class="btn tab-btn" onclick="showSubSection('dcAccepted')">Accepted</button>
+                <button class="btn tab-btn" onclick="showSubSection('dcRejected')">Rejected</button>
+            </div>
+            <div id="dcPending" class="sub-section active">
+                <h3>⏳ Pending Debit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dcPendingBody"></tbody>
+                </table>
+            </div>
+            <div id="dcAccepted" class="sub-section">
+                <h3>✔ Accepted Debit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="dcAcceptedBody"></tbody>
+                </table>
+            </div>
+            <div id="dcRejected" class="sub-section">
+                <h3>❌ Rejected Debit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Status</th>
+                        </tr>
+
+                    </thead>
+                    <tbody id="dcRejectedBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Credit Card Requests -->
+        <div id="creditCardSection" class="card-type-section" style="display:none;">
+            <div class="sub-tab">
+                <button class="btn tab-btn" onclick="showCreditSubSection('ccPending')">Pending</button>
+                <button class="btn tab-btn" onclick="showCreditSubSection('ccAccepted')">Accepted</button>
+                <button class="btn tab-btn" onclick="showCreditSubSection('ccRejected')">Rejected</button>
+            </div>
+            <div id="ccPending" class="sub-section active">
+                <h3>⏳ Pending Credit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Annual Limit</th>
+                            <th>Action </th>
+                        </tr>
+                    </thead>
+                    <tbody id="ccPendingBody"></tbody>
+                </table>
+            </div>
+            <div id="ccAccepted" class="sub-section">
+                <h3>✔ Accepted Credit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Annual Limit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ccAcceptedBody"></tbody>
+                </table>
+            </div>
+            <div id="ccRejected" class="sub-section">
+                <h3>❌ Rejected Credit Card Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No</th>
+                            <th>Name</th>
+                            <th>Account No</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>DOB</th>
+                            <th>Address</th>
+                            <th>Card Type</th>
+                            <th>Annual Limit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ccRejectedBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT OPENING -->
+    <div id="accountSection" class="section">
+        <div class="sub-tab">
+            <button class="btn tab-btn" onclick="showSubSection('accPending')">Pending</button>
+            <button class="btn tab-btn" onclick="showSubSection('accAccepted')">Accepted</button>
+            <button class="btn tab-btn" onclick="showSubSection('accRejected')">Rejected</button>
+        </div>
+        <div id="accPending" class="sub-section active">
+            <h3>⏳ Pending Account Opening Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="accPendingBody"></tbody>
+            </table>
+        </div>
+        <div id="accAccepted" class="sub-section">
+            <h3>✔ Accepted Account Opening Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody id="accAcceptedBody"></tbody>
+            </table>
+        </div>
+        <div id="accRejected" class="sub-section">
+            <h3>❌ Rejected Account Opening Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                    </tr>
+                </thead>
+                <tbody id="accRejectedBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- INVESTMENTS -->
+    <div id="investmentSection" class="section">
+        <div class="sub-tab">
+            <button class="btn tab-btn" onclick="showSubSection('invPending')">Pending</button>
+            <button class="btn tab-btn" onclick="showSubSection('invAccepted')">Accepted</button>
+            <button class="btn tab-btn" onclick="showSubSection('invRejected')">Rejected</button>
+        </div>
+        <div id="invPending" class="sub-section active">
+            <h3>⏳ Pending Investment Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invPendingBody"></tbody>
+            </table>
+        </div>
+        <div id="invAccepted" class="sub-section">
+            <h3>✔ Accepted Investment Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="invAcceptedBody"></tbody>
+            </table>
+        </div>
+        <div id="invRejected" class="sub-section">
+            <h3>❌ Rejected Investment Requests</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ref No</th>
+                        <th>Name</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="invRejectedBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", loadAll);
+
+        // Main section show/hide
+        function showMainSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Sub-section show/hide general
+        function showSubSection(id) {
+            // Hide all sub-sections except Credit Card sections which use separate function
+            document.querySelectorAll('.sub-section').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+
+        // Sub-section show/hide for Credit Card requests only
+        function showCreditSubSection(id) {
+            const creditCardSection = document.getElementById('creditCardSection');
+            creditCardSection.querySelectorAll('.sub-section').forEach(s => s.classList.remove('active'));
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+        }
+
+        // Card type section switch (Debit or Credit)
+        function showCardTypeSection(id) {
+            const debitSection = document.getElementById('debitCardSection');
+            const creditSection = document.getElementById('creditCardSection');
+            if (id === 'debitCardSection') {
+                debitSection.style.display = 'block';
+                creditSection.style.display = 'none';
+                // Reset Debit Card default inner sub-section
+                showSubSection('dcPending');
+            } else {
+                debitSection.style.display = 'none';
+                creditSection.style.display = 'block';
+                // Reset Credit Card default inner sub-section
+                showCreditSubSection('ccPending');
+            }
+        }
+
+        // Logout function
+        function adminLogout() {
+            localStorage.removeItem("lndbCurrentAdmin");
+            window.location.href = "login.html";
+        }
+
+        // Load all data on start
+        function loadAll() {
+            loadLoans();
+            loadDC();
+            loadCreditCards();
+            loadAccounts();
+            loadInvestments();
+        }
+
+        // --- Loans ---
+        function loadLoans() {
+            let loans = JSON.parse(localStorage.getItem("lndbBusinessLoans")) || [];
+            const pend = document.getElementById("loanPendingBody");
+            const acc = document.getElementById("loanAcceptedBody");
+            const rej = document.getElementById("loanRejectedBody");
+            pend.innerHTML = acc.innerHTML = rej.innerHTML = "";
+            loans.forEach((l, i) => {
+                let name = l.ownerName || l.businessName || "";
+                let loanType = l.loanType || "";
+                let phone = l.phone || "";
+                let ref = l.refNo || "";
+                let amount = l.loanAmount || "";
+                if (!l.status || l.status === "Pending") {
+                    pend.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td>
+                            <td>${name}</td>
+                            <td>${loanType}</td>
+                            <td>${phone}</td>
+                            <td>${amount}</td>
+                            <td>
+                                <button class="btn btn-accept" onclick="updateLoan(${i},'Accepted')">Accept</button>
+                                <button class="btn btn-reject" onclick="updateLoan(${i},'Rejected')">Reject</button>
+                            </td>
+                        </tr>`);
+                }
+                if (l.status === "Accepted") {
+                    acc.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td>
+                            <td>${name}</td>
+                            <td>${loanType}</td>
+                            <td>${phone}</td>
+                            <td>${amount}</td>
+                        </tr>`);
+                }
+                if (l.status === "Rejected") {
+                    rej.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td>
+                            <td>${name}</td>
+                            <td>${loanType}</td>
+                            <td>${phone}</td>
+                            <td>${amount}</td>
+                        </tr>`);
+                }
+            });
+        }
+        function updateLoan(i, status) {
+            let loans = JSON.parse(localStorage.getItem("lndbBusinessLoans")) || [];
+            loans[i].status = status;
+            localStorage.setItem("lndbBusinessLoans", JSON.stringify(loans));
+            loadLoans();
+        }
+
+        function loadDC() {
+            let apps = JSON.parse(localStorage.getItem("lndbApplications")) || [];
+            const pend = document.getElementById("dcPendingBody");
+            const acc = document.getElementById("dcAcceptedBody");
+            const rej = document.getElementById("dcRejectedBody");
+
+            pend.innerHTML = acc.innerHTML = rej.innerHTML = "";
+
+            apps.forEach((a, i) => {
+                let ref = a.refNo || "";
+                let name = a.name || "";
+                let account = a.account || "";
+                let phone = a.phone || "";
+                let email = a.email || "";
+                let dob = a.dob || "";
+                let address = a.address || "";
+                let type = a.type || "";
+
+                // Pending Table
+                if (!a.status || a.status === "Pending")
+                    pend.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>${ref}</td>
+                <td>${name}</td>
+                <td>${account}</td>
+                <td>${email}</td>
+                <td>${phone}</td>
+                <td>${dob}</td>
+                <td>${address}</td>
+                <td>${type}</td>
+                <td>
+                    <button class="btn btn-accept" onclick="updateDC(${i}, 'Accepted')">Accept</button>
+                    <button class="btn btn-reject" onclick="updateDC(${i}, 'Rejected')">Reject</button>
+                </td>
+            </tr>`);
+
+                // Accepted Table
+                if (a.status === "Accepted")
+                    acc.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>${ref}</td>
+                <td>${name}</td>
+                <td>${account}</td>
+                <td>${email}</td>
+                <td>${phone}</td>
+                <td>${dob}</td>
+                <td>${address}</td>
+                <td>${type}</td>
+                <td>${a.status}</td>
+            </tr>`);
+
+                // Rejected Table
+                if (a.status === "Rejected")
+                    rej.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td>${ref}</td>
+                <td>${name}</td>
+                <td>${account}</td>
+                <td>${email}</td>
+                <td>${phone}</td>
+                <td>${dob}</td>
+                <td>${address}</td>
+                <td>${type}</td>
+                <td>${a.status}</td>
+            </tr>`);
+            });
+        }
+
+        function updateDC(i, status) {
+            let apps = JSON.parse(localStorage.getItem("lndbApplications")) || [];
+            apps[i].status = status;
+            localStorage.setItem("lndbApplications", JSON.stringify(apps));
+            loadDC();
+        }
+
+        // --- Credit Cards (FINAL Working Code) ---
+        function loadCreditCards() {
+            let apps = JSON.parse(localStorage.getItem("lndbCreditCardApplications")) || [];
+
+            const pend = document.getElementById("ccPendingBody");
+            const acc = document.getElementById("ccAcceptedBody");
+            const rej = document.getElementById("ccRejectedBody");
+
+            pend.innerHTML = acc.innerHTML = rej.innerHTML = "";
+
+            apps.forEach((a, i) => {
+                let {
+                    refNo = "",
+                    name = "",
+                    account = "",
+                    email = "",
+                    phone = "",
+                    dob = "",
+                    address = "",
+                    cardType = "",
+                    annualLimit = "",
+                    status = "Pending"
+                } = a;
+
+                let rowData = `
+            <td>${refNo}</td>
+            <td>${name}</td>
+            <td>${account}</td>
+            <td>${email}</td>
+            <td>${phone}</td>
+            <td>${dob}</td>
+            <td>${address}</td>
+            <td>${cardType}</td>
+            <td>${annualLimit}</td>
+        `;
+
+                if (status === "Pending") {
+                    pend.insertAdjacentHTML("beforeend", `
+                <tr>
+                    ${rowData}
+                    <td>
+                        <button class="btn btn-accept" onclick="updateCC(${i}, 'Accepted')">Accept</button>
+                        <button class="btn btn-reject" onclick="updateCC(${i}, 'Rejected')">Reject</button>
+                    </td>
+                </tr>
+            `);
+                }
+
+                if (status === "Accepted") {
+                    acc.insertAdjacentHTML("beforeend", `
+                <tr>
+                    ${rowData}
+                    <td><span class="status status-accepted">Accepted</span></td>
+                </tr>
+            `);
+                }
+
+                if (status === "Rejected") {
+                    rej.insertAdjacentHTML("beforeend", `
+                <tr>
+                    ${rowData}
+                    <td><span class="status status-rejected">Rejected</span></td>
+                </tr>
+            `);
+                }
+            });
+        }
+
+        function updateCC(i, status) {
+            let apps = JSON.parse(localStorage.getItem("lndbCreditCardApplications")) || [];
+            apps[i].status = status;
+            localStorage.setItem("lndbCreditCardApplications", JSON.stringify(apps));
+            loadCreditCards();
+        }
+
+
+        // --- Accounts ---
+        function loadAccounts() {
+            let accs = JSON.parse(localStorage.getItem("lndbAccounts")) || [];
+            const pend = document.getElementById("accPendingBody");
+            const acc = document.getElementById("accAcceptedBody");
+            const rej = document.getElementById("accRejectedBody");
+            pend.innerHTML = acc.innerHTML = rej.innerHTML = "";
+            accs.forEach((a, i) => {
+                let ref = a.refNo || "";
+                let name = a.name || "";
+                let phone = a.phone || "";
+                if (!a.status || a.status === "Pending")
+                    pend.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td>
+                            <td>${name}</td>
+                            <td>${phone}</td>
+                            <td>
+                                <button class="btn btn-accept" onclick="updateAcc(${i},'Accepted')">Accept</button>
+                                <button class="btn btn-reject" onclick="updateAcc(${i},'Rejected')">Reject</button>
+                            </td>
+                        </tr>`);
+                if (a.status === "Accepted")
+                    acc.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td><td>${name}</td><td>${phone}</td>
+                        </tr>`);
+                if (a.status === "Rejected")
+                    rej.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td><td>${name}</td><td>${phone}</td>
+                        </tr>`);
+            });
+        }
+        function updateAcc(i, status) {
+            let accs = JSON.parse(localStorage.getItem("lndbAccounts")) || [];
+            accs[i].status = status;
+            localStorage.setItem("lndbAccounts", JSON.stringify(accs));
+            loadAccounts();
+        }
+
+        // --- Investments ---
+        function loadInvestments() {
+            let invs = JSON.parse(localStorage.getItem("lndbInvestments")) || [];
+            const pend = document.getElementById("invPendingBody");
+            const acc = document.getElementById("invAcceptedBody");
+            const rej = document.getElementById("invRejectedBody");
+            pend.innerHTML = acc.innerHTML = rej.innerHTML = "";
+            invs.forEach((iV, i) => {
+                let ref = iV.refNo || "";
+                let name = iV.name || "";
+                let amount = iV.amount || "";
+                if (!iV.status || iV.status === "Pending")
+                    pend.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td>
+                            <td>${name}</td>
+                            <td>${amount}</td>
+                            <td>
+                                <button class="btn btn-accept" onclick="updateInv(${i},'Accepted')">Accept</button>
+                                <button class="btn btn-reject" onclick="updateInv(${i},'Rejected')">Reject</button>
+                            </td>
+                        </tr>`);
+                if (iV.status === "Accepted")
+                    acc.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td><td>${name}</td><td>${amount}</td>
+                        </tr>`);
+                if (iV.status === "Rejected")
+                    rej.insertAdjacentHTML("beforeend", `<tr>
+                            <td>${ref}</td><td>${name}</td><td>${amount}</td>
+                        </tr>`);
+            });
+        }
+        function updateInv(i, status) {
+            let invs = JSON.parse(localStorage.getItem("lndbInvestments")) || [];
+            invs[i].status = status;
+            localStorage.setItem("lndbInvestments", JSON.stringify(invs));
+            loadInvestments();
+        }
+
+        // --- Search Function (works for all tables) ---
+        function searchApplication() {
+            let val = document.getElementById("searchBar").value.toLowerCase();
+            document.querySelectorAll("tbody tr").forEach(row => {
+                let columns = Array.from(row.cells).map(cell => cell.innerText.toLowerCase());
+                row.style.display = columns.some(text => text.includes(val)) ? "" : "none";
+            });
+        }
+    </script>
+
+</body>
+
+</html>
