@@ -2,68 +2,101 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Current Account Opening Form</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LNDB — Current Account Opening (5-step Wizard)</title>
     <style>
         :root {
             --primary: #236bbd;
             --primary-dark: #174f85;
-            --bg-light: #f5f7fb;
+            --bg: #f5f7fb;
             --border: #d8dee6;
         }
 
+        * {
+            box-sizing: border-box
+        }
+
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: var(--bg-light);
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
             margin: 0;
-            padding: 0;
-            color: #333;
+            color: #222;
+            padding: 24px
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 50px auto;
+        .card {
+            max-width: 1100px;
+            margin: 18px auto;
             background: #fff;
-            padding: 40px 50px;
+            padding: 22px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .06)
         }
 
-        h2 {
+        h1 {
+            margin: 0 0 14px;
+            color: var(--primary);
+            text-align: center
+        }
+
+        /* Top tabs (bold tab style) */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 18px 0;
+            flex-wrap: wrap
+        }
+
+        .tab {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-weight: 700;
+            color: #444;
+            cursor: pointer;
+            min-width: 150px;
             text-align: center;
+        }
+
+        .tab.active {
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 6px 18px rgba(35, 107, 189, .12)
+        }
+
+        .tab.completed {
+            background: #f6fbff;
             color: var(--primary);
-            margin-bottom: 40px;
-            font-size: 30px;
-            font-weight: 600;
+            border-color: #dfeeff
         }
 
-        h3 {
-            margin-top: 0;
-            color: var(--primary);
-            font-size: 20px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid var(--primary);
-            margin-bottom: 18px;
+        .steps {
+            padding: 8px;
+            min-height: 520px
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            column-gap: 40px;
-            row-gap: 40px;
+        fieldset {
+            border: 1px solid var(--border);
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 14px
         }
 
-        section {
-            margin-bottom: 30px;
+        legend {
+            font-weight: 700;
+            color: var(--primary)
         }
 
         label {
             display: block;
-            margin-top: 14px;
+            margin-top: 10px;
             font-weight: 600;
-            color: #444;
-            font-size: 14px;
+            font-size: 13px;
+            color: #333
         }
 
         input,
@@ -71,136 +104,196 @@
         textarea {
             width: 100%;
             padding: 10px 12px;
-            margin-top: 5px;
-            border: 1px solid var(--border);
+            margin-top: 6px;
             border-radius: 6px;
-            font-size: 14px;
-            background-color: #fafafa;
-            transition: border-color .2s, box-shadow .2s, background-color .2s;
+            border: 1px solid var(--border);
+            background: #fafafa;
+            font-size: 14px
         }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(35, 107, 189, 0.1);
-            background-color: #fff;
-        }
-
-        .inline-group {
+        .row {
             display: flex;
-            gap: 16px;
+            gap: 12px
         }
 
-        .inline-group>div {
-            flex: 1;
+        .row>div {
+            flex: 1
         }
 
         .file-box {
             margin-top: 8px;
-            padding: 15px;
+            padding: 12px;
             border: 2px dashed var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             text-align: center;
-            cursor: pointer;
-            background-color: #fafafa;
-            transition: border-color .2s, background-color .2s;
-            position: relative;
-        }
-
-        .file-box:hover {
-            border-color: var(--primary);
-            background-color: #f0f6ff;
+            background: #fafafa;
+            cursor: pointer
         }
 
         .file-box input[type=file] {
-            display: none;
-        }
-
-        .file-box span {
-            font-size: 13px;
-            color: #555;
-            display: block;
+            display: none
         }
 
         .file-name {
-            margin-top: 8px;
             font-size: 13px;
-            color: #236bbd;
-            word-break: break-all;
+            color: var(--primary);
+            margin-top: 8px;
+            word-break: break-all
         }
 
         .file-error {
             color: #d9534f;
             font-size: 12px;
-            margin-top: 5px;
-            display: block;
+            margin-top: 6px
         }
 
-        .checkbox {
+        .controls {
             display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            margin-top: 14px;
-            font-size: 13px;
-            line-height: 1.4;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 12px
         }
 
         .btn {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 14px 28px;
             background: var(--primary);
             color: #fff;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 10px 14px;
             border-radius: 8px;
+            border: none;
             cursor: pointer;
-            transition: background .2s, transform .1s;
+            font-weight: 700
         }
 
-        .btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
+        .btn.secondary {
+            background: #666
         }
 
-        @media (max-width: 900px) {
-            .form-grid {
-                grid-template-columns: 1fr;
+        .muted {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center
+        }
+
+        .review-box {
+            background: #fbfdff;
+            border: 1px solid #e6f0ff;
+            padding: 10px;
+            border-radius: 8px
+        }
+
+        .toast {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            background: #0f5132;
+            color: #d1f8e6;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none
+        }
+
+        @media(max-width:800px) {
+            .row {
+                flex-direction: column
             }
 
-            .inline-group {
-                flex-direction: column;
-                gap: 12px;
+            .tab {
+                min-width: 120px
             }
+        }
 
-            .container {
-                padding: 30px 20px;
-            }
+        .required {
+            color: #d9534f;
+            margin-left: 6px
         }
     </style>
+    <!-- jsPDF (optional, used for quick PDF generation if you want) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Current Account Opening Form</h2>
-        <form id="accountFormV2" enctype="multipart/form-data" novalidate>
-            <div class="form-grid">
-                <!-- Left Column -->
-                <div>
-                    <section>
-                        <h3>Business Details</h3>
-                        <label for="businessName">Business Name</label>
-                        <input type="text" id="businessName" name="businessName" required>
+    <div class="card">
+        <h1>LNDB — Current Account Opening</h1>
 
-                        <label for="ownerName">Owner's Name</label>
-                        <input type="text" id="ownerName" name="ownerName" required>
+        <div class="tabs" id="tabs"></div>
 
-                        <label for="businessType">Type of Business</label>
+        <form id="wizardForm" novalidate>
+            <div class="steps">
+
+                <!-- STEP 1: PERSONAL -->
+                <div class="step" data-step="0">
+                    <fieldset>
+                        <legend>1. Personal Information</legend>
+                        <div class="row">
+                            <div>
+                                <label for="fullName">Full Name <span class="required">*</span></label>
+                                <input id="fullName" name="fullName" required />
+                            </div>
+                            <div>
+                                <label for="fatherName">Father / Spouse Name <span class="required">*</span></label>
+                                <input id="fatherName" name="fatherName" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label for="dob">Date of Birth <span class="required">*</span></label>
+                                <input id="dob" name="dob" type="date" required />
+                            </div>
+                            <div>
+                                <label for="personalPan">Personal PAN <span class="required">*</span></label>
+                                <input id="personalPan" name="personalPan" placeholder="ABCDE1234F"
+                                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required />
+                            </div>
+                        </div>
+
+                        <label for="aadhaarVisible">Aadhaar Number <span class="required">*</span></label>
+                        <input id="aadhaarVisible" name="aadhaarVisible" placeholder="Enter 12-digit Aadhaar"
+                            inputmode="numeric" required />
+                        <input id="aadhaarFull" type="hidden" />
+
+                        <label for="resAddress">Residential Address <span class="required">*</span></label>
+                        <textarea id="resAddress" name="resAddress" rows="2" required></textarea>
+
+                        <div class="row">
+                            <div><label for="resCity">City <span class="required">*</span></label><input id="resCity"
+                                    name="resCity" required /></div>
+                            <div><label for="resPincode">Pin Code <span class="required">*</span></label><input
+                                    id="resPincode" name="resPincode" pattern="[0-9]{6}" required /></div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label>Passport Photo <span class="required">*</span></label>
+                                <label class="file-box"><input type="file" id="photoFile" accept="image/*"
+                                        required><span>Click to upload</span>
+                                    <div class="file-name" id="photoName"></div>
+                                    <div class="file-error" id="photoError"></div>
+                                </label>
+                            </div>
+                            <div>
+                                <label>Signature (scanned) <span class="required">*</span></label>
+                                <label class="file-box"><input type="file" id="signFile" accept="image/*"
+                                        required><span>Click to upload</span>
+                                    <div class="file-name" id="signName"></div>
+                                    <div class="file-error" id="signError"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- STEP 2: BUSINESS -->
+                <div class="step" data-step="1" style="display:none">
+                    <fieldset>
+                        <legend>2. Business Details</legend>
+                        <label for="businessName">Business / Company Name <span class="required">*</span></label>
+                        <input id="businessName" name="businessName" required />
+
+                        <label for="businessType">Type of Business <span class="required">*</span></label>
                         <select id="businessType" name="businessType" required>
-                            <option value="">--Select--</option>
+                            <option value="">-- Select --</option>
                             <option>Proprietorship</option>
                             <option>Partnership</option>
                             <option>Private Limited</option>
@@ -208,150 +301,190 @@
                             <option>LLP</option>
                         </select>
 
-                        <label for="registrationNumber">Business Registration Number</label>
-                        <input type="text" id="registrationNumber" name="registrationNumber" required>
-                    </section>
+                        <div class="row">
+                            <div><label for="registrationNumber">Business Registration / CIN</label><input
+                                    id="registrationNumber" /></div>
+                            <div><label for="natureOfBusiness">Nature of Business</label><input id="natureOfBusiness"
+                                    placeholder="e.g. Trading / Manufacturing" /></div>
+                        </div>
 
-                    <section>
-                        <h3>Contact Information</h3>
-                        <label for="mobile">Mobile Number</label>
-                        <input type="tel" id="mobile" name="mobile" placeholder="10-digit Mobile Number"
-                            pattern="[6-9]{1}[0-9]{9}" required>
-
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-
-                        <label for="address">Business Address</label>
-                        <textarea id="address" name="address" rows="2" required></textarea>
-
-                        <label for="state">State</label>
-                        <select id="state" name="state" required>
-                            <option value="">--Select State--</option>
-                            <option value="Maharashtra">Maharashtra</option>
-                            <option value="Karnataka">Karnataka</option>
-                            <option value="Tamil Nadu">Tamil Nadu</option>
-                            <option value="Uttar Pradesh">Uttar Pradesh</option>
-                            <option value="West Bengal">West Bengal</option>
-                            <option value="Gujarat">Gujarat</option>
-                            <option value="Madhya Pradesh">Madhya Pradesh</option>
-                            <option value="Rajasthan">Rajasthan</option>
-                            <option value="Bihar">Bihar</option>
-                        </select>
-
-                        <label for="district">District</label>
-                        <select id="district" name="district" required>
-                            <option value="">--Select District--</option>
-                        </select>
-
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" required>
-
-                        <label for="pincode">Pin Code</label>
-                        <input type="text" id="pincode" name="pincode" pattern="[0-9]{6}" required>
-                    </section>
+                        <div class="row">
+                            <div><label for="gstNumber">GST Number</label><input id="gstNumber"
+                                    pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" /></div>
+                            <div><label for="panCompany">Company PAN</label><input id="panCompany"
+                                    pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" /></div>
+                        </div>
+                    </fieldset>
                 </div>
 
-                <!-- Right Column -->
-                <div>
-                    <section>
-                        <h3>Documents and Identity</h3>
-                        <label for="gstNumber">GST Number</label>
-                        <input type="text" id="gstNumber" name="gstNumber" placeholder="15-digit GST Number"
-                            pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" required>
+                <!-- STEP 3: ADDRESS & CONTACT -->
+                <div class="step" data-step="2" style="display:none">
+                    <fieldset>
+                        <legend>3. Registered Address & Contact</legend>
+                        <label for="address">Registered Address <span class="required">*</span></label>
+                        <textarea id="address" rows="2" required></textarea>
 
-                        <label for="pan">PAN Number</label>
-                        <input type="text" id="pan" name="pan" placeholder="ABCDE1234F"
-                            pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}" required>
-
-                        <label>Business Registration Certificate (PDF/Image)</label>
-                        <label class="file-box" id="businessRegBox">
-                            <input type="file" id="businessRegFile" name="businessRegFile" accept=".pdf,image/*"
-                                required>
-                            <span>Click to upload Business Registration Certificate</span>
-                            <span class="file-name" id="businessRegFileName"></span>
-                            <span class="file-error" id="businessRegFileError"></span>
-                        </label>
-
-                        <label>GST Certificate (PDF/Image)</label>
-                        <label class="file-box" id="gstCertBox">
-                            <input type="file" id="gstCertFile" name="gstCertFile" accept=".pdf,image/*" required>
-                            <span>Click to upload GST Certificate</span>
-                            <span class="file-name" id="gstCertFileName"></span>
-                            <span class="file-error" id="gstCertFileError"></span>
-                        </label>
-
-                        <label>PAN Card (PDF/Image)</label>
-                        <label class="file-box" id="panFileBox">
-                            <input type="file" id="panFile" name="panFile" accept=".pdf,image/*" required>
-                            <span>Click to upload PAN Card</span>
-                            <span class="file-name" id="panFileName"></span>
-                            <span class="file-error" id="panFileError"></span>
-                        </label>
-
-                        <label>Address Proof (PDF/Image)</label>
-                        <label class="file-box" id="addressProofFileBox">
-                            <input type="file" id="addressProofFile" name="addressProofFile" accept=".pdf,image/*"
-                                required>
-                            <span>Click to upload Address Proof</span>
-                            <span class="file-name" id="addressProofFileName"></span>
-                            <span class="file-error" id="addressProofFileError"></span>
-                        </label>
-                    </section>
-
-                    <section>
-                        <h3>Account Preferences</h3>
-                        <label for="branch">Preferred Branch Name</label>
-                        <select id="branch" name="branch" required>
-                            <option value="">--Select Branch--</option>
-                            <option>Mumbai - Fort</option>
-                            <option>Pune - Camp</option>
-                            <option>Kolhapur - Shahupuri</option>
-                            <option>Satara - Main</option>
-                            <option>Nashik - College Road</option>
-                            <option>Delhi - Connaught Place</option>
-                            <option>Bengaluru - MG Road</option>
-                            <option>Chennai - T Nagar</option>
-                            <option>Kolkata - Salt Lake</option>
-                            <option>Ahmedabad - Navrangpura</option>
-                        </select>
-
-                        <label for="nomineeName">Authorized Signatory Name</label>
-                        <input type="text" id="nomineeName" name="nomineeName" required>
-
-                        <div class="inline-group">
+                        <div class="row">
                             <div>
-                                <label for="nomineeRelation">Relation with Authorized Signatory</label>
-                                <input type="text" id="nomineeRelation" name="nomineeRelation" required>
+                                <label for="state">State <span class="required">*</span></label>
+                                <select id="state" required>
+                                    <option value="">-- Select State --</option>
+                                    <option>Maharashtra</option>
+                                    <option>Karnataka</option>
+                                    <option>Tamil Nadu</option>
+                                    <option>Uttar Pradesh</option>
+                                    <option>West Bengal</option>
+                                    <option>Gujarat</option>
+                                    <option>Madhya Pradesh</option>
+                                    <option>Rajasthan</option>
+                                    <option>Bihar</option>
+                                </select>
                             </div>
                             <div>
-                                <label for="nomineeDOB">Authorized Signatory DOB</label>
-                                <input type="date" id="nomineeDOB" name="nomineeDOB">
+                                <label for="district">District <span class="required">*</span></label>
+                                <select id="district" required>
+                                    <option value="">-- Select District --</option>
+                                </select>
                             </div>
                         </div>
 
-                        <label for="accountType">Account Type</label>
-                        <select id="accountType" name="accountType" required>
-                            <option value="">--Select--</option>
-                            <option>Current Account</option>
-                            <option>Overdraft Account</option>
-                        </select>
+                        <div class="row">
+                            <div><label for="city">City <span class="required">*</span></label><input id="city"
+                                    required></div>
+                            <div><label for="pincode">Pin Code <span class="required">*</span></label><input
+                                    id="pincode" pattern="[0-9]{6}" required></div>
+                        </div>
 
-                        <label class="checkbox">
-                            <input type="checkbox" name="declaration" required>
-                            I hereby declare that all information provided is true and valid. I agree to abide by the
-                            bank's terms and conditions.
+                        <div class="row">
+                            <div><label for="contactPhone">Primary Contact Mobile <span
+                                        class="required">*</span></label><input id="contactPhone"
+                                    pattern="[6-9]{1}[0-9]{9}" required></div>
+                            <div><label for="contactEmail">Primary Email <span class="required">*</span></label><input
+                                    id="contactEmail" type="email" required></div>
+                        </div>
+
+                        <label for="website">Website / LinkedIn (optional)</label>
+                        <input id="website" />
+                    </fieldset>
+                </div>
+
+                <!-- STEP 4: DOCUMENTS -->
+                <div class="step" data-step="3" style="display:none">
+                    <fieldset>
+                        <legend>4. Documents Upload</legend>
+                        <label>Business Registration Certificate <span class="required">*</span></label>
+                        <label class="file-box"><input type="file" id="businessRegFile" accept=".pdf,image/*"
+                                required><span>Upload Business Reg. Cert.</span>
+                            <div class="file-name" id="businessRegName"></div>
+                            <div class="file-error" id="businessRegError"></div>
                         </label>
-                    </section>
+
+                        <div class="row">
+                            <div><label>GST Certificate (optional)</label><label class="file-box"><input type="file"
+                                        id="gstCertFile" accept=".pdf,image/*"><span>Upload GST Cert.</span>
+                                    <div class="file-name" id="gstCertName"></div>
+                                </label></div>
+                            <div><label>Company PAN (optional)</label><label class="file-box"><input type="file"
+                                        id="panCompanyFile" accept=".pdf,image/*"><span>Upload Company PAN</span>
+                                    <div class="file-name" id="panCompanyFileName"></div>
+                                </label></div>
+                        </div>
+
+                        <label>Address Proof <span class="required">*</span></label>
+                        <label class="file-box"><input type="file" id="addressProofFile" accept=".pdf,image/*"
+                                required><span>Upload Address Proof</span>
+                            <div class="file-name" id="addressProofFileName"></div>
+                            <div class="file-error" id="addressProofFileError"></div>
+                        </label>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Authorized Signatory (Basic KYC)</legend>
+                        <label for="authName">Name <span class="required">*</span></label><input id="authName" required>
+                        <label for="authDesignation">Designation <span class="required">*</span></label><input
+                            id="authDesignation" required>
+                        <label for="authMobile">Mobile <span class="required">*</span></label><input id="authMobile"
+                            pattern="[6-9]{1}[0-9]{9}" required>
+                        <label for="authEmail">Email <span class="required">*</span></label><input id="authEmail"
+                            type="email" required>
+
+                        <label>Authorized Person ID Proof <span class="required">*</span></label>
+                        <label class="file-box"><input type="file" id="authIdFile" accept=".pdf,image/*"
+                                required><span>Upload ID Proof</span>
+                            <div class="file-name" id="authIdName"></div>
+                            <div class="file-error" id="authIdError"></div>
+                        </label>
+                    </fieldset>
+                </div>
+
+                <!-- STEP 5: REVIEW & SUBMIT -->
+                <div class="step" data-step="4" style="display:none">
+                    <fieldset>
+                        <legend>5. Review & Submit</legend>
+                        <div class="review-box" id="reviewBox"></div>
+                        <div class="muted" style="margin-top:10px">On submit a reference will be generated and saved.
+                            You will be redirected to <code>currentsub.html</code>.</div>
+                    </fieldset>
+                </div>
+
+            </div>
+
+            <div class="controls">
+                <button type="button" class="btn secondary" id="prevBtn" disabled>← Previous</button>
+                <div style="display:flex;gap:8px">
+                    <button type="button" class="btn secondary" id="saveDraftBtn">Save Draft</button>
+                    <button type="button" class="btn" id="nextBtn">Next →</button>
+                    <button type="submit" class="btn" id="submitBtn" style="display:none">Submit Application</button>
                 </div>
             </div>
-
-            <div style="text-align:center;">
-                <button type="submit" class="btn">Submit Application</button>
-            </div>
         </form>
+
+        <div class="muted" style="margin-top:12px">All fields marked <span class="required">*</span> are mandatory for
+            their step.</div>
     </div>
 
+    <div id="toast" class="toast"></div>
+
     <script>
+        // Optional jsPDF
+        const { jsPDF } = window.jspdf || {};
+
+        // CONFIG
+        const STEPS = 5;
+        let currentStep = 0;
+        const MAX_FILE_BYTES = 2.5 * 1024 * 1024; // embed threshold (2.5MB)
+        const ABS_MAX = 10 * 1024 * 1024; // reject if >10MB
+
+        // ELEMENTS
+        const tabsEl = document.getElementById('tabs');
+        const form = document.getElementById('wizardForm');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const saveDraftBtn = document.getElementById('saveDraftBtn');
+        const toast = document.getElementById('toast');
+        const reviewBox = document.getElementById('reviewBox');
+
+        // create tabs (bold tab style)
+        const TAB_LABELS = ['Personal', 'Business', 'Address & Contact', 'Documents', 'Review & Submit'];
+        for (let i = 0; i < STEPS; i++) {
+            const t = document.createElement('div');
+            t.className = 'tab' + (i === 0 ? ' active' : '');
+            t.textContent = TAB_LABELS[i];
+            t.dataset.i = i;
+            t.addEventListener('click', () => {
+                // allow click to go to previous/completed tabs only
+                if (parseInt(t.dataset.i) <= currentStep) goToStep(parseInt(t.dataset.i));
+            });
+            tabsEl.appendChild(t);
+        }
+
+        // helpers
+        function q(id) { return document.getElementById(id) }
+        function showToast(msg, time = 1600) { toast.style.display = 'block'; toast.textContent = msg; setTimeout(() => toast.style.display = 'none', time); }
+        function normalizeDigits(s) { return (s || '').toString().replace(/\D/g, ''); }
+
+        // state->district map
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
             "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
@@ -363,51 +496,263 @@
             "Rajasthan": ["Jaipur", "Jodhpur", "Ajmer", "Udaipur"],
             "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"]
         };
+        q('state').addEventListener('change', function () {
+            const list = q('district');
+            list.innerHTML = '<option value="">-- Select District --</option>';
+            (stateDistrictMap[this.value] || []).forEach(d => {
+                const o = document.createElement('option');
+                o.value = d;
+                o.textContent = d;
+                list.appendChild(o);
+            });
+        });
+        q('district').addEventListener('change', function () { if (this.value) q('city').value = this.value; });
 
-        document.getElementById('state').addEventListener('change', function () {
-            const state = this.value;
-            const districtSelect = document.getElementById('district');
-            districtSelect.innerHTML = '<option value="">--Select District--</option>';
-            if (stateDistrictMap[state]) {
-                stateDistrictMap[state].forEach(d => {
-                    let opt = document.createElement('option');
-                    opt.value = d;
-                    opt.text = d;
-                    districtSelect.appendChild(opt);
-                });
+        // Aadhaar masking
+        const aadVisible = q('aadhaarVisible'), aadFull = q('aadhaarFull');
+        function maskAadhaar(full) { if (!full) return ''; const d = normalizeDigits(full); if (d.length < 12) return full; return 'XXXX XXXX ' + d.slice(-4); }
+        aadVisible.addEventListener('input', e => { aadFull.value = normalizeDigits(e.target.value); });
+        aadVisible.addEventListener('blur', () => { const f = normalizeDigits(aadFull.value); if (f.length === 12) aadVisible.value = maskAadhaar(f); });
+        aadVisible.addEventListener('focus', () => { const full = normalizeDigits(aadFull.value); aadVisible.value = full || ''; });
+
+        // File binding (shows filename, basic size check)
+        function bindFileInput(fileId, nameId, errId) {
+            const input = q(fileId), nameEl = q(nameId), errEl = errId ? q(errId) : null;
+            if (!input) return;
+            input.addEventListener('change', () => {
+                nameEl.textContent = ''; if (errEl) errEl.textContent = '';
+                const f = input.files[0];
+                if (!f) return;
+                nameEl.textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
+                if (f.size > ABS_MAX) { if (errEl) errEl.textContent = 'File too large. Max 10 MB.'; input.value = ''; nameEl.textContent = ''; }
+            });
+        }
+        bindFileInput('photoFile', 'photoName', 'photoError'); bindFileInput('signFile', 'signName', 'signError');
+        bindFileInput('businessRegFile', 'businessRegName', 'businessRegError'); bindFileInput('gstCertFile', 'gstCertName');
+        bindFileInput('panCompanyFile', 'panCompanyFileName'); bindFileInput('addressProofFile', 'addressProofFileName', 'addressProofFileError');
+        bindFileInput('authIdFile', 'authIdName', 'authIdError');
+
+        // file->base64 limited
+        function fileToBase64Limited(file) {
+            return new Promise(resolve => {
+                if (!file) return resolve({ ok: true, data: null, name: null, stored: false });
+                if (file.size > ABS_MAX) return resolve({ ok: false, message: 'File exceeds 10MB', name: file.name });
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const data = reader.result;
+                    if (file.size <= MAX_FILE_BYTES) resolve({ ok: true, data: data, name: file.name, stored: true });
+                    else resolve({ ok: true, data: null, name: file.name, stored: false });
+                };
+                reader.onerror = () => resolve({ ok: false, message: 'Unable to read', name: file.name });
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // step control
+        function goToStep(i) {
+            currentStep = i;
+            document.querySelectorAll('.step').forEach(s => s.style.display = (parseInt(s.dataset.step) === i ? '' : 'none'));
+            document.querySelectorAll('.tab').forEach((t, idx) => { t.classList.toggle('active', idx === i); t.classList.toggle('completed', idx < i); });
+            prevBtn.disabled = (i === 0);
+            nextBtn.style.display = (i < STEPS - 1 ? '' : 'none');
+            submitBtn.style.display = (i === STEPS - 1 ? '' : 'none');
+            if (i === STEPS - 1) populateReview();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // validate step fields
+        function validateStep(i) {
+            const step = document.querySelector(`.step[data-step="${i}"]`);
+            if (!step) return { ok: true };
+            const inputs = Array.from(step.querySelectorAll('input,select,textarea')).filter(el => el.offsetParent !== null);
+            for (const el of inputs) {
+                if (el.required && !el.value) { el.focus(); return { ok: false, msg: 'Please fill required fields.' }; }
+                if (el.pattern) {
+                    const re = new RegExp(el.pattern);
+                    if (el.value && !re.test(el.value)) { el.focus(); return { ok: false, msg: 'Please correct field: ' + (el.previousElementSibling ? el.previousElementSibling.innerText : el.name) }; }
+                }
             }
+            // special per-step checks
+            if (i === 0) {
+                const aad = normalizeDigits(aadFull.value || aadVisible.value || '');
+                if (aad.length !== 12) return { ok: false, msg: 'Please enter a valid 12-digit Aadhaar.' };
+                if (!q('photoFile').files.length) return { ok: false, msg: 'Please upload passport photo.' };
+                if (!q('signFile').files.length) return { ok: false, msg: 'Please upload signature.' };
+            }
+            if (i === 3) {
+                if (!q('businessRegFile').files.length) return { ok: false, msg: 'Please upload Business Registration Certificate.' };
+                if (!q('addressProofFile').files.length) return { ok: false, msg: 'Please upload Address Proof.' };
+                if (!q('authIdFile').files.length) return { ok: false, msg: 'Please upload Authorized Person ID proof.' };
+            }
+            return { ok: true };
+        }
+
+        // next/prev handlers
+        nextBtn.addEventListener('click', () => {
+            const v = validateStep(currentStep);
+            if (!v.ok) { showToast(v.msg); return; }
+            goToStep(Math.min(STEPS - 1, currentStep + 1));
+        });
+        prevBtn.addEventListener('click', () => goToStep(Math.max(0, currentStep - 1)));
+
+        // save draft
+        saveDraftBtn.addEventListener('click', () => {
+            try {
+                const draft = collectRecord(false);
+                const existing = JSON.parse(localStorage.getItem('lndbCurrentAccounts') || '[]');
+                existing.push({ ...draft, status: 'Draft', submittedOn: new Date().toISOString(), refNo: 'DRAFT' + Date.now() });
+                localStorage.setItem('lndbCurrentAccounts', JSON.stringify(existing));
+                showToast('Draft saved locally');
+            } catch (e) { console.error(e); alert('Save draft failed'); }
         });
 
-        document.getElementById('district').addEventListener('change', function () {
-            const cityInput = document.getElementById('city');
-            if (this.value) cityInput.value = this.value;
-        });
+        // collect form values (files only filenames unless includeFilesBase64 true)
+        function collectRecord(includeFilesBase64 = true) {
+            const rec = {
+                personal: {
+                    fullName: q('fullName').value.trim(),
+                    fatherName: q('fatherName').value.trim(),
+                    dob: q('dob').value,
+                    aadhaar: normalizeDigits(aadFull.value || aadVisible.value || ''),
+                    pan: q('personalPan').value.trim(),
+                    residentialAddress: q('resAddress').value.trim(),
+                    city: q('resCity').value.trim(),
+                    pincode: q('resPincode').value.trim()
+                },
+                businessData: {
+                    businessName: q('businessName').value.trim(),
+                    businessType: q('businessType').value,
+                    registrationNumber: q('registrationNumber').value.trim(),
+                    natureOfBusiness: q('natureOfBusiness').value.trim(),
+                    gstNumber: q('gstNumber').value.trim(),
+                    panCompany: q('panCompany').value.trim()
+                },
+                address: {
+                    addressLine: q('address').value.trim(),
+                    state: q('state').value,
+                    district: q('district').value,
+                    city: q('city').value.trim(),
+                    pincode: q('pincode').value.trim()
+                },
+                contact: {
+                    phone: q('contactPhone').value.trim(),
+                    email: q('contactEmail').value.trim(),
+                    website: q('website').value.trim()
+                },
+                authorizedPerson: {
+                    name: q('authName').value.trim(),
+                    designation: q('authDesignation').value.trim(),
+                    phone: q('authMobile').value.trim(),
+                    email: q('authEmail').value.trim()
+                },
+                preferences: {
+                    branch: q('branch') ? q('branch').value : '',
+                    accountType: q('accountType') ? q('accountType').value : ''
+                },
+                documents: {}
+            };
 
-        // File validation
-        const fileInputs = [
-            { id: 'businessRegFile' },
-            { id: 'gstCertFile' },
-            { id: 'panFile' },
-            { id: 'addressProofFile' }
-        ];
+            const fileIds = [
+                { id: 'photoFile', key: 'photo' }, { id: 'signFile', key: 'signature' },
+                { id: 'businessRegFile', key: 'businessReg' }, { id: 'gstCertFile', key: 'gstCert' },
+                { id: 'panCompanyFile', key: 'panCompanyFile' }, { id: 'addressProofFile', key: 'addressProof' },
+                { id: 'authIdFile', key: 'authId' }
+            ];
+            fileIds.forEach(f => {
+                const el = q(f.id);
+                if (el && el.files && el.files[0]) rec.documents[f.key] = { filename: el.files[0].name, size: el.files[0].size };
+                else rec.documents[f.key] = null;
+            });
+            return rec;
+        }
 
-        document.getElementById('accountFormV2').addEventListener('submit', function (e) {
+        // populate review
+        function populateReview() {
+            const r = collectRecord(false);
+            let html = `<strong>Applicant:</strong> ${r.personal.fullName} <br>`;
+            html += `<strong>Aadhaar (masked):</strong> ${r.personal.aadhaar ? 'XXXX XXXX ' + r.personal.aadhaar.slice(-4) : ''}<br>`;
+            html += `<strong>DOB / PAN:</strong> ${r.personal.dob} / ${r.personal.pan}<br><hr>`;
+            html += `<strong>Business:</strong> ${r.businessData.businessName} (${r.businessData.businessType})<br>`;
+            if (r.businessData.registrationNumber) html += `<strong>Reg No:</strong> ${r.businessData.registrationNumber}<br>`;
+            if (r.businessData.gstNumber) html += `<strong>GST:</strong> ${r.businessData.gstNumber}<br>`;
+            html += `<strong>Address:</strong> ${r.address.addressLine}, ${r.address.city} - ${r.address.pincode} (${r.address.state})<br>`;
+            html += `<strong>Contact:</strong> ${r.contact.phone} / ${r.contact.email}<br><hr>`;
+            html += `<strong>Authorized Signatory:</strong> ${r.authorizedPerson.name} (${r.authorizedPerson.designation})<br>`;
+            html += `<strong>Documents uploaded:</strong><ul>`;
+            Object.keys(r.documents).forEach(k => { if (r.documents[k]) html += `<li>${k}: ${r.documents[k].filename} (${Math.round(r.documents[k].size / 1024)} KB)</li>` });
+            html += `</ul>`;
+            reviewBox.innerHTML = html;
+        }
+
+        // submit handler (single, fixed)
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            let valid = true;
-            fileInputs.forEach(f => {
-                const input = document.getElementById(f.id);
-                if (input.hasAttribute('required') && !input.files.length) {
-                    valid = false;
-                    alert('Please upload all required files.');
+            // ensure all steps valid (0..3)
+            for (let i = 0; i < STEPS - 1; i++) {
+                const v = validateStep(i);
+                if (!v.ok) { showToast(v.msg); goToStep(i); return; }
+            }
+
+            // start building record
+            const rec = collectRecord(true);
+
+            // determine ref prefix using accountType (fallback SA)
+            const acctType = (rec.preferences && rec.preferences.accountType) ? rec.preferences.accountType : '';
+            let prefix = 'SA';
+            if (acctType.toLowerCase && acctType.toLowerCase().includes('current')) prefix = 'CA';
+            else if (acctType.toLowerCase && (acctType.toLowerCase().includes('overdraft') || acctType.toLowerCase().includes('od'))) prefix = 'OD';
+            const refNo = prefix + Math.floor(100000 + Math.random() * 900000);
+            rec.refNo = refNo;
+            rec.submittedOn = new Date().toISOString();
+            rec.status = 'Pending';
+            rec.meta = { source: 'web-form', version: '5-step-tab' };
+
+            // read important files into base64 limited (if small enough)
+            const map = [
+                { key: 'photo', id: 'photoFile' }, { key: 'signature', id: 'signFile' },
+                { key: 'businessReg', id: 'businessRegFile' }, { key: 'gstCert', id: 'gstCertFile' },
+                { key: 'panCompanyFile', id: 'panCompanyFile' }, { key: 'addressProof', id: 'addressProofFile' },
+                { key: 'authId', id: 'authIdFile' }
+            ];
+            rec.documents = rec.documents || {};
+            for (const item of map) {
+                const el = q(item.id);
+                const file = (el && el.files && el.files[0]) ? el.files[0] : null;
+                const res = await fileToBase64Limited(file);
+                if (!res.ok) { alert('File error: ' + (res.name || '') + ' — ' + (res.message || '')); return; }
+                rec.documents[item.key] = { filename: res.name || null, base64: res.data || null, storedAsBase64: !!res.stored };
+            }
+
+            // save to localStorage
+            try {
+                const arr = JSON.parse(localStorage.getItem('lndbCurrentAccounts') || '[]');
+                arr.push(rec);
+                localStorage.setItem('lndbCurrentAccounts', JSON.stringify(arr));
+                localStorage.setItem('latestCurrentRef', refNo);
+
+            } catch (err) { console.error(err); alert('Save failed'); return; }
+            try {
+                if (window.jspdf && typeof jsPDF === 'function') {
+                    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+                    doc.setFontSize(12); doc.setTextColor('#236bbd');
+                    doc.text('LNDB — Current Account Application', 40, 40);
+                    doc.setFontSize(10); doc.setTextColor(30);
+                    doc.text('Ref: ' + refNo, 40, 60);
+                    doc.text('Applicant: ' + rec.personal.fullName, 40, 80);
+                    doc.text('Business: ' + (rec.businessData.businessName || ''), 40, 100);
+                    doc.text('Phone: ' + (rec.contact.phone || ''), 40, 120);
+                    doc.save('LNDB_CA_' + refNo + '.pdf');
                 }
-            });
+            } catch (e) { console.warn('PDF skipped', e) }
 
-            if (!valid) return;
+            showToast('Application submitted — Ref: ' + refNo, 2000);
 
-            // ✅ Redirect to confirmation page
             window.location.href = "currentsub.html";
         });
+
+        // initialize
+        goToStep(0);
     </script>
 </body>
 

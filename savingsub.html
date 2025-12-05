@@ -13,11 +13,12 @@
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
-            text-align: center;
             color: #003380;
+            text-align: center;
             margin-bottom: 24px;
         }
 
@@ -28,23 +29,12 @@
             line-height: 1.6;
         }
 
-        .ref-box {
-            background-color: #eafbee;
-            border-left: 5px solid #198754;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #145c3d;
-        }
-
         ul {
             background: white;
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            list-style-type: disc;
         }
 
         ul li {
@@ -52,12 +42,24 @@
             font-size: 1.05rem;
         }
 
+        .ref-box {
+            background-color: #eaf3ff;
+            border-left: 5px solid #236bbd;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #003380;
+        }
+
         button {
             display: block;
             margin: 30px auto 0;
             padding: 12px 25px;
             font-size: 16px;
-            background-color: #198754;
+            background-color: #236bbd;
             color: white;
             border: none;
             border-radius: 8px;
@@ -66,7 +68,7 @@
         }
 
         button:hover {
-            background-color: #157347;
+            background-color: #174f85;
         }
 
         .footer {
@@ -75,6 +77,7 @@
             margin-top: 30px;
             color: #555;
         }
+    </style>
     </style>
 </head>
 
@@ -91,36 +94,157 @@
         <li>Valid Photo ID (Aadhar, PAN, or Passport)</li>
         <li>Proof of Address (Utility Bill, Rent Agreement, etc.)</li>
         <li>Recent Passport Size Photograph</li>
-        <li>Initial Deposit Slip</li>
+        <li>From Copy</li>
     </ul>
 
+    <button id="pdfBtn">Download Application PDF</button>
     <button onclick="window.location.href='index.html'">Return to Home</button>
+
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
+        const refSpan = document.getElementById("refNo");
+
         window.onload = function () {
+            const ref = localStorage.getItem("latestRef");
 
-            const ref = "SA" + Math.floor(100000 + Math.random() * 900000);
-            document.getElementById("refNo").textContent = ref;
-            const fullname = localStorage.getItem("dc_fullname") || "Not Provided";
-            const phone = localStorage.getItem("dc_phone") || "Not Provided";
-            const cardType = localStorage.getItem("dc_cardType") || "Debit";
-
-            let applications = JSON.parse(localStorage.getItem("lndbApplications")) || [];
-
-            applications.push({
-                refNo: ref,
-                fullName: fullname,
-                mobile: phone,
-                type: cardType + " Card",
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem("lndbApplications", JSON.stringify(applications));
+            if (ref) {
+                refSpan.textContent = ref;
+            } else {
+                refSpan.textContent = "Unavailable";
+            }
         };
+        document.getElementById("pdfBtn").addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("p", "mm", "a4");
+
+            let apps = JSON.parse(localStorage.getItem("savingAccountApplications")) || [];
+            let data = apps[apps.length - 1];
+            let y = 15;
+
+            function sectionTitle(title) {
+                pdf.setFillColor(35, 107, 189);
+                pdf.setTextColor(255, 255, 255);
+                pdf.rect(10, y, 190, 8, "F");
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(12);
+                pdf.text(title, 14, y + 5);
+                y += 12;
+                pdf.setTextColor(0, 0, 0);
+            }
+
+            function addField(title, value) {
+                if (y > 275) {
+                    pdf.addPage();
+                    y = 15;
+                }
+                pdf.setFont("helvetica", "bold");
+                pdf.setFontSize(10);
+                pdf.text(title, 14, y);
+
+                pdf.setFont("helvetica", "normal");
+                pdf.text(":", 60, y);
+                pdf.text(value ? value : "N/A", 65, y);
+                y += 8;
+
+                pdf.setDrawColor(200, 200, 200);
+                pdf.line(10, y, 200, y);
+                y += 3;
+            }
+
+            // Bank Header
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(16);
+            pdf.text("LENA DENA BANK (LNDB)", 105, y, null, null, "center");
+            y += 7;
+            pdf.setFontSize(12);
+            pdf.text("Savings Account Opening Form", 105, y, null, null, "center");
+            y += 10;
+
+            // Reference and Date
+            addField("Reference Number", data.refNo);
+            addField("Application Date", new Date().toLocaleDateString());
+
+            // Sections
+            sectionTitle("Personal Details");
+            addField("Full Name", data.fullName);
+            addField("Father's Name", data.fatherName);
+            addField("Mother's Name", data.motherName);
+            addField("Date of Birth", data.dob);
+            addField("Gender", data.gender);
+            addField("Marital Status", data.maritalStatus);
+
+            sectionTitle("Contact Details");
+            addField("Mobile Number", data.mobile);
+            addField("Email Address", data.email);
+            addField("Address", data.address);
+            addField("City", data.city);
+            addField("District", data.district);
+            addField("State", data.state);
+            addField("Pin Code", data.pincode);
+
+            sectionTitle("Identity (KYC)");
+            addField("Aadhaar Number", data.aadhar);
+            addField("PAN Number", data.pan);
+
+            sectionTitle("Banking Preferences");
+            addField("Preferred Branch", data.branch);
+            addField("Account Type", data.accountType);
+
+            sectionTitle("Nominee Information");
+            addField("Nominee Name", data.nomineeName);
+            addField("Nominee Relation", data.nomineeRelation);
+
+            sectionTitle("Uploaded Documents");
+            pdf.setFont("helvetica", "normal");
+            pdf.setFontSize(10);
+            pdf.text("• Passport Photo\n• Aadhaar Card\n• PAN Card\n• Signature\n• Address Proof\n• Income Proof (if provided)", 14, y);
+            y += 25;
+
+            // Placeholder for Applicant Photo
+            pdf.setDrawColor(0, 0, 0);
+            pdf.rect(145, y, 50, 50);
+            pdf.setFontSize(8);
+            pdf.text("Applicant Photo", 150, y + 25);
+
+            // Placeholder for Applicant Signature
+            y += 55;
+            pdf.rect(14, y, 60, 20);
+            pdf.setFontSize(8);
+            pdf.text("Applicant Signature", 16, y + 12);
+
+            // Placeholder for Bank Officer Signature
+            pdf.rect(130, y, 60, 20);
+            pdf.text("Bank Officer Signature", 132, y + 12);
+
+            // Generate PDF as Base64 string and store it
+            const pdfBase64 = pdf.output('dataurlstring');
+
+            // Store PDF in the corresponding account in lndbSavingAccounts
+            let savs = JSON.parse(localStorage.getItem("lndbSavingAccounts")) || [];
+            let latestRef = localStorage.getItem("latestRef");
+
+            // Find the account with matching reference number and add PDF
+            for (let i = 0; i < savs.length; i++) {
+                if (savs[i].refNo === latestRef) {
+                    savs[i].pdfFile = pdfBase64;
+                    break;
+                }
+            }
+
+            localStorage.setItem("lndbSavingAccounts", JSON.stringify(savs));
+
+            // Download the PDF
+            pdf.save(`${data.refNo}_LNDB_Application.pdf`);
+        });
+
+
     </script>
 
 </body>
+
 
 </html>

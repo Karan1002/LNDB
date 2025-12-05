@@ -315,15 +315,6 @@
                                 <span class="file-error" id="addressProofFileError"></span>
                             </div>
                         </label>
-
-                        <label>Income Proof (Optional PDF/Image)
-                            <div class="file-box" id="incomeProofFileBox">
-                                <input type="file" id="incomeProofFile" name="incomeProofFile"
-                                    accept=".pdf,image/jpeg,image/png">
-                                <span>Click to upload Income Proof</span>
-                                <span class="file-name" id="incomeProofFileName"></span>
-                            </div>
-                        </label>
                     </section>
 
                     <section>
@@ -375,6 +366,7 @@
     </div>
 
     <script>
+
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
             "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
@@ -388,11 +380,10 @@
         };
 
         document.getElementById('state').addEventListener('change', function () {
-            const state = this.value;
             const districtSelect = document.getElementById('district');
             districtSelect.innerHTML = '<option value="">--Select District--</option>';
-            if (stateDistrictMap[state]) {
-                stateDistrictMap[state].forEach(d => {
+            if (stateDistrictMap[this.value]) {
+                stateDistrictMap[this.value].forEach(d => {
                     let opt = document.createElement('option');
                     opt.value = d;
                     opt.text = d;
@@ -402,9 +393,12 @@
         });
 
         document.getElementById('district').addEventListener('change', function () {
-            const cityInput = document.getElementById('city');
-            if (this.value) cityInput.value = this.value;
+            if (this.value) document.getElementById('city').value = this.value;
         });
+
+        const requiredFileInputs = [
+            'photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'
+        ];
 
         const fileInputs = [
             { id: 'photo', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
@@ -412,37 +406,34 @@
             { id: 'panFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
             { id: 'signatureFile', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
             { id: 'addressProofFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
-            { id: 'incomeProofFile', types: ['application/pdf', 'image/jpeg', 'image/png'], max: 2 * 1024 * 1024 }
         ];
 
         fileInputs.forEach(f => {
             const input = document.getElementById(f.id);
             const nameSpan = document.getElementById(f.id + 'Name');
-            const errorSpan = document.getElementById(f.id + 'Error');
-            const box = document.getElementById(f.id + 'Box');
-            if (!input || !nameSpan || !errorSpan) return;
+            const errorSpan = document.getElementById(f.id + 'Error') || document.createElement('span');
+            const box = input.parentElement;
+
+            box.style.cursor = "pointer";
             box.addEventListener('click', () => input.click());
 
             input.addEventListener('change', function () {
                 if (input.files.length) {
                     const file = input.files[0];
-                    let validType = f.types.includes(file.type);
-                    let validSize = file.size <= f.max;
-                    if (!validType) {
-                        errorSpan.textContent = 'Invalid file type!';
+                    if (!f.types.includes(file.type)) {
+                        errorSpan.textContent = 'Invalid file type';
                         nameSpan.textContent = '';
                         input.value = '';
-                    } else if (!validSize) {
-                        errorSpan.textContent = 'File size must be under 2MB!';
-                        nameSpan.textContent = '';
-                        input.value = '';
-                    } else {
-                        errorSpan.textContent = '';
-                        nameSpan.textContent = file.name;
+                        return;
                     }
-                } else {
-                    nameSpan.textContent = '';
+                    if (file.size > f.max) {
+                        errorSpan.textContent = 'File must be under 2MB';
+                        nameSpan.textContent = '';
+                        input.value = '';
+                        return;
+                    }
                     errorSpan.textContent = '';
+                    nameSpan.textContent = file.name;
                 }
             });
         });
@@ -450,7 +441,20 @@
         document.getElementById('accountFormV2').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Age validation (same as previous)
+            const form = this;
+            let isValid = form.checkValidity();
+            form.reportValidity();
+
+            requiredFileInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (!input.files.length) {
+                    isValid = false;
+                    input.parentElement.style.borderColor = "#d9534f";
+                } else {
+                    input.parentElement.style.borderColor = "var(--border)";
+                }
+            });
+
             const dobInput = document.getElementById('dob').value;
             const dob = new Date(dobInput);
             const today = new Date();
@@ -459,45 +463,43 @@
             if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
 
             if (age < 18) {
-                alert('You must be at least 18 years old to open a bank account.');
-                return;
+                isValid = false;
+                alert("Applicant must be 18+ to open account");
             }
 
-            // Collect form data
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                fatherName: document.getElementById('fatherName').value,
-                motherName: document.getElementById('motherName').value,
-                dob: dobInput,
-                gender: document.getElementById('gender').value,
-                maritalStatus: document.getElementById('maritalStatus').value,
-                mobile: document.getElementById('mobile').value,
-                email: document.getElementById('email').value,
-                address: document.getElementById('address').value,
-                state: document.getElementById('state').value,
-                district: document.getElementById('district').value,
-                city: document.getElementById('city').value,
-                pincode: document.getElementById('pincode').value,
-                aadhar: document.getElementById('aadhar').value,
-                pan: document.getElementById('pan').value,
-                branch: document.getElementById('branch').value,
-                nomineeName: document.getElementById('nomineeName').value,
-                nomineeRelation: document.getElementById('nomineeRelation').value,
-                nomineeDOB: document.getElementById('nomineeDOB').value,
-                accountType: document.getElementById('accountType').value,
+            if (!isValid) return;
+
+            const refNo = "SA" + Math.floor(100000 + Math.random() * 900000);
+
+            const fullFormData = {};
+            [...form.elements].forEach(el => {
+                if (el.name && el.type !== 'file') fullFormData[el.name] = el.value;
+            });
+            fullFormData.refNo = refNo;
+
+            let apps = JSON.parse(localStorage.getItem("savingAccountApplications")) || [];
+            apps.push(fullFormData);
+            localStorage.setItem("savingAccountApplications", JSON.stringify(apps));
+
+            const accountData = {
+                refNo: refNo,
+                name: fullFormData.fullName,
+                phone: fullFormData.mobile,
+                Type: fullFormData.accountType,
                 status: "Pending"
             };
 
+            let savs = JSON.parse(localStorage.getItem("lndbSavingAccounts")) || [];
+            savs.push(accountData);
+            localStorage.setItem("lndbSavingAccounts", JSON.stringify(savs));
 
-            let apps = JSON.parse(localStorage.getItem("accountApplications")) || [];
-            apps.push(formData);
-            localStorage.setItem("accountApplications", JSON.stringify(apps));
-
-            alert("Application Submitted Successfully!");
+            localStorage.setItem("latestRef", refNo);
+            form.reset();
             window.location.href = "savingsub.html";
         });
 
     </script>
+
 </body>
 
 </html>

@@ -108,18 +108,17 @@
 
     <script>
         window.onload = function () {
+            const savedRef = localStorage.getItem("latestDebitRef");
 
-            const ref = localStorage.getItem("latestDebitRef");
-
-            if (ref) {
-                document.getElementById("refNo").textContent = ref;
+            if (savedRef) {
+                document.getElementById("refNo").textContent = savedRef;
             } else {
-                document.getElementById("refNo").textContent = "N/A";
+                document.getElementById("refNo").textContent = "Unavailable";
             }
+            localStorage.removeItem("latestDebitRef");
 
         };
     </script>
-
 
 
 </body>
