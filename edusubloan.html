@@ -17,22 +17,9 @@
         }
 
         h1 {
-            text-align: center;
             color: #003380;
-            margin-bottom: 10px;
-        }
-
-        .ref-box {
             text-align: center;
-            background-color: white;
-            border-radius: 8px;
-            padding: 10px 15px;
-            margin: 10px auto 25px;
-            box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
-            font-weight: bold;
-            color: #007bff;
-            font-size: 1.1rem;
-            width: fit-content;
+            margin-bottom: 24px;
         }
 
         p {
@@ -42,11 +29,24 @@
             line-height: 1.6;
         }
 
+        .ref-box {
+            background-color: #eaf3ff;
+            border-left: 5px solid #236bbd;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #003380;
+        }
+
         ul {
             background: white;
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            list-style-type: disc;
         }
 
         ul li {
@@ -59,15 +59,16 @@
             margin: 30px auto 0;
             padding: 12px 25px;
             font-size: 16px;
-            background-color: #007bff;
+            background-color: #236bbd;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #005ecb;
+            background-color: #174f85;
         }
 
         .footer {
@@ -76,16 +77,32 @@
             margin-top: 30px;
             color: #555;
         }
+
+        .error {
+            background-color: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 5px solid #c33;
+        }
     </style>
 </head>
 
 <body>
     <h1>Your Education Loan Application Has Been Submitted!</h1>
-    <div class="ref-box">
-        Reference No: <span id="refNo">ED000000</span>
+
+    <p>Thank you for applying for a <strong>Education Loan</strong> with
+        <strong>Lena Dena Bank (LNDB)</strong>.<br>
+        Your loan application has been successfully received.
+    </p>
+
+    <div id="refContainer">
+        <!-- Reference number will be loaded here -->
     </div>
-    <p>Thank you for applying for an <strong>Education Loan</strong> with LNDB.<br>
-        Please submit these documents at your nearest branch:</p>
+
+    <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
+
     <ul>
         <li>Admission Letter from Institution</li>
         <li>Fee Structure / Prospectus</li>
@@ -93,33 +110,44 @@
         <li>Income Proof of Co-applicant (Parent/Guardian)</li>
         <li>Address Proof and PAN Card</li>
     </ul>
+
     <button onclick="window.location.href='index.html'">Return to Home</button>
+
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
         window.onload = function () {
+            try {
+                let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
 
-            const ref = "EL" + Math.floor(100000 + Math.random() * 900000);
-            document.getElementById("refNo").textContent = ref;
-            const fullname = localStorage.getItem("dc_fullname") || "Not Provided";
-            const phone = localStorage.getItem("dc_phone") || "Not Provided";
-            const cardType = localStorage.getItem("dc_cardType") || "Debit";
+                // Find the LATEST Education Loan application
+                let latestEducationLoan = applications
+                    .filter(app => app.loanType === 'Education Loan')
+                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
 
-            let applications = JSON.parse(localStorage.getItem("lndbApplications")) || [];
-
-            applications.push({
-                refNo: ref,
-                fullName: fullname,
-                mobile: phone,
-                type: cardType + " Card",
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem("lndbApplications", JSON.stringify(applications));
+                if (latestEducationLoan) {
+                    document.getElementById("refContainer").innerHTML = `
+                        <div class="ref-box">
+                            Reference Number: <strong>${latestEducationLoan.refNo}</strong>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById("refContainer").innerHTML = `
+                        <div class="error">
+                            No education loan applications found. Please apply again.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error loading application:", error);
+                document.getElementById("refContainer").innerHTML = `
+                    <div class="error">
+                        Error loading reference number. Please try again.
+                    </div>
+                `;
+            }
         };
     </script>
-
 </body>
 
 </html>

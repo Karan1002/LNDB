@@ -143,25 +143,160 @@
     </div>
 
     <script>
-        document.getElementById('investmentForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            const inputs = this.querySelectorAll('input, select, textarea');
-            let allValid = true;
-            inputs.forEach(inp => {
-                if (!inp.checkValidity()) {
-                    inp.style.borderColor = 'red';
-                    allValid = false;
-                } else {
-                    inp.style.borderColor = '';
+        class InvestmentForm {
+            constructor() {
+                this.form = document.getElementById('investmentForm');
+                this.submitBtn = document.querySelector('button[type="submit"]');
+                this.init();
+            }
+
+            init() {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.form.addEventListener('input', (e) => this.clearError(e.target));
+            }
+
+            validateField(field, errorId, validationFn, errorMsg) {
+                const value = field.value.trim();
+                const errorEl = document.getElementById(errorId);
+
+                if (!value || !validationFn(value)) {
+                    if (errorEl) {
+                        errorEl.textContent = errorMsg;
+                        errorEl.style.display = "block";
+                    }
+                    field.style.borderColor = 'red';
+                    return false;
+                }
+                field.style.borderColor = '';
+                if (errorEl) errorEl.style.display = "none";
+                return true;
+            }
+
+            clearError(field) {
+                field.style.borderColor = '';
+                const errorEl = document.getElementById(field.id + 'Error');
+                if (errorEl) errorEl.style.display = "none";
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+
+                // Loading state
+                this.submitBtn.disabled = true;
+                this.submitBtn.textContent = 'Processing... ⏳';
+
+                let isValid = true;
+
+                // Account Number - 12 digits
+                isValid = this.validateField(
+                    document.getElementById('accountNumber'),
+                    'accountNumberError',
+                    val => /^\d{12}$/.test(val),
+                    '12-digit account number required'
+                ) && isValid;
+
+                // Full Name
+                isValid = this.validateField(
+                    document.getElementById('fullname'),
+                    'fullnameError',
+                    val => val.length >= 2,
+                    'Full name required'
+                ) && isValid;
+
+                // Email
+                isValid = this.validateField(
+                    document.getElementById('email'),
+                    'emailError',
+                    val => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+                    'Valid email required'
+                ) && isValid;
+
+                // Phone - 10 digits
+                isValid = this.validateField(
+                    document.getElementById('phone'),
+                    'phoneError',
+                    val => /^[6-9]\d{9}$/.test(val.replace(/[\s+()-]/g, '')),
+                    'Valid 10-digit mobile'
+                ) && isValid;
+
+                // Investment Type
+                isValid = this.validateField(
+                    document.getElementById('investmentType'),
+                    'investmentTypeError',
+                    val => val !== '',
+                    'Select investment type'
+                ) && isValid;
+
+                // Investment Amount - Min 1000
+                isValid = this.validateField(
+                    document.getElementById('investmentAmount'),
+                    'investmentAmountError',
+                    val => parseInt(val) >= 1000,
+                    'Minimum ₹1,000 required'
+                ) && isValid;
+
+                // Tenure - 1-240 months
+                isValid = this.validateField(
+                    document.getElementById('tenure'),
+                    'tenureError',
+                    val => parseInt(val) >= 1 && parseInt(val) <= 240,
+                    '1-240 months required'
+                ) && isValid;
+
+                if (!isValid) {
+                    this.submitBtn.disabled = false;
+                    this.submitBtn.textContent = 'Apply Now';
+                    return;
+                }
+
+                // ✅ ADMIN PANEL COMPATIBLE DATA FORMAT
+                const formData = {
+                    refNo: 'INV' + Math.floor(100000 + Math.random() * 900000),
+                    name: document.getElementById('fullname').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    account: document.getElementById('accountNumber').value.trim(),
+                    investmentType: document.getElementById('investmentType').value.toUpperCase(),
+                    amount: document.getElementById('investmentAmount').value,
+                    tenure: document.getElementById('tenure').value + ' months',
+                    goal: document.getElementById('goal').value.trim() || 'Not specified',
+                    remarks: document.getElementById('remarks').value.trim() || 'None',
+                    status: 'Pending',
+                    submittedOn: new Date().toISOString()
+                };
+
+                // Save to ADMIN PANEL - lndbInvestments (NEW STORAGE)
+                let investments = JSON.parse(localStorage.getItem('lndbInvestments') || '[]');
+                investments.push(formData);
+                localStorage.setItem('lndbInvestments', JSON.stringify(investments));
+
+                // Save reference for sub page
+                localStorage.setItem('lastInvestmentRef', formData.refNo);
+
+
+                setTimeout(() => {
+                    window.location.href = 'investmentsub.html';
+                }, 1000);
+            }
+        }
+
+        // Add error message divs (dynamically)
+        document.addEventListener('DOMContentLoaded', () => {
+            const fields = ['accountNumber', 'fullname', 'email', 'phone', 'investmentType', 'investmentAmount', 'tenure'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && !document.getElementById(fieldId + 'Error')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.id = fieldId + 'Error';
+                    errorDiv.style.cssText = 'color: red; font-size: 13px; margin-top: 5px; display: none;';
+                    field.parentNode.insertBefore(errorDiv, field.nextSibling);
                 }
             });
 
-            if (allValid) {
-                window.location.href = 'subinvestment.html';
-            } else {
-            }
+            new InvestmentForm();
         });
     </script>
+
 </body>
 
 </html>

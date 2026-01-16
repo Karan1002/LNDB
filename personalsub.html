@@ -13,11 +13,12 @@
             max-width: 600px;
             margin: 40px auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
-            text-align: center;
             color: #003380;
+            text-align: center;
             margin-bottom: 24px;
         }
 
@@ -45,6 +46,7 @@
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 74, 143, 0.1);
+            list-style-type: disc;
         }
 
         ul li {
@@ -75,18 +77,28 @@
             margin-top: 30px;
             color: #555;
         }
+
+        .error {
+            background-color: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border-left: 5px solid #c33;
+        }
     </style>
 </head>
 
 <body>
     <h1>Your Personal Loan Application Has Been Submitted!</h1>
+
     <p>Thank you for applying for a <strong>Personal Loan</strong> with
         <strong>Lena Dena Bank (LNDB)</strong>.<br>
-        Your application has been successfully received.
+        Your loan application has been successfully received.
     </p>
 
-    <div class="ref-box">
-        Reference Number: <span id="refNo"></span>
+    <div id="refContainer">
+        <!-- Reference number will be loaded here -->
     </div>
 
     <p>Please visit your nearest LNDB branch with the following documents for verification:</p>
@@ -96,36 +108,46 @@
         <li>Income Proof (Salary Slip or Bank Statement)</li>
         <li>PAN Card</li>
         <li>Employment Verification Letter</li>
-        <li>Recent Photograph</li>
+        <li>Recent Passport Size Photograph</li>
     </ul>
 
     <button onclick="window.location.href='index.html'">Return to Home</button>
+
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
     <script>
         window.onload = function () {
+            try {
+                let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
 
-            const ref = "PL" + Math.floor(100000 + Math.random() * 900000);
-            document.getElementById("refNo").textContent = ref;
-            const fullname = localStorage.getItem("dc_fullname") || "Not Provided";
-            const phone = localStorage.getItem("dc_phone") || "Not Provided";
-            const cardType = localStorage.getItem("dc_cardType") || "Debit";
+                // Find the LATEST Personal Loan application
+                let latestPersonalLoan = applications
+                    .filter(app => app.loanType === 'Personal Loan')
+                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
 
-            let applications = JSON.parse(localStorage.getItem("lndbApplications")) || [];
-
-            applications.push({
-                refNo: ref,
-                fullName: fullname,
-                mobile: phone,
-                type: cardType + " Card",
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem("lndbApplications", JSON.stringify(applications));
+                if (latestPersonalLoan) {
+                    document.getElementById("refContainer").innerHTML = `
+                        <div class="ref-box">
+                            Reference Number: <strong>${latestPersonalLoan.refNo}</strong>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById("refContainer").innerHTML = `
+                        <div class="error">
+                            No personal loan applications found. Please apply again.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Error loading application:", error);
+                document.getElementById("refContainer").innerHTML = `
+                    <div class="error">
+                        Error loading reference number. Please try again.
+                    </div>
+                `;
+            }
         };
     </script>
-
 </body>
 
 </html>

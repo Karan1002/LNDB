@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>LNDB — Admin Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #f2f4f7;
+            --card: #ffffff;
+            --muted: #5f6b7c;
+            --accent: #0a3d91;
+            --accent-2: #0f67c0;
+            --soft: #eef1f5;
+            --border: #d7dbe2;
+            --success: #0d7a45;
+            --danger: #b91c1c;
+            --radius: 10px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 8px 22px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            margin: 0;
+            height: 100%;
+            background: var(--bg);
+            font-family: "Inter", system-ui, sans-serif;
+            color: #1a1f36;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 28px;
+            padding: 28px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            margin: 0;
+            font-weight: 700;
+            color: #1a1f36;
+        }
+
+        .nav button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--muted);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 6px;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .nav button:hover {
+            background: var(--soft);
+            color: #1a1f36;
+        }
+
+        .nav button.active {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar footer {
+            font-size: 11px;
+            margin-top: 20px;
+            color: var(--muted);
+        }
+
+        .main {
+            background: var(--card);
+            padding: 24px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .search {
+            display: flex;
+            align-items: center;
+            background: var(--soft);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search input {
+            background: transparent;
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: #1a1f36;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-ghost {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            color: #1a1f36;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            color: white;
+        }
+
+        .count-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fb 100%);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .card h4 {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 0 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card .value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .card small {
+            font-size: 13px;
+            color: var(--muted);
+            display: block;
+            margin-top: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .tabs button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--soft);
+            color: var(--muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .tabs button:hover {
+            background: #e5e9f0;
+        }
+
+        .tabs button.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 2px 8px rgba(10, 61, 145, 0.3);
+        }
+
+        .panel {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-top: 16px;
+        }
+
+        .panel h3 {
+            margin: 0 0 16px 0;
+            font-size: 18px;
+            color: #1a1f36;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead th {
+            background: var(--soft);
+            color: var(--muted);
+            padding: 12px;
+            border-bottom: 2px solid var(--border);
+            font-size: 12px;
+            font-weight: 700;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f0f2f5;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fb;
+        }
+
+        .pill {
+            padding: 5px 12px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+            min-width: 70px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pill.pending {
+            background: #fff4e5;
+            color: #d97706;
+        }
+
+        .pill.accepted {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .pill.rejected {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+
+        .icon-btn {
+            background: var(--soft);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            display: none;
+            z-index: 9999;
+            font-weight: 600;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .section-panel {
+            display: none;
+        }
+
+        .section-panel:first-of-type {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.3;
+            margin-bottom: 16px;
+        }
+
+        @media(max-width:900px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: 2;
+                position: relative;
+                top: 0;
+            }
+
+            .main {
+                order: 1;
+            }
+
+            .count-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width:600px) {
+            thead {
+                display: none;
+            }
+
+            table,
+            tbody,
+            tr,
+            td {
+                display: block;
+                width: 100%;
+            }
+
+            tr {
+                margin-bottom: 16px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            td {
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                padding: 12px;
+            }
+
+            td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 12px;
+                font-weight: 700;
+                font-size: 11px;
+                color: var(--muted);
+                text-transform: uppercase;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo">LN</div>
+                <div>
+                    <h1>LNDB Admin</h1>
+                    <div style="font-size:11px;color:var(--muted)">Control & Approvals</div>
+                </div>
+            </div>
+
+            <nav class="nav" id="mainNav">
+                <button data-target="dashboard" class="active" onclick="switchSection(event)">📊 Dashboard</button>
+                <button data-target="accountSection" onclick="switchSection(event)">🏦 Accounts</button>
+                <button data-target="loanSection" onclick="switchSection(event)">💰 Loans</button>
+                <button data-target="cardApplySection" onclick="switchSection(event)">💳 Cards</button>
+                <button data-target="investmentSection" onclick="switchSection(event)">📈 Investments</button>
+            </nav>
+
+            <div style="margin-top:20px">
+                <button class="btn btn-ghost" style="width:100%" onclick="adminLogout()">🚪 Logout</button>
+                <footer style="margin-top:12px">Version 2.5 — LNDB Secure</footer>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="topbar">
+                <div class="search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="opacity:0.6">
+                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        </path>
+                        <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2"></circle>
+                    </svg>
+                    <input id="searchInput" placeholder="Search by Ref / Name / Phone" oninput="searchAll(event)" />
+                </div>
+            </div>
+
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="section-panel" style="display:block">
+                <div class="count-cards">
+                    <div class="card">
+                        <h4>Total Pending</h4>
+                        <div class="value" id="totalPending">0</div>
+                        <small>All modules combined</small>
+                    </div>
+                    <div class="card">
+                        <h4>Accounts</h4>
+                        <div class="value" id="accPendingCount">0</div>
+                        <small>Savings & Current</small>
+                    </div>
+                    <div class="card">
+                        <h4>Loans</h4>
+                        <div class="value" id="loanPendingCount">0</div>
+                        <small>Business Loans</small>
+                    </div>
+                    <div class="card">
+                        <h4>Cards</h4>
+                        <div class="value" id="cardPendingCount">0</div>
+                        <small>Debit & Credit</small>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <button class="active" onclick="focusModule('accountSection')">Account Openings</button>
+                    <button onclick="focusModule('loanSection')">Loan Requests</button>
+                    <button onclick="focusModule('cardApplySection')">Card Requests</button>
+                    <button onclick="focusModule('investmentSection')">Investment Requests</button>
+                </div>
+
+                <div class="panel">
+                    <h3>Latest Pending — Quick Actions</h3>
+                    <div class="table-wrap">
+                        <table id="quickTable">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Contact</th>
+                                    <th>Module</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACCOUNTS -->
+            <section id="accountSection" class="section-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <h2 style="margin:0">Accounts (Savings & Current)</h2>
+                    <div class="tabs">
+                        <button class="active" onclick="showAccTab('accPending', this)">Pending</button>
+                        <button onclick="showAccTab('accAccepted', this)">Accepted</button>
+                        <button onclick="showAccTab('accRejected', this)">Rejected</button>
+                    </div>
+                </div>
+
+                <div id="accPendingPanel" class="panel">
+                    <div class="table-wrap">
+                        <table id="accPendingTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="accAcceptedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="accAcceptedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="accRejectedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="accRejectedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LOANS SECTION - COMPLETE UPDATED -->
+            <section id="loanSection" class="section-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <h2 style="margin:0">Loan Requests</h2>
+                    <div class="tabs">
+                        <button class="active" onclick="showLoanSub('loanPending')">Pending</button>
+                        <button onclick="showLoanSub('loanAccepted')">Accepted</button>
+                        <button onclick="showLoanSub('loanRejected')">Rejected</button>
+                    </div>
+                </div>
+
+                <!-- ✅ FIXED: Added proper tbody IDs -->
+                <div id="loanPendingPanel" class="panel">
+                    <div class="table-wrap">
+                        <table id="loanPendingTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Phone</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loanPendingTableBody"></tbody> <!-- ✅ Added ID -->
+                        </table>
+                    </div>
+                </div>
+
+                <div id="loanAcceptedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="loanAcceptedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Phone</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loanAcceptedTableBody"></tbody> <!-- ✅ Added ID -->
+                        </table>
+                    </div>
+                </div>
+
+                <div id="loanRejectedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="loanRejectedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Phone</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="loanRejectedTableBody"></tbody> <!-- ✅ Added ID -->
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CARDS -->
+            <section id="cardApplySection" class="section-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <h2 style="margin:0">Card Requests</h2>
+                    <div class="tabs">
+                        <button class="active" onclick="showCardSub('cardPendingPanel', this)">Pending</button>
+                        <button onclick="showCardSub('cardAcceptedPanel', this)">Approved</button>
+                        <button onclick="showCardSub('cardRejectedPanel', this)">Rejected</button>
+                    </div>
+                </div>
+
+                <div id="cardPendingPanel" class="panel">
+                    <div class="table-wrap">
+                        <table id="cardPendingTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Limit</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="cardAcceptedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="cardAcceptedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Limit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="cardRejectedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="cardRejectedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Type</th>
+                                    <th>Limit</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- INVESTMENTS -->
+            <section id="investmentSection" class="section-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                    <h2 style="margin:0">Investments</h2>
+                    <div class="tabs">
+                        <button class="active" onclick="showInvSub('invPending')">Pending</button>
+                        <button onclick="showInvSub('invAccepted')">Accepted</button>
+                        <button onclick="showInvSub('invRejected')">Rejected</button>
+                    </div>
+                </div>
+
+                <div id="invPendingPanel" class="panel">
+                    <div class="table-wrap">
+                        <table id="invPendingTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="invAcceptedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="invAcceptedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="invRejectedPanel" class="panel" style="display:none">
+                    <div class="table-wrap">
+                        <table id="invRejectedTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Name</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function escapeHtml(str = "") {
+            if (!str) return "N/A";
+            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.textContent = msg;
+            toast.style.display = "block";
+            setTimeout(() => (toast.style.display = "none"), 3000);
+        }
+
+        function switchSection(e) {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            const target = btn.getAttribute("data-target");
+            document.querySelectorAll(".section-panel").forEach(s => (s.style.display = "none"));
+            const targetEl = document.getElementById(target);
+            if (targetEl) targetEl.style.display = "block";
+
+            if (target === "dashboard") refreshDashboard();
+            if (target === "accountSection") loadAccounts();
+            if (target === "loanSection") loadLoans();
+            if (target === "cardApplySection") loadCards();
+            if (target === "investmentSection") loadInvestments();
+        }
+
+        function focusModule(moduleId) {
+            document.querySelectorAll(".section-panel").forEach(s => (s.style.display = "none"));
+            document.getElementById(moduleId).style.display = "block";
+
+            document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+            const targetBtn = document.querySelector(`.nav button[data-target="${moduleId}"]`);
+            if (targetBtn) targetBtn.classList.add("active");
+
+            if (moduleId === "accountSection") loadAccounts();
+            if (moduleId === "loanSection") loadLoans();
+            if (moduleId === "cardApplySection") loadCards();
+        }
+
+        // 🔥 FIXED: updateSummary() - Counts update
+        function updateSummary() {
+            const loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+            const sav = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
+            const cur = JSON.parse(localStorage.getItem("lndbCurrentAccounts") || "[]");
+            const deb = JSON.parse(localStorage.getItem("lndbApplications") || "[]");  // Debit
+            const cred = JSON.parse(localStorage.getItem("lndbCreditCardApplications") || "[]");  // Credit
+
+            // Pending counts
+            const pendingLoans = loans.filter(l => l.status === "Pending").length;
+            const pendingAcc = [...sav, ...cur].filter(a => a.status === "Pending").length;
+            const pendingCards = [...deb, ...cred].filter(c => c.status === "Pending").length;
+            const totalPending = pendingLoans + pendingAcc + pendingCards;
+
+            // 🔥 UPDATE CARD VALUES
+            document.getElementById("totalPending").textContent = totalPending;
+            document.getElementById("accPendingCount").textContent = pendingAcc;
+            document.getElementById("loanPendingCount").textContent = pendingLoans;
+            document.getElementById("cardPendingCount").textContent = pendingCards;
+
+            console.log("📊 COUNTS:", { totalPending, pendingAcc, pendingLoans, pendingCards });
+        }
+
+        // 🔥 FIXED: populateQuick() - Quick table populate
+        function populateQuick() {
+            const tbody = document.querySelector("#quickTable tbody");
+            if (!tbody) return;
+
+            tbody.innerHTML = "";  // Clear first
+
+            const loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+            const sav = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
+            const cur = JSON.parse(localStorage.getItem("lndbCurrentAccounts") || "[]");
+
+            // 🔥 COMBINE PENDING ONLY
+            const combined = [
+                // Loans
+                ...loans.filter(l => l.status === "Pending").map(l => ({
+                    ref: l.refNo,
+                    name: l.name || l.ownerName || 'N/A',
+                    type: l.loanType || 'Business',
+                    contact: l.phone || '-',
+                    module: 'Loan'
+                })),
+                // Accounts
+                ...sav.filter(a => a.status === "Pending").map(a => ({
+                    ref: a.refNo,
+                    name: a.name || a.fullName || 'N/A',
+                    type: a.type || 'Savings',
+                    contact: a.phone || '-',
+                    module: 'Account'
+                })),
+                ...cur.filter(a => a.status === "Pending").map(a => ({
+                    ref: a.refNo,
+                    name: a.name || a.fullName || 'N/A',
+                    type: 'Current',
+                    contact: a.phone || '-',
+                    module: 'Account'
+                }))
+            ];
+
+            if (combined.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#666;">No pending requests yet</td></tr>';
+                return;
+            }
+
+            // Show top 10
+            combined.slice(0, 10).forEach(r => {
+                tbody.insertAdjacentHTML("beforeend", `
+            <tr>
+                <td data-label="Reference"><strong>${escapeHtml(r.ref)}</strong></td>
+                <td data-label="Name">${escapeHtml(r.name)}</td>
+                <td data-label="Type">${r.type}</td>
+                <td data-label="Contact">${r.contact}</td>
+                <td data-label="Module">${r.module}</td>
+                <td data-label="Status"><span class="pill pending">Pending</span></td>
+            </tr>
+        `);
+            });
+        }
+
+        // 🔥 MAIN: refreshDashboard()
+        function refreshDashboard() {
+            console.log("🔄 Refreshing dashboard...");
+            updateSummary();
+            populateQuick();
+        }
+
+
+        // ✅ STEP 1: escapeHtml function add karo (TOP par)
+        function escapeHtml(text) {
+            if (!text) return 'N/A';
+            return text.toString().replace(/[&<>"']/g, function (match) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[match];
+            });
+        }
+
+        function loadAccounts() {
+            const sav = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
+            const cur = JSON.parse(localStorage.getItem("lndbCurrentAccounts") || "[]");
+            console.log("📊 DATA:", sav); // DEBUG
+
+            const all = [
+                ...sav.map(a => ({ ...a, type: a.type || "Savings", phone: a.phone || a.mobile || '-' })),
+                ...cur.map(a => ({ ...a, type: "Current", phone: a.phone || a.mobile || '-' }))
+            ];
+
+            const tables = {
+                Pending: document.querySelector("#accPendingTable tbody"),
+                Accepted: document.querySelector("#accAcceptedTable tbody"),
+                Rejected: document.querySelector("#accRejectedTable tbody")
+            };
+
+            Object.values(tables).forEach(t => { if (t) t.innerHTML = ""; });
+
+            all.forEach(acc => {
+                const st = acc.status || "Pending";
+                const table = tables[st];
+                if (!table) return;
+
+                const displayRefNo = escapeHtml(acc.refNo || 'N/A');
+                const displayName = escapeHtml(acc.name || acc.fullName || 'N/A');
+                const displayPhone = escapeHtml(acc.phone || '-');
+
+                // 🔥 FIXED: onclick mein SIMPLE reference pass
+                const safeRefNo = escapeHtml(acc.refNo || 'NOREF');
+
+                const row = st === "Pending" ? `<tr>
+            <td data-label="Ref"><strong>${displayRefNo}</strong></td>
+            <td data-label="Name">${displayName}</td>
+            <td data-label="Phone">${displayPhone}</td>
+            <td data-label="Type">${escapeHtml(acc.type || 'N/A')}</td>
+            <td data-label="Action">
+                <div class="row-actions">
+                    <button class="icon-btn" onclick="updateAccount('${safeRefNo}', 'Accepted')">✔ Accept</button>
+                    <button class="icon-btn" onclick="updateAccount('${safeRefNo}', 'Rejected')">✖ Reject</button>
+                </div>
+            </td>
+        </tr>` : `<tr>
+            <td data-label="Ref">${displayRefNo}</td>
+            <td data-label="Name">${displayName}</td>
+            <td data-label="Phone">${displayPhone}</td>
+            <td data-label="Type">${escapeHtml(acc.type || 'N/A')}</td>
+            <td data-label="Status">
+                <span class="pill ${st.toLowerCase()}">${st}</span>
+            </td>
+        </tr>`;
+
+                table.insertAdjacentHTML("beforeend", row);
+            });
+            updateSummary();
+        }
+
+        function updateAccount(refNo, status) {
+            console.log("🔥 CLICKED:", refNo, status);
+
+            if (!refNo || refNo === 'N/A') {
+                alert("❌ No valid reference!");
+                return;
+            }
+
+            const key = refNo.startsWith('CA') ? "lndbCurrentAccounts" : "lndbSavingAccounts";
+            let arr = JSON.parse(localStorage.getItem(key) || "[]");
+
+            console.log("🔍 Searching in", key, ":", arr);
+
+            const idx = arr.findIndex(a => a.refNo === refNo);
+            console.log("Index found:", idx);
+
+            if (idx >= 0) {
+                arr[idx].status = status;
+                localStorage.setItem(key, JSON.stringify(arr));
+                console.log("✅ UPDATED:", arr[idx]);
+                loadAccounts();
+                alert("✓ " + refNo + " " + status); // SIMPLE ALERT
+            } else {
+                console.error("❌ NOT FOUND:", refNo);
+                alert("❌ " + refNo + " not found!");
+            }
+        }
+
+        // 🔥 COMPLETE FIXED loadLoans() + HELPER FUNCTIONS
+        function getLoanName(loan) {
+            return loan.name || loan.ownerName || 'N/A';
+        }
+
+        function getLoanAmount(loan) {
+            return loan.amount || loan.loanAmount || 0;
+        }
+
+        function getLoanPhone(loan) {
+            return loan.phone || loan.mobile || 'N/A';
+        }
+
+        function loadLoans() {
+            const loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+            console.log("📊 LOANS FOUND:", loans.length); // DEBUG
+
+            // 🔥 FIXED: getElementById + null check
+            const tables = {
+                Pending: document.getElementById("loanPendingTableBody"),
+                Accepted: document.getElementById("loanAcceptedTableBody"),
+                Rejected: document.getElementById("loanRejectedTableBody")
+            };
+
+            // 🔥 CLEAR TABLES + CHECK EXISTENCE
+            Object.entries(tables).forEach(([status, table]) => {
+                if (table) {
+                    table.innerHTML = "";
+                } else {
+                    console.error(`❌ ${status} table not found!`);
+                }
+            });
+
+            // 🔥 EMPTY STATE
+            if (loans.length === 0) {
+                const pendingTable = tables.Pending;
+                if (pendingTable) {
+                    pendingTable.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#666;">No loan requests yet</td></tr>';
+                }
+                return;
+            }
+
+            loans.forEach(l => {
+                const st = l.status || "Pending";
+                const table = tables[st];
+
+                if (!table) {
+                    console.warn(`⚠️ No table for status: ${st}`);
+                    return;
+                }
+
+                const applicantName = getLoanName(l);
+                const loanAmount = getLoanAmount(l);
+                const phoneNumber = getLoanPhone(l);
+
+                const row = st === "Pending" ?
+                    `<tr>
+                <td data-label="Ref"><strong>${escapeHtml(l.refNo)}</strong></td>
+                <td data-label="Name">${escapeHtml(applicantName)}</td>
+                <td data-label="Type">${escapeHtml(l.loanType || 'Personal')}</td>
+                <td data-label="Phone">${escapeHtml(phoneNumber)}</td>
+                <td data-label="Amount">₹${parseInt(loanAmount || 0).toLocaleString()}</td>
+                <td data-label="Action">
+                    <div class="row-actions">
+                        <button class="icon-btn" onclick="updateLoan('${escapeHtml(l.refNo)}','Accepted')">✔ Accept</button>
+                        <button class="icon-btn" onclick="updateLoan('${escapeHtml(l.refNo)}','Rejected')">✖ Reject</button>
+                    </div>
+                </td>
+            </tr>` :
+                    `<tr>
+                <td data-label="Ref"><strong>${escapeHtml(l.refNo)}</strong></td>
+                <td data-label="Name">${escapeHtml(applicantName)}</td>
+                <td data-label="Type">${escapeHtml(l.loanType || 'Personal')}</td>
+                <td data-label="Phone">${escapeHtml(phoneNumber)}</td>
+                <td data-label="Amount">₹${parseInt(loanAmount || 0).toLocaleString()}</td>
+                <td data-label="Status">
+                    <span class="pill ${st.toLowerCase()}">${st}</span>
+                </td>
+            </tr>`;
+
+                table.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        function updateLoan(refNo, status) {
+            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+            const idx = loans.findIndex(l => l.refNo === refNo);
+
+            if (idx >= 0) {
+                loans[idx].status = status;
+                localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+                loadLoans();
+                refreshDashboard();
+                showToast(`✓ Loan ${refNo} ${status}`);
+                console.log("✅ Loan updated:", refNo, status);
+            } else {
+                console.error("❌ Loan not found:", refNo);
+                showToast("❌ Loan not found!");
+            }
+        }
+
+        // ✅ escapeHtml (already perfect)
+        function escapeHtml(text) {
+            if (!text) return 'N/A';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function loadCards() {
+            const debit = JSON.parse(localStorage.getItem("lndbApplications") || "[]");
+            const credit = JSON.parse(localStorage.getItem("lndbCreditCardApplications") || "[]");
+            const all = [
+                ...debit.map(d => ({ ...d, type: "Debit", limit: "-" })),
+                ...credit.map(c => ({ ...c, type: "Credit", limit: c.annualLimit || "-" }))
+            ];
+
+            const tables = {
+                Pending: document.querySelector("#cardPendingTable tbody"),
+                Accepted: document.querySelector("#cardAcceptedTable tbody"),
+                Rejected: document.querySelector("#cardRejectedTable tbody")
+            };
+
+            Object.values(tables).forEach(t => { if (t) t.innerHTML = ""; });
+
+            all.forEach(c => {
+                const st = c.status || "Pending";
+                const table = tables[st];
+                if (!table) return;
+
+                const row = st === "Pending" ? `<tr>
+            <td data-label="Ref">${c.refNo}</td>
+            <td data-label="Name">${escapeHtml(c.name)}</td>
+            <td data-label="Phone">${c.phone}</td>
+            <td data-label="Type">${c.type}</td>
+            <td data-label="Limit">${c.limit}</td>
+            <td data-label="Action">
+                <div class="row-actions">
+                    <button class="icon-btn" onclick="updateCard('${c.refNo}','${c.type}','Accepted')">✔ Accept</button>
+                    <button class="icon-btn" onclick="updateCard('${c.refNo}','${c.type}','Rejected')">✖ Reject</button>
+                </div>
+            </td>
+        </tr>` : `<tr>
+            <td data-label="Ref">${c.refNo}</td>
+            <td data-label="Name">${escapeHtml(c.name)}</td>
+            <td data-label="Phone">${c.phone}</td>
+            <td data-label="Type">${c.type}</td>
+            <td data-label="Limit">${c.limit}</td>
+            <td data-label="Status"><span class="pill ${st.toLowerCase()}">${st}</span></td>
+        </tr>`;
+
+                table.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        function updateCard(refNo, cardType, status) {
+            const key = cardType === "Debit" ? "lndbApplications" : "lndbCreditCardApplications";
+            let arr = JSON.parse(localStorage.getItem(key) || "[]");
+            const idx = arr.findIndex(c => c.refNo === refNo);
+            if (idx >= 0) {
+                arr[idx].status = status;
+                localStorage.setItem(key, JSON.stringify(arr));
+                loadCards();
+                refreshDashboard();
+                showToast(`✓ ${cardType} Card ${refNo} ${status}`);
+            }
+        }
+
+        function loadInvestments() {
+            const inv = JSON.parse(localStorage.getItem("lndbInvestments") || "[]");
+            const tables = {
+                Pending: document.querySelector("#invPendingTable tbody"),
+                Accepted: document.querySelector("#invAcceptedTable tbody"),
+                Rejected: document.querySelector("#invRejectedTable tbody")
+            };
+
+            Object.values(tables).forEach(t => { if (t) t.innerHTML = ""; });
+
+            inv.forEach(x => {
+                const st = x.status || "Pending";
+                const table = tables[st];
+                if (!table) return;
+
+                const row = st === "Pending" ? `<tr>
+            <td data-label="Ref">${x.refNo}</td>
+            <td data-label="Name">${escapeHtml(x.name)}</td>
+            <td data-label="Amount">₹${x.amount}</td>
+            <td data-label="Action">
+                <div class="row-actions">
+                    <button class="icon-btn" onclick="updateInv('${x.refNo}','Accepted')">✔ Accept</button>
+                    <button class="icon-btn" onclick="updateInv('${x.refNo}','Rejected')">✖ Reject</button>
+                </div>
+            </td>
+        </tr>` : `<tr>
+            <td data-label="Ref">${x.refNo}</td>
+            <td data-label="Name">${escapeHtml(x.name)}</td>
+            <td data-label="Amount">₹${x.amount}</td>
+            <td data-label="Status"><span class="pill ${st.toLowerCase()}">${st}</span></td>
+        </tr>`;
+
+                table.insertAdjacentHTML("beforeend", row);
+            });
+        }
+
+        function updateInv(refNo, status) {
+            let inv = JSON.parse(localStorage.getItem("lndbInvestments") || "[]");
+            const idx = inv.findIndex(x => x.refNo === refNo);
+            if (idx >= 0) {
+                inv[idx].status = status;
+                localStorage.setItem("lndbInvestments", JSON.stringify(inv));
+                loadInvestments();
+                refreshDashboard();
+                showToast(`✓ Investment ${refNo} ${status}`);
+            }
+        }
+
+        function showAccTab(panel, btn) {
+            btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("accPendingPanel").style.display = panel === "accPending" ? "block" : "none";
+            document.getElementById("accAcceptedPanel").style.display = panel === "accAccepted" ? "block" : "none";
+            document.getElementById("accRejectedPanel").style.display = panel === "accRejected" ? "block" : "none";
+        }
+
+        function showLoanSub(panel) {
+            document.querySelectorAll('#loanSection .tabs button').forEach((b, i) => {
+                b.classList.toggle('active', i === (panel === 'loanPending' ? 0 : panel === 'loanAccepted' ? 1 : 2));
+            });
+            document.getElementById("loanPendingPanel").style.display = panel === "loanPending" ? "block" : "none";
+            document.getElementById("loanAcceptedPanel").style.display = panel === "loanAccepted" ? "block" : "none";
+            document.getElementById("loanRejectedPanel").style.display = panel === "loanRejected" ? "block" : "none";
+        }
+
+        function showCardSub(id, btn) {
+            btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            ["cardPendingPanel", "cardAcceptedPanel", "cardRejectedPanel"].forEach(p => {
+                document.getElementById(p).style.display = p === id ? "block" : "none";
+            });
+        }
+
+        function showInvSub(panel) {
+            document.querySelectorAll('#investmentSection .tabs button').forEach((b, i) => {
+                b.classList.toggle('active', i === (panel === 'invPending' ? 0 : panel === 'invAccepted' ? 1 : 2));
+            });
+            document.getElementById("invPendingPanel").style.display = panel === "invPending" ? "block" : "none";
+            document.getElementById("invAcceptedPanel").style.display = panel === "invAccepted" ? "block" : "none";
+            document.getElementById("invRejectedPanel").style.display = panel === "invRejected" ? "block" : "none";
+        }
+
+        function searchAll(e) {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll("tbody tr").forEach(tr => {
+                tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
+            });
+        }
+
+        function adminLogout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem("adminLogin");
+                window.location.href = "index.html";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            refreshDashboard();
+            loadAccounts();
+            loadLoans();
+            loadCards();
+            loadInvestments();
+        });
+    </script>
+
+</body>
+
+</html>

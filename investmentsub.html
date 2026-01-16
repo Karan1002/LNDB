@@ -96,27 +96,26 @@
 
     <script>
         window.onload = function () {
+            try {
+                // Get from new storage
+                let investments = JSON.parse(localStorage.getItem("lndbInvestments") || []);
+                let latestInvestment = investments
+                    .filter(inv => inv.investmentType)
+                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
 
-            const ref = "INV" + Math.floor(100000 + Math.random() * 900000);
-            document.getElementById("refNo").textContent = ref;
-            const fullname = localStorage.getItem("dc_fullname") || "Not Provided";
-            const phone = localStorage.getItem("dc_phone") || "Not Provided";
-            const cardType = localStorage.getItem("dc_cardType") || "Debit";
-
-            let applications = JSON.parse(localStorage.getItem("lndbApplications")) || [];
-
-            applications.push({
-                refNo: ref,
-                fullName: fullname,
-                mobile: phone,
-                type: cardType + " Card",
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
-
-            localStorage.setItem("lndbApplications", JSON.stringify(applications));
+                if (latestInvestment && latestInvestment.refNo) {
+                    document.getElementById("refNo").textContent = latestInvestment.refNo;
+                } else {
+                    // Fallback
+                    const ref = localStorage.getItem('lastInvestmentRef') || "INV" + Math.floor(100000 + Math.random() * 900000);
+                    document.getElementById("refNo").textContent = ref;
+                }
+            } catch (error) {
+                document.getElementById("refNo").textContent = "Error loading reference";
+            }
         };
     </script>
+
 
 </body>
 

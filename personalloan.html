@@ -8,22 +8,33 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f8fb;
+            background: linear-gradient(135deg, #d1e9ff, #f4f8fb),
+                url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background-size: cover;
             color: #004a8f;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            backdrop-filter: blur(4px);
+            padding: 20px;
         }
 
         form {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 28px 36px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 74, 143, 0.1);
-            width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 74, 143, 0.25);
+            width: 420px;
+            max-width: 100%;
             box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 74, 143, 0.3);
         }
 
         h2 {
@@ -51,7 +62,7 @@
             font-size: 1rem;
             color: #004a8f;
             background-color: transparent;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             box-sizing: border-box;
         }
 
@@ -80,52 +91,118 @@
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 193, 7, 0.5);
-            transition: background-color 0.3s ease;
-            user-select: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         button:hover {
             background-color: #e6b007;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #0d7a45;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-    <form id="personalLoanForm" aria-label="Personal Loan Application Form">
-        <h2>Personal Loan Application</h2>
+    <form id="personalLoanForm" aria-label="Personal Loan Application">
+        <h2>💳 Personal Loan Application</h2>
 
-        <label for="fullName">Full Name</label>
+        <label for="fullName">Full Name <span style="color:red">*</span></label>
         <input type="text" id="fullName" name="fullName" required placeholder="Enter your full name" />
 
-        <label for="email">Email Address</label>
+        <label for="email">Email Address <span style="color:red">*</span></label>
         <input type="email" id="email" name="email" required placeholder="Enter your email" />
 
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number" />
+        <label for="phone">Phone Number <span style="color:red">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="10-digit phone number" pattern="[0-9]{10}" />
 
-        <label for="loanAmount">Loan Amount (INR)</label>
+        <label for="employmentType">Employment Type <span style="color:red">*</span></label>
+        <select id="employmentType" name="employmentType" required>
+            <option value="">-- Select Employment --</option>
+            <option value="Salaried">Salaried Employee</option>
+            <option value="Self Employed">Self Employed</option>
+            <option value="Business Owner">Business Owner</option>
+        </select>
+
+        <label for="monthlyIncome">Monthly Income (INR) <span style="color:red">*</span></label>
+        <input type="number" id="monthlyIncome" name="monthlyIncome" min="15000" max="500000" required
+            placeholder="e.g. 50000" />
+
+        <label for="loanAmount">Loan Amount (INR) <span style="color:red">*</span></label>
         <input type="number" id="loanAmount" name="loanAmount" min="10000" max="1000000" required
             placeholder="Enter loan amount" />
 
-        <label for="loanPurpose">Purpose of Loan</label>
-        <textarea id="loanPurpose" name="loanPurpose" required
-            placeholder="Briefly explain the purpose of the loan"></textarea>
+        <label for="loanPurpose">Purpose of Loan <span style="color:red">*</span></label>
+        <textarea id="loanPurpose" name="loanPurpose" rows="3" required
+            placeholder="Wedding, Medical, Travel, Education, etc."></textarea>
 
         <button type="submit">Apply Now</button>
     </form>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        const form = document.getElementById('personalLoanForm');
-        form.addEventListener('submit', (e) => {
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+
+        document.getElementById('personalLoanForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
-            if (!form.checkValidity()) {
-                alert('Please fill all required fields correctly.');
+            const formData = {
+                refNo: 'PL' + Math.floor(100000 + Math.random() * 900000),
+                name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                amount: document.getElementById('loanAmount').value,
+                loanType: 'Personal Loan',
+                status: 'Pending',
+                submittedOn: new Date().toISOString(),
+                personalDetails: {
+                    employmentType: document.getElementById('employmentType').value,
+                    monthlyIncome: document.getElementById('monthlyIncome').value,
+                    purpose: document.getElementById('loanPurpose').value.trim()
+                }
+            };
+
+            // Validation
+            if (!formData.name || !formData.email || !formData.phone) {
+                alert('Please fill all required fields');
                 return;
             }
 
+            if (!/^[0-9]{10}$/.test(formData.phone)) {
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
 
-            window.location.href = "subpersonal.html";
+            // Save to unified localStorage (admin panel compatible)
+            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || []);
+            loans.push(formData);
+            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+
+            setTimeout(() => {
+                window.location.href = 'personalsub.html';
+            }, 1500);
         });
     </script>
 </body>

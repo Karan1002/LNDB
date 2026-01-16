@@ -440,63 +440,69 @@
 
         document.getElementById('accountFormV2').addEventListener('submit', function (e) {
             e.preventDefault();
-
             const form = this;
+
+            // Validation (same as before)
             let isValid = form.checkValidity();
             form.reportValidity();
 
+            const requiredFileInputs = ['photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'];
             requiredFileInputs.forEach(id => {
                 const input = document.getElementById(id);
                 if (!input.files.length) {
                     isValid = false;
                     input.parentElement.style.borderColor = "#d9534f";
-                } else {
-                    input.parentElement.style.borderColor = "var(--border)";
                 }
             });
 
+            // Age check (same)
             const dobInput = document.getElementById('dob').value;
-            const dob = new Date(dobInput);
-            const today = new Date();
-            let age = today.getFullYear() - dob.getFullYear();
-            const month = today.getMonth() - dob.getMonth();
-            if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
-
-            if (age < 18) {
-                isValid = false;
-                alert("Applicant must be 18+ to open account");
+            if (dobInput) {
+                const dob = new Date(dobInput);
+                const today = new Date();
+                let age = today.getFullYear() - dob.getFullYear();
+                const month = today.getMonth() - dob.getMonth();
+                if (month < 0 || (month === 0 && today.getDate() < dob.getDate())) age--;
+                if (age < 18) {
+                    isValid = false;
+                    alert("❌ Applicant must be 18+");
+                    return;
+                }
             }
 
             if (!isValid) return;
 
-            const refNo = "SA" + Math.floor(100000 + Math.random() * 900000);
-
+            // ✅ SIRF FORM DATA SAVE KARO - NO REFERENCE
             const fullFormData = {};
             [...form.elements].forEach(el => {
-                if (el.name && el.type !== 'file') fullFormData[el.name] = el.value;
+                if (el.name && el.type !== 'file') {
+                    fullFormData[el.name] = el.value;
+                }
             });
-            fullFormData.refNo = refNo;
 
-            let apps = JSON.parse(localStorage.getItem("savingAccountApplications")) || [];
+            // Save full data
+            let apps = JSON.parse(localStorage.getItem("savingAccountApplications") || "[]");
             apps.push(fullFormData);
             localStorage.setItem("savingAccountApplications", JSON.stringify(apps));
 
+            // Save admin summary (BINA reference ke)
             const accountData = {
-                refNo: refNo,
                 name: fullFormData.fullName,
                 phone: fullFormData.mobile,
-                Type: fullFormData.accountType,
+                type: fullFormData.accountType,
                 status: "Pending"
             };
-
-            let savs = JSON.parse(localStorage.getItem("lndbSavingAccounts")) || [];
+            let savs = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
             savs.push(accountData);
             localStorage.setItem("lndbSavingAccounts", JSON.stringify(savs));
 
-            localStorage.setItem("latestRef", refNo);
+            alert("✅ Application submitted successfully!");
             form.reset();
+
+            // Redirect BINA reference
             window.location.href = "savingsub.html";
         });
+
 
     </script>
 

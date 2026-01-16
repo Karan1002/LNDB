@@ -8,12 +8,17 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #d1e9ff, #f4f8fb);
+            background: linear-gradient(135deg, #d1e9ff, #f4f8fb),
+                url('https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #004a8f;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            backdrop-filter: blur(4px);
+            padding: 20px;
         }
 
         form {
@@ -21,8 +26,15 @@
             padding: 28px 36px;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 74, 143, 0.25);
-            width: 400px;
+            width: 420px;
+            max-width: 100%;
             box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 74, 143, 0.3);
         }
 
         h2 {
@@ -36,19 +48,25 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
+            font-size: 1rem;
         }
 
-        input {
+        input,
+        select {
             width: 100%;
             padding: 10px 14px;
             margin-bottom: 20px;
             border: 2px solid #0052cc;
             border-radius: 24px;
             font-size: 1rem;
+            color: #004a8f;
             background-color: transparent;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
         }
 
-        input:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #004a8f;
             box-shadow: 0 0 10px #004a8f;
@@ -65,81 +83,123 @@
             font-size: 1.2rem;
             border-radius: 30px;
             cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.5);
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         button:hover {
             background-color: #e6b007;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #0d7a45;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-    <form id="businessLoanForm" aria-label="Business Loan Application Form">
-        <h2>Business Loan Application</h2>
+    <form id="businessLoanForm" aria-label="Business Loan Application">
+        <h2>💼 Business Loan Application</h2>
 
-        <label for="businessName">Business Name</label>
-        <input type="text" id="businessName" name="businessName" required placeholder="Enter your business name" />
-
-        <label for="businessType">Type of Business</label>
-        <input type="text" id="businessType" name="businessType" required placeholder="Enter business type" />
-
-        <label for="ownerName">Owner Name</label>
+        <label for="ownerName">Owner Name <span style="color:red">*</span></label>
         <input type="text" id="ownerName" name="ownerName" required placeholder="Enter owner full name" />
 
-        <label for="email">Email Address</label>
+        <label for="businessName">Business Name <span style="color:red">*</span></label>
+        <input type="text" id="businessName" name="businessName" required placeholder="Enter your business name" />
+
+        <label for="businessType">Business Type <span style="color:red">*</span></label>
+        <select id="businessType" name="businessType" required>
+            <option value="">-- Select Business Type --</option>
+            <option value="Retail">Retail</option>
+            <option value="Manufacturing">Manufacturing</option>
+            <option value="Services">Services</option>
+            <option value="Trading">Trading</option>
+            <option value="IT/Software">IT/Software</option>
+            <option value="Hospitality">Hospitality</option>
+            <option value="Agriculture">Agriculture</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <label for="email">Email Address <span style="color:red">*</span></label>
         <input type="email" id="email" name="email" required placeholder="Enter your email" />
 
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" name="phone" required placeholder="Enter phone number" />
+        <label for="phone">Phone Number <span style="color:red">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="10-digit phone number" pattern="[0-9]{10}" />
 
-        <label for="loanAmount">Loan Amount (INR)</label>
+        <label for="loanAmount">Loan Amount (INR) <span style="color:red">*</span></label>
         <input type="number" id="loanAmount" name="loanAmount" min="100000" max="10000000" required
             placeholder="Enter loan amount" />
 
         <button type="submit">Apply Now</button>
     </form>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        function generateLoanRef() {
-            return "BL-" + Math.floor(100000 + Math.random() * 900000);
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
         }
 
         document.getElementById('businessLoanForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
-            const businessName = document.getElementById("businessName").value.trim();
-            const businessType = document.getElementById("businessType").value.trim();
-            const ownerName = document.getElementById("ownerName").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const phone = document.getElementById("phone").value.trim();
-            const loanAmount = document.getElementById("loanAmount").value.trim();
+            const formData = {
+                refNo: 'BL' + Math.floor(100000 + Math.random() * 900000),
+                ownerName: document.getElementById('ownerName').value.trim(),
+                businessName: document.getElementById('businessName').value.trim(),
+                businessType: document.getElementById('businessType').value,
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                loanAmount: document.getElementById('loanAmount').value,
+                loanType: 'Business Loan',        // ✅ Key identifier
+                status: 'Pending',
+                submittedOn: new Date().toISOString(),  // ✅ Consistent timestamp
+                businessDetails: {                 // ✅ Structured data
+                    name: document.getElementById('businessName').value.trim(),
+                    type: document.getElementById('businessType').value
+                }
+            };
 
-            if (!businessName || !businessType || !ownerName || !email || !phone || !loanAmount) {
-                alert("Please fill all fields!");
+            // Validation
+            if (!formData.ownerName || !formData.businessName || !formData.email || !formData.phone) {
+                alert('Please fill all required fields');
                 return;
             }
 
-            let loans = JSON.parse(localStorage.getItem("lndbBusinessLoans")) || [];
+            if (!/^[0-9]{10}$/.test(formData.phone)) {
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
 
-            const newLoan = {
-                refNo: generateLoanRef(),
-                businessName: businessName,
-                businessType: businessType,
-                ownerName: ownerName,
-                email: email,
-                phone: phone,
-                loanAmount: loanAmount,
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            };
+            // ✅ SAME STORAGE as Car Loan
+            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+            loans.push(formData);
+            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
 
-            loans.push(newLoan);
-            localStorage.setItem("lndbBusinessLoans", JSON.stringify(loans));
-
-            alert("Your Business Loan Application is Submitted! Reference: " + newLoan.refNo);
-            window.location.href = "busiloansub.html";
+            setTimeout(() => {
+                window.location.href = 'busiloansub.html';
+            }, 1500);
         });
     </script>
+
 </body>
 
 </html>

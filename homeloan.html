@@ -8,29 +8,40 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f8fb;
+            background: linear-gradient(135deg, #d1e9ff, #f4f8fb),
+                url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
+            background-size: cover;
             color: #004a8f;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            backdrop-filter: blur(4px);
+            padding: 20px;
         }
 
         form {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
             padding: 28px 36px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 74, 143, 0.1);
-            width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 74, 143, 0.25);
+            width: 420px;
+            max-width: 100%;
             box-sizing: border-box;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 74, 143, 0.3);
         }
 
         h2 {
             text-align: center;
+            margin-bottom: 24px;
             color: #003380;
             font-weight: 700;
-            margin-bottom: 24px;
         }
 
         label {
@@ -51,7 +62,7 @@
             font-size: 1rem;
             color: #004a8f;
             background-color: transparent;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             box-sizing: border-box;
         }
 
@@ -75,49 +86,120 @@
             border-radius: 30px;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 193, 7, 0.5);
-            transition: background-color 0.3s ease;
-            user-select: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         button:hover {
             background-color: #e6b007;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #0d7a45;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
         }
     </style>
 </head>
 
 <body>
-    <form id="homeLoanForm" aria-label="Home Loan Application Form">
-        <h2>Home Loan Application</h2>
-        <label for="applicantName">Applicant Name</label>
-        <input type="text" id="applicantName" name="applicantName" required placeholder="Enter your name" />
-        <label for="email">Email Address</label>
+    <form id="homeLoanForm" aria-label="Home Loan Application">
+        <h2>🏠 Home Loan Application</h2>
+
+        <label for="applicantName">Applicant Name <span style="color:red">*</span></label>
+        <input type="text" id="applicantName" name="applicantName" required placeholder="Enter your full name" />
+
+        <label for="email">Email Address <span style="color:red">*</span></label>
         <input type="email" id="email" name="email" required placeholder="Enter your email" />
-        <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number" />
-        <label for="propertyType">Property Type</label>
+
+        <label for="phone">Phone Number <span style="color:red">*</span></label>
+        <input type="tel" id="phone" name="phone" required placeholder="10-digit phone number" pattern="[0-9]{10}" />
+
+        <label for="propertyType">Property Type <span style="color:red">*</span></label>
         <select id="propertyType" name="propertyType" required>
-            <option value="">--Select Property Type--</option>
-            <option value="apartment">Apartment</option>
-            <option value="independent_house">Independent House</option>
-            <option value="villa">Villa</option>
-            <option value="plot">Plot of Land</option>
+            <option value="">-- Select Property Type --</option>
+            <option value="Apartment">Apartment/Flat</option>
+            <option value="Independent House">Independent House</option>
+            <option value="Villa">Villa</option>
+            <option value="Plot">Plot of Land</option>
+            <option value="Builder Floor">Builder Floor</option>
         </select>
-        <label for="propertyValue">Property Value (INR)</label>
-        <input type="number" id="propertyValue" name="propertyValue" min="500000" required
-            placeholder="Enter property value" />
-        <label for="loanAmount">Loan Amount (INR)</label>
-        <input type="number" id="loanAmount" name="loanAmount" min="500000" required
+
+        <label for="propertyValue">Property Value (INR) <span style="color:red">*</span></label>
+        <input type="number" id="propertyValue" name="propertyValue" min="500000" max="50000000" required
+            placeholder="e.g. 5000000" />
+
+        <label for="loanAmount">Loan Amount (INR) <span style="color:red">*</span></label>
+        <input type="number" id="loanAmount" name="loanAmount" min="500000" max="50000000" required
             placeholder="Enter required loan amount" />
-        <label for="loanPurpose">Purpose of Loan</label>
-        <textarea id="loanPurpose" name="loanPurpose" required placeholder="Briefly describe loan purpose"></textarea>
+
+        <label for="loanPurpose">Purpose of Loan <span style="color:red">*</span></label>
+        <textarea id="loanPurpose" name="loanPurpose" rows="3" required
+            placeholder="Purchase, Construction, Renovation, etc."></textarea>
+
         <button type="submit">Apply Now</button>
     </form>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        document.getElementById('homeLoanForm').addEventListener('submit', function (e) {
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+
+        document.getElementById('homeLoanForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            window.location.href="homeloansub.html"
-            this.reset();
+
+            const formData = {
+                refNo: 'HL' + Math.floor(100000 + Math.random() * 900000),
+                name: document.getElementById('applicantName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                amount: document.getElementById('loanAmount').value,
+                loanType: 'Home Loan',
+                status: 'Pending',
+                submittedOn: new Date().toISOString(),
+                propertyDetails: {
+                    type: document.getElementById('propertyType').value,
+                    value: document.getElementById('propertyValue').value,
+                    purpose: document.getElementById('loanPurpose').value.trim()
+                }
+            };
+
+            // Validation
+            if (!formData.name || !formData.email || !formData.phone) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            if (!/^[0-9]{10}$/.test(formData.phone)) {
+                alert('Please enter a valid 10-digit phone number');
+                return;
+            }
+
+            // Save to unified localStorage (admin panel compatible)
+            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || []);
+            loans.push(formData);
+            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+
+            setTimeout(() => {
+                window.location.href = 'homeloansub.html';
+            }, 1500);
         });
     </script>
 </body>
