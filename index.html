@@ -238,7 +238,7 @@
             if (saved && saved.username === username && saved.password === password) {
                 trackUserLogin(saved, 'user');
                 localStorage.setItem("lndbCurrentUser", saved.username);
-                window.location.href = "index.html";
+                window.location.href = "userpage.html";
             } else {
                 alert("Invalid Username or Password");
             }
