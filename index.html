@@ -178,58 +178,91 @@
 
     </div>
     <script>
-        // 🔥 Same tracking functions (copy from above)
-        function trackUserLogin(userData, type) { /* same as above */ }
-        function trackAdminLogin(adminName) { /* same as above */ }
-        function updateSessionDuration() { /* same as above */ }
+        function trackUserLogin(userData, type) {
+            console.log(userData, type);
+        }
 
-        // 🔥 Enhanced Register
+        function trackAdminLogin(adminName) {
+            console.log(adminName);
+        }
+
+        function updateSessionDuration() { }
+
+        const loginModal = document.getElementById("loginModal");
+        const registerModal = document.getElementById("registerModal");
+
+        document.getElementById("toRegister").onclick = () => {
+            loginModal.classList.remove("active");
+            registerModal.classList.add("active");
+        };
+
+        document.getElementById("toLogin").onclick = () => {
+            registerModal.classList.remove("active");
+            loginModal.classList.add("active");
+        };
+
         document.getElementById("registerForm").onsubmit = function (e) {
             e.preventDefault();
+
             const userData = {
-                username: document.getElementById('registerName').value,
-                email: document.getElementById('registerEmail').value,
+                username: document.getElementById('registerName').value.trim(),
+                email: document.getElementById('registerEmail').value.trim(),
                 password: document.getElementById('registerPassword').value,
                 registerTime: new Date().toISOString()
             };
 
             localStorage.setItem("lndbUserData", JSON.stringify(userData));
-
-            // 🔥 Track Registration
             trackUserLogin(userData, 'user');
 
-            alert("Registration Successful!");
-            document.getElementById('registerModal').classList.remove("active");
-            document.getElementById('loginModal').classList.add("active");
+            alert("Registration Successful");
+
+            registerModal.classList.remove("active");
+            loginModal.classList.add("active");
         };
 
-        // 🔥 Enhanced Login
         document.getElementById("loginForm").onsubmit = function (e) {
             e.preventDefault();
 
-            const username = document.getElementById('loginUsername').value;
+            const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
 
-            // 🔥 ADMIN LOGIN (Updated credentials)
             if (username === "Karan" && password === "Karan@12345") {
-                trackAdminLogin('Karan');
+                trackAdminLogin("Karan");
                 localStorage.setItem("lndbCurrentAdmin", "Karan");
                 window.location.href = "admin.html";
                 return;
             }
 
-            const saved = JSON.parse(localStorage.getItem("lndbUserData") || '{}');
+            const saved = JSON.parse(localStorage.getItem("lndbUserData"));
+
             if (saved && saved.username === username && saved.password === password) {
                 trackUserLogin(saved, 'user');
                 localStorage.setItem("lndbCurrentUser", saved.username);
                 window.location.href = "index.html";
             } else {
-                alert("❌ Invalid credentials!");
+                alert("Invalid Username or Password");
             }
         };
 
-        // Existing eye toggle code unchanged...
+        function toggleEye(eyeId, inputId) {
+            const eye = document.getElementById(eyeId);
+            const input = document.getElementById(inputId);
+
+            eye.onclick = () => {
+                if (input.type === "password") {
+                    input.type = "text";
+                    eye.classList.replace("fa-eye", "fa-eye-slash");
+                } else {
+                    input.type = "password";
+                    eye.classList.replace("fa-eye-slash", "fa-eye");
+                }
+            };
+        }
+
+        toggleEye("loginEye", "loginPassword");
+        toggleEye("registerEye", "registerPassword");
     </script>
+
 
 
 </body>
