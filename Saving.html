@@ -366,7 +366,7 @@
     </div>
 
     <script>
-
+        // State-District Mapping (रखो जैसा है)
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai", "Pune", "Satara", "Kolhapur", "Nashik"],
             "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Udupi", "Belagavi"],
@@ -379,6 +379,7 @@
             "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur"]
         };
 
+        // State change handler (रखो जैसा है)
         document.getElementById('state').addEventListener('change', function () {
             const districtSelect = document.getElementById('district');
             districtSelect.innerHTML = '<option value="">--Select District--</option>';
@@ -396,9 +397,8 @@
             if (this.value) document.getElementById('city').value = this.value;
         });
 
-        const requiredFileInputs = [
-            'photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'
-        ];
+        // File upload handlers (रखो जैसा है)
+        const requiredFileInputs = ['photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'];
 
         const fileInputs = [
             { id: 'photo', types: ['image/jpeg', 'image/png'], max: 2 * 1024 * 1024 },
@@ -438,15 +438,15 @@
             });
         });
 
+        // 🔥 MONGO DB Backend Integration (नया Updated Submit Handler)
         document.getElementById('accountFormV2').addEventListener('submit', function (e) {
             e.preventDefault();
             const form = this;
 
-            // Validation (same as before)
+            // Validation (सब वैसा ही रखा)
             let isValid = form.checkValidity();
             form.reportValidity();
 
-            const requiredFileInputs = ['photo', 'aadharFile', 'panFile', 'signatureFile', 'addressProofFile'];
             requiredFileInputs.forEach(id => {
                 const input = document.getElementById(id);
                 if (!input.files.length) {
@@ -455,7 +455,7 @@
                 }
             });
 
-            // Age check (same)
+            // Age validation
             const dobInput = document.getElementById('dob').value;
             if (dobInput) {
                 const dob = new Date(dobInput);
@@ -472,38 +472,43 @@
 
             if (!isValid) return;
 
-            // ✅ SIRF FORM DATA SAVE KARO - NO REFERENCE
-            const fullFormData = {};
+            // 🔥 Form data MongoDB को भेजो (localStorage हटाया!)
+            const formData = {};
             [...form.elements].forEach(el => {
                 if (el.name && el.type !== 'file') {
-                    fullFormData[el.name] = el.value;
+                    formData[el.name] = el.value;
                 }
             });
 
-            // Save full data
-            let apps = JSON.parse(localStorage.getItem("savingAccountApplications") || "[]");
-            apps.push(fullFormData);
-            localStorage.setItem("savingAccountApplications", JSON.stringify(apps));
+            // Backend API Call - LNDB MongoDB Backend
+            fetch('http://localhost:5000/api/accounts/open', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('✅ Account Saved to MongoDB!', data);
+                    alert('🎉 Application Submitted Successfully!\nData saved to Admin Panel (MongoDB)');
 
-            // Save admin summary (BINA reference ke)
-            const accountData = {
-                name: fullFormData.fullName,
-                phone: fullFormData.mobile,
-                type: fullFormData.accountType,
-                status: "Pending"
-            };
-            let savs = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
-            savs.push(accountData);
-            localStorage.setItem("lndbSavingAccounts", JSON.stringify(savs));
+                    // Form reset + File previews clear
+                    form.reset();
+                    document.querySelectorAll('.file-name').forEach(el => el.textContent = '');
+                    document.querySelectorAll('.file-error').forEach(el => el.textContent = '');
 
-            alert("✅ Application submitted successfully!");
-            form.reset();
-
-            // Redirect BINA reference
-            window.location.href = "savingsub.html";
+                    // Success page
+                    window.location.href = "savingsub.html";
+                })
+                .catch(error => {
+                    console.error('❌ MongoDB Error:', error);
+                    alert('❌ Submission Failed!\nBackend चालू है? (http://localhost:5000)\nError: ' + error.message);
+                });
         });
-
-
     </script>
 
 </body>

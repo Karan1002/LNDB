@@ -943,87 +943,97 @@
             });
         }
 
-        function loadAccounts() {
-            const sav = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
-            const cur = JSON.parse(localStorage.getItem("lndbCurrentAccounts") || "[]");
-            console.log("📊 DATA:", sav); // DEBUG
+        // 🔥 MONGO DB Updated - Complete Replace!
 
-            const all = [
-                ...sav.map(a => ({ ...a, type: a.type || "Savings", phone: a.phone || a.mobile || '-' })),
-                ...cur.map(a => ({ ...a, type: "Current", phone: a.phone || a.mobile || '-' }))
-            ];
+        async function loadAccounts() {
+            try {
+                // Backend से सभी accounts fetch करो
+                const response = await fetch('http://localhost:5000/api/accounts');
+                if (!response.ok) throw new Error('Backend response failed');
 
-            const tables = {
-                Pending: document.querySelector("#accPendingTable tbody"),
-                Accepted: document.querySelector("#accAcceptedTable tbody"),
-                Rejected: document.querySelector("#accRejectedTable tbody")
-            };
+                const accounts = await response.json();
+                console.log("📊 MONGO ACCOUNTS:", accounts);
 
-            Object.values(tables).forEach(t => { if (t) t.innerHTML = ""; });
+                const tables = {
+                    Pending: document.querySelector("#accPendingTable tbody"),
+                    Accepted: document.querySelector("#accAcceptedTable tbody"),
+                    Rejected: document.querySelector("#accRejectedTable tbody")
+                };
 
-            all.forEach(acc => {
-                const st = acc.status || "Pending";
-                const table = tables[st];
-                if (!table) return;
+                // Tables clear करो
+                Object.values(tables).forEach(t => { if (t) t.innerHTML = ""; });
 
-                const displayRefNo = escapeHtml(acc.refNo || 'N/A');
-                const displayName = escapeHtml(acc.name || acc.fullName || 'N/A');
-                const displayPhone = escapeHtml(acc.phone || '-');
+                accounts.forEach(acc => {
+                    const st = acc.status || "Pending";
+                    const table = tables[st];
+                    if (!table) return;
 
-                // 🔥 FIXED: onclick mein SIMPLE reference pass
-                const safeRefNo = escapeHtml(acc.refNo || 'NOREF');
+                    // MongoDB _id को short ref बना दो
+                    const displayRefNo = escapeHtml(acc._id ? acc._id.slice(-8).toUpperCase() : 'N/A');
+                    const displayName = escapeHtml(acc.fullName || acc.name || 'N/A');
+                    const displayPhone = escapeHtml(acc.mobile || acc.phone || '-');
 
-                const row = st === "Pending" ? `<tr>
-            <td data-label="Ref"><strong>${displayRefNo}</strong></td>
-            <td data-label="Name">${displayName}</td>
-            <td data-label="Phone">${displayPhone}</td>
-            <td data-label="Type">${escapeHtml(acc.type || 'N/A')}</td>
-            <td data-label="Action">
-                <div class="row-actions">
-                    <button class="icon-btn" onclick="updateAccount('${safeRefNo}', 'Accepted')">✔ Accept</button>
-                    <button class="icon-btn" onclick="updateAccount('${safeRefNo}', 'Rejected')">✖ Reject</button>
-                </div>
-            </td>
-        </tr>` : `<tr>
-            <td data-label="Ref">${displayRefNo}</td>
-            <td data-label="Name">${displayName}</td>
-            <td data-label="Phone">${displayPhone}</td>
-            <td data-label="Type">${escapeHtml(acc.type || 'N/A')}</td>
-            <td data-label="Status">
-                <span class="pill ${st.toLowerCase()}">${st}</span>
-            </td>
-        </tr>`;
+                    // 🔥 MongoDB _id safe तरीके से pass करो
+                    const safeMongoId = escapeHtml(acc._id);
 
-                table.insertAdjacentHTML("beforeend", row);
-            });
-            updateSummary();
+                    const row = st === "Pending" ? `<tr>
+                <td data-label="Ref"><strong>${displayRefNo}</strong></td>
+                <td data-label="Name">${displayName}</td>
+                <td data-label="Phone">${displayPhone}</td>
+                <td data-label="Type">${escapeHtml(acc.accountType || acc.type || 'Savings')}</td>
+                <td data-label="Action">
+                    <div class="row-actions">
+                        <button class="icon-btn" onclick="updateAccount('${safeMongoId}', 'Approved')">✔ Accept</button>
+                        <button class="icon-btn" onclick="updateAccount('${safeMongoId}', 'Rejected')">✖ Reject</button>
+                    </div>
+                </td>
+            </tr>` : `<tr>
+                <td data-label="Ref">${displayRefNo}</td>
+                <td data-label="Name">${displayName}</td>
+                <td data-label="Phone">${displayPhone}</td>
+                <td data-label="Type">${escapeHtml(acc.accountType || acc.type || 'N/A')}</td>
+                <td data-label="Status">
+                    <span class="pill ${st.toLowerCase()}">${st}</span>
+                </td>
+            </tr>`;
+
+                    table.insertAdjacentHTML("beforeend", row);
+                });
+
+                updateSummary();
+            } catch (error) {
+                console.error('❌ Load Accounts Error:', error);
+                alert('⚠️ Backend से data load नहीं हो रहा!\nServer चालू है? (http://localhost:5000)');
+            }
         }
 
-        function updateAccount(refNo, status) {
-            console.log("🔥 CLICKED:", refNo, status);
+        async function updateAccount(mongoId, status) {
+            console.log("🔥 MONGO UPDATE:", mongoId, status);
 
-            if (!refNo || refNo === 'N/A') {
-                alert("❌ No valid reference!");
+            if (!mongoId || mongoId === 'N/A') {
+                alert("❌ Invalid Account ID!");
                 return;
             }
 
-            const key = refNo.startsWith('CA') ? "lndbCurrentAccounts" : "lndbSavingAccounts";
-            let arr = JSON.parse(localStorage.getItem(key) || "[]");
+            try {
+                // Backend को status update भेजो
+                const response = await fetch(`http://localhost:5000/api/accounts/${mongoId}/${status.toLowerCase()}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            console.log("🔍 Searching in", key, ":", arr);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const idx = arr.findIndex(a => a.refNo === refNo);
-            console.log("Index found:", idx);
+                const result = await response.json();
+                console.log("✅ MongoDB Updated:", result);
 
-            if (idx >= 0) {
-                arr[idx].status = status;
-                localStorage.setItem(key, JSON.stringify(arr));
-                console.log("✅ UPDATED:", arr[idx]);
-                loadAccounts();
-                alert("✓ " + refNo + " " + status); // SIMPLE ALERT
-            } else {
-                console.error("❌ NOT FOUND:", refNo);
-                alert("❌ " + refNo + " not found!");
+                loadAccounts(); // Table refresh
+                alert(`✓ Account ${status.toLowerCase()}!`);
+            } catch (error) {
+                console.error('❌ Update Error:', error);
+                alert('❌ Update Failed!\nBackend routes check करो');
             }
         }
 
