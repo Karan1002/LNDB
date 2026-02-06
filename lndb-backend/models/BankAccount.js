@@ -1,15 +1,24 @@
 const mongoose = require("mongoose");
 
 const bankAccountSchema = new mongoose.Schema({
-    // Personal Details (Complete Form Fields)
+    // ✅ Reference Number (Auto-generate) - unique: true = index auto-create
+    refNo: { type: String, required: true, unique: true },
+
+    // ✅ Account Type (Simple - Savings ya Current)
+    accountType: {
+        type: String,
+        required: true,
+        enum: ['Savings', 'Current']
+    },
+
+    // ✅ Personal Details (Common for both)
     fullName: { type: String, required: true },
     fatherName: { type: String, required: true },
-    motherName: { type: String, required: true },
     dob: { type: Date, required: true },
-    gender: { type: String, required: true },
-    maritalStatus: { type: String, required: true },
+    gender: String,
+    maritalStatus: String,
 
-    // Contact Information
+    // ✅ Contact Information (Common)
     mobile: { type: String, required: true },
     email: { type: String, required: true },
     address: { type: String, required: true },
@@ -18,39 +27,58 @@ const bankAccountSchema = new mongoose.Schema({
     city: { type: String, required: true },
     pincode: { type: String, required: true },
 
-    // Identity Documents
+    // ✅ Documents (Common)
     aadhar: { type: String, required: true },
-    pan: { type: String, required: true },
+    pan: { type: String, required: true, uppercase: true },  // ✅ Added uppercase
 
-    // Account Preferences
-    branch: { type: String, required: true },
-    nomineeName: { type: String, required: true },
-    nomineeRelation: { type: String, required: true },
+    // ✅ Savings Account Fields (Optional)
+    nomineeName: String,
+    nomineeRelation: String,
     nomineeDOB: { type: Date },
 
-    // Account Details
-    accountType: {
-        type: String,
-        required: true,
-        enum: ['Savings Account', 'Joint Savings', 'Current Account']
-    },
+    // ✅ Current Account Fields (Optional)
+    businessName: String,
+    businessType: String,
+    registrationNumber: String,
+    natureOfBusiness: String,
+    gstNumber: String,
+    panCompany: String,
 
-    // Status Management (Admin Panel के लिए)
+    // ✅ Authorized Signatory (Current Account only)
+    authName: String,
+    authDesignation: String,
+    authMobile: String,
+    authEmail: String,
+
+    // ✅ Common Fields
+    branch: { type: String, default: 'Main Branch' },
+
+    // ✅ Status
     status: {
         type: String,
-        enum: ['Pending', 'Approved', 'Rejected'],
-        default: 'Pending'
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
     },
 
-    // Timestamps
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
 
-// Auto-update updatedAt field
+// ✅ Auto-update timestamp
 bankAccountSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
+
+    // ✅ Auto-uppercase PAN
+    if (this.pan) {
+        this.pan = this.pan.toUpperCase();
+    }
+
     next();
 });
+
+// ✅ ✅ ONLY COMPOUND INDEX - No duplicates! 
+// refNo ka index already unique: true se ban gaya
+bankAccountSchema.index({ status: 1, createdAt: -1 });  // Recent pending first
+bankAccountSchema.index({ accountType: 1, status: 1 });  // Account type + status
 
 module.exports = mongoose.model("BankAccount", bankAccountSchema);

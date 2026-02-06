@@ -159,6 +159,8 @@
     <div id="toast" class="toast"></div>
 
     <script>
+        // ✅ FULL BACKEND INTEGRATION - Car Loan (400 ERROR FIXED!)
+
         const carModels = {
             "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Ertiga", "Brezza", "Fronx", "Grand Vitara"],
             "Hyundai": ["i10 Nios", "i20", "Aura", "Venue", "Creta", "Verna", "Alcazar"],
@@ -172,81 +174,155 @@
             "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"]
         };
 
-        const brandSelect = document.getElementById("carBrand");
-        const modelSelect = document.getElementById("carModel");
-
-        // Populate car models based on brand selection
-        brandSelect.addEventListener("change", () => {
-            const selectedBrand = brandSelect.value;
-            modelSelect.innerHTML = '<option value="">-- Select Car Model --</option>';
-
-            if (carModels[selectedBrand]) {
-                carModels[selectedBrand].forEach(model => {
-                    const option = document.createElement("option");
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                });
-            }
-        });
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 2500);
+        function generateRefNo() {
+            return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        // Form submission handler
-        document.getElementById('carLoanForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+        function q(id) { return document.getElementById(id); }
 
-            // Collect form data
-            const formData = {
-                refNo: 'CL' + Math.floor(100000 + Math.random() * 900000), // Car Loan ref number
-                name: document.getElementById('applicantName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                carBrand: document.getElementById('carBrand').value,
-                carModel: document.getElementById('carModel').value,
-                carPrice: document.getElementById('carPrice').value,
-                amount: document.getElementById('loanAmount').value,
-                loanType: 'Car Loan', // Important: Loan type
-                status: 'Pending', // Default status
-                submittedOn: new Date().toISOString(),
-                carDetails: {
-                    brand: document.getElementById('carBrand').value,
-                    model: document.getElementById('carModel').value,
-                    price: document.getElementById('carPrice').value
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 15px; 
+        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+    `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // ✅ Car Brand → Model Population
+            const brandSelect = q('carBrand');
+            const modelSelect = q('carModel');
+
+            if (brandSelect && modelSelect) {
+                brandSelect.addEventListener("change", () => {
+                    const selectedBrand = brandSelect.value;
+                    modelSelect.innerHTML = '<option value="">-- Select Car Model --</option>';
+
+                    if (carModels[selectedBrand]) {
+                        carModels[selectedBrand].forEach(model => {
+                            const option = document.createElement("option");
+                            option.value = model;
+                            option.textContent = model;
+                            modelSelect.appendChild(option);
+                        });
+                    }
+                });
+            }
+
+            // ✅ Backend Form Submit
+            const form = q('carLoanForm');
+            if (!form) {
+                console.error('❌ Form not found: carLoanForm');
+                return;
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // ✅ 1. Get form data
+                const name = q('applicantName').value.trim();
+                const email = q('email').value.trim();
+                const phone = q('phone').value.trim();
+                const carBrand = q('carBrand').value;
+                const carModel = q('carModel').value;
+                const carPrice = q('carPrice').value;
+                const loanAmount = q('loanAmount').value;
+
+                // ✅ 2. Validation (STRICT)
+                if (!name || !email || !phone || !carBrand || !carModel || !carPrice || !loanAmount) {
+                    showToast('Please fill all required fields!', 'error');
+                    return;
                 }
-            };
 
-            // Validation
-            if (!formData.name || !formData.email || !formData.phone) {
-                alert('Please fill all required fields');
-                return;
-            }
+                if (!/^[0-9]{10}$/.test(phone.replace(/\D/g, ''))) {
+                    showToast('Phone must be exactly 10 digits!', 'error');
+                    return;
+                }
 
-            if (!/^[0-9]{10}$/.test(formData.phone)) {
-                alert('Please enter a valid 10-digit phone number');
-                return;
-            }
+                const loanAmt = parseInt(loanAmount);
+                const carPriceNum = parseInt(carPrice);
+                if (isNaN(loanAmt) || loanAmt <= 0 || isNaN(carPriceNum) || carPriceNum <= 0) {
+                    showToast('Enter valid amounts!', 'error');
+                    return;
+                }
 
-            // Save to localStorage (same key as other loans)
-            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
-            loans.push(formData);
-            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
-       //     localStorage.setItem("latestCarLoanRef", formData.refNo);
+                // ✅ 3. Loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '⏳ Submitting...';
+                }
 
-            // Show success message
-            showToast('✓ Car Loan Application Submitted - Ref: ' + formData.refNo);
+                try {
+                    // 🔥 ✅ FIXED: Standard Business Loan fields + Car fields
+                    const carData = {
+                        refNo: generateRefNo(),           // CL847392
+                        ownerName: name,                  // ✅ CHANGED: applicantName → ownerName
+                        email: email,
+                        phone: phone.replace(/\D/g, ''),  // Clean phone: 9876543210
+                        carBrand: carBrand,
+                        carModel: carModel,
+                        carPrice: carPriceNum,
+                        loanAmount: loanAmt,
+                        loanType: 'Car Loan',
+                        status: 'pending',
+                        applicationType: 'carLoan',
+                        submittedOn: new Date().toISOString(),
+                        carDetails: {
+                            brand: carBrand,
+                            model: carModel,
+                            price: carPriceNum
+                        }
+                    };
 
-            // Redirect to submission page
-            setTimeout(() => {
-                window.location.href = 'carsub.html';
-            }, 1500);
+                    console.log('📤 Car Loan Data:', carData);
+
+                    // ✅ 5. Backend API Call
+                    const response = await fetch('http://localhost:5000/api/loans/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(carData)
+                    });
+
+                    const responseText = await response.text();
+                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
+
+                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        throw new Error(`Server Error ${response.status}`);
+                    }
+
+                    const result = JSON.parse(responseText);
+
+                    if (result.success) {
+                        localStorage.setItem("latestCarLoanRef", result.refNo || carData.refNo);
+                        localStorage.setItem("latestCarLoanData", JSON.stringify(carData));
+                        showToast(`🎉 Car Loan Applied!\nRef: ${result.refNo || carData.refNo}`, 'success');
+
+                        setTimeout(() => {
+                            window.location.href = 'carsub.html';
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Application failed');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    showToast(`❌ ${error.message}`, 'error');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                }
+            });
         });
     </script>
+
 </body>
 
 </html>

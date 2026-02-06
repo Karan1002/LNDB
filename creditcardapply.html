@@ -135,81 +135,190 @@
     </div>
 
     <script>
+        // ✅ Credit Card Backend Integration + Limit Calculator + FIXED URL
+
         const limitMultiplier = { Classic: 10, Gold: 15, Platinum: 20, Elite: 30 };
-        const income = document.getElementById("income");
-        const cardType = document.getElementById("cardType");
-        const cardLimit = document.getElementById("cardLimit");
 
-        income.oninput = cardType.onchange = () => {
-            const val = Number(income.value);
-            const type = cardType.value;
-            cardLimit.value = (val && type) ? (val * limitMultiplier[type]).toLocaleString() : "";
-        };
-
-        function showError(id) {
-            document.getElementById(id).style.display = "block";
-            return false;
+        function generateRefNo() {
+            return "CC" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        document.getElementById("creditCardForm").onsubmit = function (e) {
-            e.preventDefault();
-            let ok = true;
-            document.querySelectorAll(".error-message").forEach(x => x.style.display = "none");
+        function q(id) { return document.getElementById(id); }
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 15px; 
+        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+    `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
 
-            const phoneReg = /^[0-9]{10}$/;
-            const panReg = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
-            const accountReg = /^[0-9]{12}$/; // NEW
-            const aadhaar = document.getElementById("aadhaar").value.trim();
+        // ✅ Limit Calculator
+        const income = q("income");
+        const cardType = q("cardType");
+        const cardLimit = q("cardLimit");
 
-            if (!accountReg.test(accountNumber.value)) {
-                document.getElementById('accountNumberError').textContent = "Account Number must be 12 digits";
-                ok = showError('accountNumberError');
+        if (income && cardType && cardLimit) {
+            income.oninput = cardType.onchange = () => {
+                const val = Number(income.value);
+                const type = cardType.value;
+                cardLimit.value = (val && type) ? (val * limitMultiplier[type]).toLocaleString() : "";
+            };
+        }
+
+        // ✅ Backend Submit Handler
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = q("creditCardForm");
+            if (!form) {
+                console.error('❌ Form not found: creditCardForm');
+                return;
             }
 
-            if (!fullname.value) ok = showError('fullnameError');
-            if (!dob.value) ok = showError('dobError');
-            if (!email.value) ok = showError('emailError');
+            form.onsubmit = async function (e) {
+                e.preventDefault();
 
-            if (!phoneReg.test(phone.value)) {
-                document.getElementById('phoneError').textContent = "Phone Number must be 10 digits";
-                ok = showError('phoneError');
-            }
+                // ✅ 1. Hide all errors
+                document.querySelectorAll(".error-message").forEach(x => x.style.display = "none");
 
-            if (!address.value) ok = showError('addressError');
-            if (!income.value || income.value <= 0) ok = showError('incomeError');
-            if (!cardType.value) ok = showError('cardTypeError');
-            if (!panReg.test(pan.value)) ok = showError('panError');
+                // ✅ 2. Get form values
+                const accountNumber = q("accountNumber");
+                const fullname = q("fullname");
+                const dob = q("dob");
+                const email = q("email");
+                const phone = q("phone");
+                const address = q("address");
+                const incomeField = q("income");
+                const cardTypeField = q("cardType");
+                const pan = q("pan");
+                const aadhaar = q("aadhaar");
+                const idProof = q("idProof");
+                const terms = q("terms");
 
-            if (aadhaar && !/^\d{12}$/.test(aadhaar)) {
-                document.getElementById('aadhaarError').textContent = "Aadhaar must be 12 digits";
-                ok = showError('aadhaarError');
-            }
+                let ok = true;
 
-            if (!idProof.files.length) ok = showError('idProofError');
-            if (!terms.checked) ok = showError('termsError');
+                // ✅ 3. VALIDATIONS (Same)
+                const phoneReg = /^[0-9]{10}$/;
+                const panReg = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+                const accountReg = /^[0-9]{12}$/;
 
-            if (!ok) return;
+                if (!accountReg.test(accountNumber.value)) {
+                    q('accountNumberError').textContent = "Account Number must be 12 digits";
+                    q('accountNumberError').style.display = "block";
+                    ok = false;
+                }
 
-            const ref = "CC" + Math.floor(100000 + Math.random() * 900000);
+                if (!fullname.value) { q('fullnameError').style.display = "block"; ok = false; }
+                if (!dob.value) { q('dobError').style.display = "block"; ok = false; }
+                if (!email.value) { q('emailError').style.display = "block"; ok = false; }
 
-            let list = JSON.parse(localStorage.getItem("lndbCreditCardApplications")) || [];
-            list.push({
-                refNo: ref,
-                name: fullname.value,
-                account: accountNumber.value,
-                phone: phone.value,
-                cardType: cardType.value,
-                annualLimit: cardLimit.value,
-                status: "Pending",
-                date: new Date().toLocaleDateString()
-            });
+                if (!phoneReg.test(phone.value)) {
+                    q('phoneError').textContent = "Phone Number must be 10 digits";
+                    q('phoneError').style.display = "block";
+                    ok = false;
+                }
 
-            localStorage.setItem("lndbCreditCardApplications", JSON.stringify(list));
-            localStorage.setItem("lastCreditRef", ref);
+                if (!address.value) { q('addressError').style.display = "block"; ok = false; }
+                if (!incomeField.value || incomeField.value <= 0) { q('incomeError').style.display = "block"; ok = false; }
+                if (!cardTypeField.value) { q('cardTypeError').style.display = "block"; ok = false; }
 
-            window.location.href = "creditsub.html";
-        };
+                if (!panReg.test(pan.value)) {
+                    q('panError').style.display = "block";
+                    ok = false;
+                }
+
+                if (aadhaar.value && !/^\d{12}$/.test(aadhaar.value)) {
+                    q('aadhaarError').textContent = "Aadhaar must be 12 digits";
+                    q('aadhaarError').style.display = "block";
+                    ok = false;
+                }
+
+                if (!idProof.files.length) { q('idProofError').style.display = "block"; ok = false; }
+                if (!terms.checked) { q('termsError').style.display = "block"; ok = false; }
+
+                // ✅ Age validation
+                if (dob.value) {
+                    const birthDate = new Date(dob.value);
+                    const ageDiff = Date.now() - birthDate.getTime();
+                    const age = new Date(ageDiff).getUTCFullYear() - 1970;
+                    if (age < 18) {
+                        showToast("Must be 18+ for Credit Card!", 'error');
+                        ok = false;
+                    }
+                }
+
+                if (!ok) return;
+
+                // ✅ 4. Loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '⏳ Submitting...';
+                }
+
+                try {
+                    // ✅ 5. Backend Data
+                    const creditData = {
+                        refNo: generateRefNo(),
+                        accountNumber: accountNumber.value,
+                        fullName: fullname.value,
+                        dob: dob.value,
+                        email: email.value,
+                        phone: phone.value,
+                        address: address.value,
+                        income: Number(incomeField.value),
+                        cardType: cardTypeField.value,
+                        annualLimit: cardLimit.value.replace(/,/g, ''),
+                        pan: pan.value.toUpperCase(),
+                        aadhaar: aadhaar.value || '',
+                        status: "pending",
+                        applicationType: "creditCard"  // ← YE IMPORTANT!
+                    };
+
+                    console.log('📤 Credit Card Data:', creditData);
+
+                    // 🔥 ✅ FIXED URL - SAME AS DEBIT CARD!
+                    const response = await fetch('http://localhost:5000/api/cards/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(creditData)
+                    });
+
+                    const responseText = await response.text();
+                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
+
+                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        throw new Error(`Server Error ${response.status}`);
+                    }
+
+                    const result = JSON.parse(responseText);
+
+                    if (result.success) {
+                        localStorage.setItem("lastCreditRef", result.refNo || creditData.refNo);
+                        localStorage.setItem("lastCreditData", JSON.stringify(creditData));
+                        showToast(`🎉 SUCCESS! Ref: ${result.refNo || creditData.refNo}`, 'success');
+                        setTimeout(() => window.location.href = "creditsub.html", 2000);
+                    } else {
+                        throw new Error(result.error || 'Failed');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    showToast(`❌ ${error.message}`, 'error');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                }
+            };
+        });
     </script>
+
+
 </body>
 
 </html>

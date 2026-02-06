@@ -116,40 +116,50 @@
 
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
-    <!-- Replace the entire <script> section: -->
+    <!-- Replace the entire <script> section in busiloansub.html: -->
     <script>
         window.onload = function () {
             try {
-                let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                // ✅ NEW BACKEND KEYS (Not old localStorage!)
+                const latestRef = localStorage.getItem("latestBusinessLoanRef");
+                const latestData = localStorage.getItem("latestBusinessLoanData");
 
-                // ✅ Find LATEST BUSINESS LOAN only
-                let latestBusinessLoan = applications
-                    .filter(app => app.loanType === 'Business Loan')  // Only business loans
-                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];  // Latest first
+                console.log('🔍 Found Ref:', latestRef);
+                console.log('🔍 Found Data:', latestData);
 
-                if (latestBusinessLoan) {
+                if (latestRef) {
                     document.getElementById("refContainer").innerHTML = `
-                    <div class="ref-box">
-                        Reference Number: <strong>${latestBusinessLoan.refNo}</strong>
-                    </div>
-                `;
-                } else {
-                    document.getElementById("refContainer").innerHTML = `
-                    <div class="error">
-                        No business loan applications found. Please apply again.
-                    </div>
-                `;
-                }
-            } catch (error) {
-                console.error("Error loading application:", error);
-                document.getElementById("refContainer").innerHTML = `
-                <div class="error">
-                    Error loading reference number. Please try again.
+                <div class="ref-box">
+                    Reference Number: <strong>${latestRef}</strong><br>
+                    <small>Application submitted successfully!</small>
                 </div>
             `;
+                } else if (latestData) {
+                    const data = JSON.parse(latestData);
+                    document.getElementById("refContainer").innerHTML = `
+                <div class="ref-box">
+                    Reference Number: <strong>${data.refNo}</strong><br>
+                    <small>Business Loan: ${data.businessName}</small>
+                </div>
+            `;
+                } else {
+                    document.getElementById("refContainer").innerHTML = `
+                <div class="error">
+                    No recent application found. <a href="businessloan.html">Apply Again</a>
+                </div>
+            `;
+                }
+            } catch (error) {
+                console.error("Error loading reference:", error);
+                document.getElementById("refContainer").innerHTML = `
+            <div class="error">
+                Error loading details. <a href="businessloan.html">Try Again</a>
+            </div>
+        `;
             }
         };
     </script>
+
 
 </body>
 

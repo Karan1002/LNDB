@@ -115,39 +115,56 @@
 
     <div class="footer">© 2025 Lena Dena Bank (LNDB) — All Rights Reserved.</div>
 
+    <!-- Replace the entire <script> section in carsub.html: -->
     <script>
         window.onload = function () {
             try {
-                let applications = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
+                // ✅ BACKEND KEYS (Same as Business Loan)
+                const latestRef = localStorage.getItem("latestCarLoanRef");
+                const latestData = localStorage.getItem("latestCarLoanData");
 
-                // Find the LATEST Car Loan application
-                let latestCarLoan = applications
-                    .filter(app => app.loanType === 'Car Loan')
-                    .sort((a, b) => new Date(b.submittedOn) - new Date(a.submittedOn))[0];
+                console.log('🔍 Car Loan Ref:', latestRef);
+                console.log('🔍 Car Loan Data:', latestData);
 
-                if (latestCarLoan) {
-                    document.getElementById("refContainer").innerHTML = `
-                        <div class="ref-box">
-                            Reference Number: <strong>${latestCarLoan.refNo}</strong>
-                        </div>
-                    `;
+                const refContainer = document.getElementById("refContainer");
+
+                if (latestRef) {
+                    refContainer.innerHTML = `
+                <div class="ref-box">
+                    <strong>Reference Number:</strong><br>
+                    <span style="font-size: 1.4rem; color: #003380;">${latestRef}</span><br><br>
+                    <small>✅ Car Loan application submitted successfully!</small>
+                </div>
+            `;
+                } else if (latestData) {
+                    const data = JSON.parse(latestData);
+                    refContainer.innerHTML = `
+                <div class="ref-box">
+                    <strong>Reference Number:</strong><br>
+                    <span style="font-size: 1.4rem; color: #003380;">${data.refNo}</span><br>
+                    <small>${data.carModel} (${data.carBrand})</small>
+                </div>
+            `;
                 } else {
-                    document.getElementById("refContainer").innerHTML = `
-                        <div class="error">
-                            No car loan applications found. Please apply again.
-                        </div>
-                    `;
+                    refContainer.innerHTML = `
+                <div class="error">
+                    No recent Car Loan found. 
+                    <a href="carloan.html" style="color: #236bbd;">Apply Again</a>
+                </div>
+            `;
                 }
             } catch (error) {
-                console.error("Error loading application:", error);
+                console.error("❌ Error loading Car Loan:", error);
                 document.getElementById("refContainer").innerHTML = `
-                    <div class="error">
-                        Error loading reference number. Please try again.
-                    </div>
-                `;
+            <div class="error">
+                Error loading details. 
+                <a href="carloan.html">Try Again</a>
+            </div>
+        `;
             }
         };
     </script>
+
 </body>
 
 </html>

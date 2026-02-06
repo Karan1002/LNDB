@@ -151,54 +151,131 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 2500);
+        // ✅ Business Loan Backend Integration - MongoDB + Toast UI
+
+        function generateRefNo() {
+            return "BL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        document.getElementById('businessLoanForm').addEventListener('submit', (e) => {
-            e.preventDefault();
+        function q(id) { return document.getElementById(id); }
+        function showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            toast.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 15px; 
+        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+    `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
 
-            const formData = {
-                refNo: 'BL' + Math.floor(100000 + Math.random() * 900000),
-                ownerName: document.getElementById('ownerName').value.trim(),
-                businessName: document.getElementById('businessName').value.trim(),
-                businessType: document.getElementById('businessType').value,
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                loanAmount: document.getElementById('loanAmount').value,
-                loanType: 'Business Loan',        // ✅ Key identifier
-                status: 'Pending',
-                submittedOn: new Date().toISOString(),  // ✅ Consistent timestamp
-                businessDetails: {                 // ✅ Structured data
-                    name: document.getElementById('businessName').value.trim(),
-                    type: document.getElementById('businessType').value
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = q('businessLoanForm');
+            if (!form) {
+                console.error('❌ Form not found: businessLoanForm');
+                return;
+            }
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // ✅ 1. Get form data
+                const ownerName = q('ownerName').value.trim();
+                const businessName = q('businessName').value.trim();
+                const businessType = q('businessType').value;
+                const email = q('email').value.trim();
+                const phone = q('phone').value.trim();
+                const loanAmount = q('loanAmount').value;
+
+                // ✅ 2. Validation
+                if (!ownerName || !businessName || !businessType || !email || !phone || !loanAmount) {
+                    showToast('Please fill all required fields!', 'error');
+                    return;
                 }
-            };
 
-            // Validation
-            if (!formData.ownerName || !formData.businessName || !formData.email || !formData.phone) {
-                alert('Please fill all required fields');
-                return;
-            }
+                if (!/^[0-9]{10}$/.test(phone.replace(/\D/g, ''))) {
+                    showToast('Phone must be 10 digits!', 'error');
+                    return;
+                }
 
-            if (!/^[0-9]{10}$/.test(formData.phone)) {
-                alert('Please enter a valid 10-digit phone number');
-                return;
-            }
+                if (isNaN(loanAmount) || loanAmount <= 0) {
+                    showToast('Enter valid loan amount!', 'error');
+                    return;
+                }
 
-            // ✅ SAME STORAGE as Car Loan
-            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications")) || [];
-            loans.push(formData);
-            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+                // ✅ 3. Loading state
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '⏳ Submitting...';
+                }
 
-            setTimeout(() => {
-                window.location.href = 'busiloansub.html';
-            }, 1500);
+                try {
+                    // ✅ 4. Backend data (MongoDB schema match)
+                    const loanData = {
+                        refNo: generateRefNo(),  // BL847392
+                        ownerName: ownerName,
+                        businessName: businessName,
+                        businessType: businessType,
+                        email: email,
+                        phone: phone,
+                        loanAmount: parseInt(loanAmount),
+                        loanType: 'Business Loan',
+                        status: 'pending',
+                        applicationType: 'businessLoan',  // Backend identifier
+                        submittedOn: new Date().toISOString(),
+                        businessDetails: {
+                            name: businessName,
+                            type: businessType
+                        }
+                    };
+
+                    console.log('📤 Business Loan Data:', loanData);
+
+                    // ✅ 5. Backend API Call
+                    const response = await fetch('http://localhost:5000/api/loans/apply', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(loanData)
+                    });
+
+                    const responseText = await response.text();
+                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
+
+                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        throw new Error(`Server Error ${response.status}`);
+                    }
+
+                    const result = JSON.parse(responseText);
+
+                    if (result.success) {
+                        localStorage.setItem("latestBusinessLoanRef", result.refNo || loanData.refNo);
+                        localStorage.setItem("latestBusinessLoanData", JSON.stringify(loanData));
+                        showToast(`🎉 Business Loan Applied!\nRef: ${result.refNo || loanData.refNo}`, 'success');
+
+                        setTimeout(() => {
+                            window.location.href = 'busiloansub.html';
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Application failed');
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error:', error);
+                    showToast(`❌ ${error.message}`, 'error');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                }
+            });
         });
     </script>
+
+
 
 </body>
 

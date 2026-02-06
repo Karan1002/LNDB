@@ -148,53 +148,79 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
+            if (!toast) return console.log('Toast:', msg);
             toast.textContent = msg;
+            toast.className = `toast ${type}`;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 2500);
         }
 
-        document.getElementById('goldLoanForm').addEventListener('submit', (e) => {
+        document.getElementById('goldLoanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const formData = {
                 refNo: 'GL' + Math.floor(100000 + Math.random() * 900000),
-                name: document.getElementById('applicantName').value.trim(),
+                applicantName: document.getElementById('applicantName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
-                amount: document.getElementById('loanAmount').value,
+                loanAmount: Number(document.getElementById('loanAmount').value),
                 loanType: 'Gold Loan',
-                status: 'Pending',
-                submittedOn: new Date().toISOString(),
-                goldDetails: {
-                    weight: document.getElementById('goldWeight').value,
-                    purity: document.getElementById('goldPurity').value
-                }
+                goldWeight: Number(document.getElementById('goldWeight').value),
+                goldPurity: document.getElementById('goldPurity').value,
+                submittedOn: new Date().toISOString()  // ✅ Added for sorting
             };
 
             // Validation
-            if (!formData.name || !formData.email || !formData.phone) {
-                alert('Please fill all required fields');
+            if (!formData.applicantName || !formData.email || !formData.phone) {
+                showToast('Please fill all required fields ⭐', 'error');
                 return;
             }
 
             if (!/^[0-9]{10}$/.test(formData.phone)) {
-                alert('Please enter a valid 10-digit phone number');
+                showToast('Enter valid 10-digit phone number 📱', 'error');
                 return;
             }
 
-            // Save to unified localStorage (admin panel compatible)
-            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || []);
-            loans.push(formData);
-            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+            showToast('Submitting Gold Loan application...', 'loading');
 
+            try {
+                const response = await fetch('http://localhost:5000/api/loans/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
 
-            setTimeout(() => {
-                window.location.href = 'goldsubloan.html';
-            }, 1500);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // ✅ SAVE TO UNIFIED localStorage (for goldsubloan.html)
+                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+                    applications.push(formData);
+                    localStorage.setItem("lndbLoanApplications", JSON.stringify(applications));
+
+                    // ✅ Also save latest for backup
+                    localStorage.setItem("latestGoldLoan", JSON.stringify({ ...formData, refNo: result.refNo }));
+
+                    showToast(`✅ Success! Ref: ${result.refNo}`);
+                    document.getElementById('goldLoanForm').reset();
+
+                    setTimeout(() => {
+                        window.location.href = 'goldsubloan.html';
+                    }, 1500);
+                } else {
+                    showToast(result.error || 'Submission failed ❌', 'error');
+                }
+            } catch (error) {
+                showToast('🔌 Backend server not running', 'error');
+                console.error(error);
+            }
         });
     </script>
+
+
+
 </body>
 
 </html>

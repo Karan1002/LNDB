@@ -155,53 +155,79 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        function showToast(msg) {
+        function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
+            if (!toast) return console.log('Toast:', msg);
             toast.textContent = msg;
+            toast.className = `toast ${type}`;
             toast.style.display = 'block';
             setTimeout(() => toast.style.display = 'none', 2500);
         }
 
-        document.getElementById('homeLoanForm').addEventListener('submit', (e) => {
+        document.getElementById('homeLoanForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const formData = {
                 refNo: 'HL' + Math.floor(100000 + Math.random() * 900000),
-                name: document.getElementById('applicantName').value.trim(),
+                applicantName: document.getElementById('applicantName').value.trim(),  // ✅ Fixed: applicantName
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
-                amount: document.getElementById('loanAmount').value,
+                loanAmount: Number(document.getElementById('loanAmount').value),       // ✅ Fixed: loanAmount
                 loanType: 'Home Loan',
-                status: 'Pending',
-                submittedOn: new Date().toISOString(),
-                propertyDetails: {
-                    type: document.getElementById('propertyType').value,
-                    value: document.getElementById('propertyValue').value,
-                    purpose: document.getElementById('loanPurpose').value.trim()
-                }
+                propertyType: document.getElementById('propertyType').value,
+                propertyValue: Number(document.getElementById('propertyValue').value),
+                loanPurpose: document.getElementById('loanPurpose').value.trim(),
+                submittedOn: new Date().toISOString()
             };
 
             // Validation
-            if (!formData.name || !formData.email || !formData.phone) {
-                alert('Please fill all required fields');
+            if (!formData.applicantName || !formData.email || !formData.phone) {
+                showToast('Please fill all required fields ⭐', 'error');
                 return;
             }
 
             if (!/^[0-9]{10}$/.test(formData.phone)) {
-                alert('Please enter a valid 10-digit phone number');
+                showToast('Enter valid 10-digit phone number 📱', 'error');
                 return;
             }
 
-            // Save to unified localStorage (admin panel compatible)
-            let loans = JSON.parse(localStorage.getItem("lndbLoanApplications") || []);
-            loans.push(formData);
-            localStorage.setItem("lndbLoanApplications", JSON.stringify(loans));
+            showToast('Submitting Home Loan application...', 'loading');
 
-            setTimeout(() => {
-                window.location.href = 'homeloansub.html';
-            }, 1500);
+            try {
+                const response = await fetch('http://localhost:5000/api/loans/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // ✅ SAVE TO UNIFIED localStorage (for homeloansub.html)
+                    let applications = JSON.parse(localStorage.getItem("lndbLoanApplications") || "[]");
+                    applications.push(formData);
+                    localStorage.setItem("lndbLoanApplications", JSON.stringify(applications));
+
+                    // ✅ Backup latest Home Loan
+                    localStorage.setItem("latestHomeLoan", JSON.stringify({ ...formData, refNo: result.refNo }));
+
+                    showToast(`✅ Success! Ref: ${result.refNo}`);
+                    document.getElementById('homeLoanForm').reset();
+
+                    setTimeout(() => {
+                        window.location.href = 'homeloansub.html';
+                    }, 1500);
+                } else {
+                    showToast(result.error || 'Submission failed ❌', 'error');
+                }
+            } catch (error) {
+                showToast('🔌 Backend server not running on port 5000', 'error');
+                console.error(error);
+            }
         });
     </script>
+
+
 </body>
 
 </html>

@@ -445,16 +445,15 @@
 
     <div id="toast" class="toast"></div>
     <script>
-        // Optional jsPDF setup
-        const { jsPDF } = window.jspdf || {};
+        // ✅ COMPLETE UPDATED SCRIPT - MongoDB Backend + Wizard Form
+        // Tumhara original code + MongoDB integration 🚀
 
-        // CONFIG
+        const { jsPDF } = window.jspdf || {};
         const STEPS = 5;
         let currentStep = 0;
-        const MAX_FILE_BYTES = 2.5 * 1024 * 1024; // 2.5MB
-        const ABS_MAX = 10 * 1024 * 1024; // 10MB
+        const MAX_FILE_BYTES = 2.5 * 1024 * 1024;
+        const ABS_MAX = 10 * 1024 * 1024;
 
-        // ELEMENTS
         const tabsEl = document.getElementById('tabs');
         const form = document.getElementById('wizardForm');
         const prevBtn = document.getElementById('prevBtn');
@@ -464,7 +463,7 @@
         const toast = document.getElementById('toast');
         const reviewBox = document.getElementById('reviewBox');
 
-        // Create tabs
+        // ✅ Create tabs (same)
         const TAB_LABELS = ['Personal', 'Business', 'Address & Contact', 'Documents', 'Review & Submit'];
         for (let i = 0; i < STEPS; i++) {
             const t = document.createElement('div');
@@ -477,8 +476,8 @@
             tabsEl.appendChild(t);
         }
 
-        // Helpers
-        function q(id) { return document.getElementById(id) }
+        // ✅ Helpers
+        function q(id) { return document.getElementById(id); }
         function showToast(msg, time = 1600) {
             toast.style.display = 'block';
             toast.textContent = msg;
@@ -486,7 +485,7 @@
         }
         function normalizeDigits(s) { return (s || '').toString().replace(/\D/g, ''); }
 
-        // 🔥 🔥 🔥 STATE-DISTRICT FIX - PASTE THIS EXACTLY 🔥 🔥 🔥
+        // ✅ State-District Mapping (same - working perfectly)
         const stateDistrictMap = {
             "Maharashtra": ["Mumbai Suburban", "Pune", "Satara", "Kolhapur", "Nashik"],
             "Karnataka": ["Bengaluru Urban", "Mysuru", "Mangaluru"],
@@ -499,20 +498,14 @@
             "Bihar": ["Patna", "Gaya"]
         };
 
-        // STATE CHANGE - WORKING 100%
+        // ✅ State-District Logic (DOM ready pehle chalao)
         document.addEventListener('DOMContentLoaded', function () {
-            const stateSelect = document.getElementById('state');
-            const districtSelect = document.getElementById('district');
-            const cityInput = document.getElementById('city');
+            const stateSelect = q('state');
+            const districtSelect = q('district');
+            const cityInput = q('city');
 
-            console.log("🔧 State-District script loaded!");
-
-            stateSelect.addEventListener('change', function () {
-                console.log("📍 State selected:", this.value);
-
-                // Clear district
+            stateSelect?.addEventListener('change', function () {
                 districtSelect.innerHTML = '<option value="">-- Select District --</option>';
-
                 if (this.value && stateDistrictMap[this.value]) {
                     stateDistrictMap[this.value].forEach(district => {
                         const option = document.createElement('option');
@@ -520,48 +513,51 @@
                         option.textContent = district;
                         districtSelect.appendChild(option);
                     });
-                    console.log("✅ Districts loaded:", stateDistrictMap[this.value]);
-                } else {
-                    console.log("❌ No districts for state:", this.value);
                 }
             });
 
-            // District change
-            districtSelect.addEventListener('change', function () {
-                console.log("🏙️ District selected:", this.value);
+            districtSelect?.addEventListener('change', function () {
                 if (this.value) {
                     cityInput.value = this.value;
                 }
             });
         });
 
-
-        // ✅ FIXED District Change Handler  
-        document.getElementById('district').addEventListener('change', function () {
-            console.log("District changed to:", this.value); // DEBUG
-            if (this.value) {
-                document.getElementById('city').value = this.value;
-            }
-        });
-
-
-        // Aadhaar Masking
+        // ✅ Aadhaar Masking (same)
         const aadVisible = q('aadhaarVisible'), aadFull = q('aadhaarFull');
-        function maskAadhaar(full) { if (!full) return ''; const d = normalizeDigits(full); if (d.length < 12) return full; return 'XXXX XXXX ' + d.slice(-4); }
-        aadVisible.addEventListener('input', e => { aadFull.value = normalizeDigits(e.target.value); });
-        aadVisible.addEventListener('blur', () => { const f = normalizeDigits(aadFull.value); if (f.length === 12) aadVisible.value = maskAadhaar(f); });
-        aadVisible.addEventListener('focus', () => { const full = normalizeDigits(aadFull.value); aadVisible.value = full || ''; });
+        if (aadVisible && aadFull) {
+            function maskAadhaar(full) {
+                if (!full) return '';
+                const d = normalizeDigits(full);
+                if (d.length < 12) return full;
+                return 'XXXX XXXX ' + d.slice(-4);
+            }
+            aadVisible.addEventListener('input', e => { aadFull.value = normalizeDigits(e.target.value); });
+            aadVisible.addEventListener('blur', () => {
+                const f = normalizeDigits(aadFull.value);
+                if (f.length === 12) aadVisible.value = maskAadhaar(f);
+            });
+            aadVisible.addEventListener('focus', () => {
+                const full = normalizeDigits(aadFull.value);
+                aadVisible.value = full || '';
+            });
+        }
 
-        // File handling
+        // ✅ File Handling (same - but files optional for JSON)
         function bindFileInput(fileId, nameId, errId) {
             const input = q(fileId), nameEl = q(nameId), errEl = errId ? q(errId) : null;
             if (!input) return;
             input.addEventListener('change', () => {
-                nameEl.textContent = ''; if (errEl) errEl.textContent = '';
+                nameEl.textContent = '';
+                if (errEl) errEl.textContent = '';
                 const f = input.files[0];
                 if (!f) return;
                 nameEl.textContent = f.name + ' (' + Math.round(f.size / 1024) + ' KB)';
-                if (f.size > ABS_MAX) { if (errEl) errEl.textContent = 'File too large. Max 10 MB.'; input.value = ''; nameEl.textContent = ''; }
+                if (f.size > ABS_MAX) {
+                    if (errEl) errEl.textContent = 'File too large. Max 10 MB.';
+                    input.value = '';
+                    nameEl.textContent = '';
+                }
             });
         }
         bindFileInput('photoFile', 'photoName', 'photoError');
@@ -572,24 +568,14 @@
         bindFileInput('addressProofFile', 'addressProofFileName', 'addressProofFileError');
         bindFileInput('authIdFile', 'authIdName', 'authIdError');
 
-        function fileToBase64Limited(file) {
-            return new Promise(resolve => {
-                if (!file) return resolve({ ok: true, data: null, name: null, stored: false });
-                const reader = new FileReader();
-                reader.onload = () => {
-                    if (file.size <= MAX_FILE_BYTES) resolve({ ok: true, data: reader.result, name: file.name, stored: true });
-                    else resolve({ ok: true, data: null, name: file.name, stored: false });
-                };
-                reader.onerror = () => resolve({ ok: false, message: 'Unable to read', name: file.name });
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // Step Logic
+        // ✅ Wizard Step Logic (same)
         function goToStep(i) {
             currentStep = i;
             document.querySelectorAll('.step').forEach(s => s.style.display = (parseInt(s.dataset.step) === i ? '' : 'none'));
-            document.querySelectorAll('.tab').forEach((t, idx) => { t.classList.toggle('active', idx === i); t.classList.toggle('completed', idx < i); });
+            document.querySelectorAll('.tab').forEach((t, idx) => {
+                t.classList.toggle('active', idx === i);
+                t.classList.toggle('completed', idx < i);
+            });
             prevBtn.disabled = (i === 0);
             nextBtn.style.display = (i < STEPS - 1 ? '' : 'none');
             submitBtn.style.display = (i === STEPS - 1 ? '' : 'none');
@@ -602,7 +588,10 @@
             if (!step) return { ok: true };
             const inputs = Array.from(step.querySelectorAll('input,select,textarea')).filter(el => el.offsetParent !== null);
             for (const el of inputs) {
-                if (el.required && !el.value) { el.focus(); return { ok: false, msg: 'Please fill required fields.' }; }
+                if (el.required && !el.value.trim()) {
+                    el.focus();
+                    return { ok: false, msg: 'Please fill all required fields in this step.' };
+                }
             }
             return { ok: true };
         }
@@ -615,121 +604,156 @@
 
         prevBtn.addEventListener('click', () => goToStep(Math.max(0, currentStep - 1)));
 
-        function collectRecord(includeFiles = true) {
-            return {
-                personal: {
-                    fullName: q('fullName').value,
-                    aadhaar: normalizeDigits(aadFull.value),
-                    pan: q('personalPan').value
-                },
-                businessData: {
-                    businessName: q('businessName').value,
-                    businessType: q('businessType').value
-                },
-                contact: {
-                    phone: q('contactPhone').value,
-                    email: q('contactEmail').value
-                },
-                documents: {}
-            };
-        }
-
+        // ✅ Review Population
         function populateReview() {
-            const r = collectRecord(false);
-            reviewBox.innerHTML = `<strong>Name:</strong> ${r.personal.fullName}<br><strong>Business:</strong> ${r.businessData.businessName}<br><strong>Phone:</strong> ${r.contact.phone}`;
+            const data = collectFormData();
+            reviewBox.innerHTML = `
+        <div class="review-section">
+            <h5>👤 Personal</h5>
+            <p><strong>Name:</strong> ${data.fullName || 'N/A'}</p>
+            <p><strong>PAN:</strong> ${data.personalPan || 'N/A'}</p>
+        </div>
+        <div class="review-section">
+            <h5>🏢 Business</h5>
+            <p><strong>Name:</strong> ${data.businessName || 'N/A'}</p>
+            <p><strong>Type:</strong> ${data.businessType || 'N/A'}</p>
+        </div>
+        <div class="review-section">
+            <h5>📍 Address</h5>
+            <p><strong>City:</strong> ${data.city || 'N/A'}, ${data.state || 'N/A'}</p>
+        </div>
+        <div class="review-section">
+            <h5>📞 Contact</h5>
+            <p><strong>Phone:</strong> ${data.contactPhone || 'N/A'}</p>
+            <p><strong>Email:</strong> ${data.contactEmail || 'N/A'}</p>
+        </div>
+    `;
         }
 
-        // ✅ FULLY WORKING SUBMIT - Replace your entire form.addEventListener('submit') section
+        // 🔥 🔥 🔥 MAIN SUBMIT FUNCTION - MongoDB Backend Integration 🔥 🔥 🔥
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Helper function (was missing!)
-            function q(id) { return document.getElementById(id); }
+            // ✅ 1. AGE VALIDATION (18+ only)
+            const dob = q('dob')?.value;
+            if (dob) {
+                const dobDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - dobDate.getFullYear();
+                const monthDiff = today.getMonth() - dobDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dobDate.getDate())) age--;
+                if (age < 18) {
+                    showToast('❌ Applicant must be 18+ years old');
+                    q('dob').focus();
+                    return;
+                }
+            }
 
-            // ✅ QUICK VALIDATION CHECK
+            // ✅ 2. REQUIRED FIELDS CHECK
             const requiredFields = [
-                'fullName', 'fatherName', 'dob', 'personalPan', 'businessName', 'businessType',
-                'address', 'state', 'district', 'city', 'pincode', 'contactPhone', 'contactEmail',
+                'fullName', 'fatherName', 'dob', 'personalPan',
+                'businessName', 'businessType', 'address', 'state',
+                'district', 'city', 'pincode', 'contactPhone', 'contactEmail',
                 'authName', 'authDesignation', 'authMobile', 'authEmail'
             ];
 
             for (let field of requiredFields) {
-                if (!q(field)?.value) {
+                if (!q(field)?.value.trim()) {
                     showToast(`⚠️ Please fill ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+                    q(field)?.scrollIntoView({ behavior: 'smooth' });
                     q(field)?.focus();
                     return;
                 }
             }
 
-            // ✅ GENERATE REFERENCE FIRST
-            const refNo = 'CA' + Math.floor(100000 + Math.random() * 900000);
+            // ✅ 3. FORMAT VALIDATIONS
+            if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(q('personalPan').value)) {
+                showToast('❌ Invalid PAN format');
+                q('personalPan').focus();
+                return;
+            }
+            if (!/^\d{10}$/.test(normalizeDigits(q('contactPhone').value))) {
+                showToast('❌ Phone must be 10 digits');
+                q('contactPhone').focus();
+                return;
+            }
+            if (!/^\d{6}$/.test(q('pincode').value)) {
+                showToast('❌ PIN code must be 6 digits');
+                q('pincode').focus();
+                return;
+            }
 
-            // ✅ COLLECT ALL DATA
-            const rec = {
-                refNo: refNo,
-                status: 'Pending',
-                timestamp: new Date().toISOString(),
-                personal: {
+            // ✅ 4. SHOW LOADING
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+
+            try {
+                // ✅ 5. COLLECT FORM DATA (Exact backend format)
+                const formData = {
+                    accountType: q('accountType')?.value || 'Current',
                     fullName: q('fullName').value,
                     fatherName: q('fatherName').value,
                     dob: q('dob').value,
-                    pan: q('personalPan').value,
-                    aadhaar: q('aadhaarFull') ? q('aadhaarFull').value.replace(/\D/g, '') : '',
-                    resAddress: q('resAddress')?.value || '',
-                    resCity: q('resCity')?.value || '',
-                    resPincode: q('resPincode')?.value || ''
-                },
-                businessData: {
+                    personalPan: q('personalPan').value.toUpperCase(),
+                    aadhaarFull: normalizeDigits(q('aadhaarFull')?.value || ''),
                     businessName: q('businessName').value,
                     businessType: q('businessType').value,
                     registrationNumber: q('registrationNumber')?.value || '',
                     natureOfBusiness: q('natureOfBusiness')?.value || '',
                     gstNumber: q('gstNumber')?.value || '',
-                    panCompany: q('panCompany')?.value || ''
-                },
-                address: {
+                    panCompany: q('panCompany')?.value || '',
                     address: q('address').value,
                     state: q('state').value,
                     district: q('district').value,
                     city: q('city').value,
-                    pincode: q('pincode').value
-                },
-                contact: {
-                    phone: q('contactPhone').value,
-                    email: q('contactEmail').value,
-                    website: q('website')?.value || ''
-                },
-                authSignatory: {
-                    name: q('authName').value,
-                    designation: q('authDesignation').value,
-                    mobile: q('authMobile').value,
-                    email: q('authEmail').value
+                    pincode: q('pincode').value,
+                    contactPhone: normalizeDigits(q('contactPhone').value),
+                    contactEmail: q('contactEmail').value,
+                    website: q('website')?.value || '',
+                    authName: q('authName').value,
+                    authDesignation: q('authDesignation').value,
+                    authMobile: normalizeDigits(q('authMobile').value),
+                    authEmail: q('authEmail').value
+                };
+
+                // ✅ 6. SEND TO MONGODB BACKEND
+                const response = await fetch('http://localhost:5000/api/accounts/open', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // ✅ 7. SUCCESS - Save Reference & Redirect
+                    localStorage.setItem("latestCurrentRef", result.refNo);
+                    showToast(`🎉 Success! Reference: ${result.refNo}`);
+
+                    setTimeout(() => {
+                        window.location.href = formData.accountType === 'Savings' ?
+                            "savingsub.html" : "currentsub.html";
+                    }, 1500);
+                } else {
+                    showToast(`❌ Error: ${result.error || 'Submission failed'}`);
                 }
-            };
 
-            // ✅ CRITICAL: SAVE REFERENCE FIRST
-            localStorage.setItem("latestCurrentRef", refNo);
+            } catch (error) {
+                console.error('❌ Network Error:', error);
+                showToast('❌ Server Error! Is backend running on localhost:5000?');
+            } finally {
+                // ✅ 8. RESET BUTTON
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Application';
+            }
+        });
 
-            // ✅ SAVE FULL APPLICATION
-            let apps = JSON.parse(localStorage.getItem("currentAccountApplications") || "[]");
-            apps.push(rec);
-            localStorage.setItem("currentAccountApplications", JSON.stringify(apps));
-
-            // ✅ SAVE ADMIN SUMMARY
-            let summary = JSON.parse(localStorage.getItem("lndbCurrentAccounts") || "[]");
-            summary.push({
-                refNo: refNo,
-                name: rec.personal.fullName,
-                business: rec.businessData.businessName,
-                phone: rec.contact.phone,
-                status: 'Pending'
-            });
-            localStorage.setItem("lndbCurrentAccounts", JSON.stringify(summary));
-
-            window.location.href = "currentsub.html";
-        }, 1200);
-
+        // ✅ Initialize first step
+        goToStep(0);
     </script>
+
 
 </body>
 

@@ -104,135 +104,45 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
+        // savingsub.html - SUBMISSION PAGE (dusra wala script - FIXED)
         (function () {
             const refEl = document.getElementById('refNo');
             let displayRef = '';
 
-            // 1. URL se check karo (Apply form se)
             const urlParams = new URLSearchParams(window.location.search);
             const urlRef = urlParams.get('ref');
-
-            if (urlRef && urlRef.startsWith('SA')) {
-                displayRef = urlRef;
-            } else {
-                // ✅ SAVINGS FORMAT: SA + 6 digits
-                displayRef = 'SA' + Math.floor(100000 + Math.random() * 900000);
-            }
-
-            // 🔥 FIXED: Always save to BOTH storages immediately
-            localStorage.setItem("latestSavingRef", displayRef);
-
-            // Save minimal admin record IMMEDIATELY
-            let adminAccounts = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
-            const exists = adminAccounts.some(a => a.refNo === displayRef);
-
-            if (!exists) {
-                adminAccounts.push({
-                    refNo: displayRef,
-                    name: 'Applicant',  // Will be updated from form
-                    phone: 'Pending',
-                    type: 'Savings',
-                    status: 'Pending',
-                    created: new Date().toISOString()
-                });
-                localStorage.setItem("lndbSavingAccounts", JSON.stringify(adminAccounts));
-                console.log("✅ NEW ADMIN RECORD:", displayRef);
-            }
-
+            displayRef = urlRef || 'SA' + Math.floor(100000 + Math.random() * 900000);
             refEl.textContent = displayRef;
-            console.log("✅ DISPLAY REF:", displayRef);
 
-            // ✅ Get full savings record (unchanged)
-            function getFullSavingsRecord(ref) {
+            async function getFullSavingsRecord(ref) {
                 try {
-                    let apps = JSON.parse(localStorage.getItem("savingAccountApplications") || "[]");
-                    let fullRecord = apps.find(r => r.refNo === ref) || apps[apps.length - 1];
-
-                    if (fullRecord) {
-                        return {
-                            personal: {
-                                fullName: fullRecord.fullName || 'N/A',
-                                fatherName: fullRecord.fatherName || 'N/A',
-                                motherName: fullRecord.motherName || 'N/A',
-                                dob: fullRecord.dob || 'N/A',
-                                gender: fullRecord.gender || 'N/A',
-                                maritalStatus: fullRecord.maritalStatus || 'N/A'
-                            },
-                            contact: {
-                                mobile: fullRecord.mobile || 'N/A',
-                                email: fullRecord.email || 'N/A',
-                                address: fullRecord.address || 'N/A',
-                                state: fullRecord.state || 'N/A',
-                                district: fullRecord.district || 'N/A',
-                                city: fullRecord.city || 'N/A',
-                                pincode: fullRecord.pincode || 'N/A'
-                            },
-                            documents: {
-                                aadhar: fullRecord.aadhar || 'N/A',
-                                pan: fullRecord.pan || 'N/A'
-                            },
-                            preferences: {
-                                branch: fullRecord.branch || 'N/A',
-                                nomineeName: fullRecord.nomineeName || 'N/A',
-                                nomineeRelation: fullRecord.nomineeRelation || 'N/A',
-                                accountType: fullRecord.accountType || 'N/A'
-                            }
-                        };
-                    }
-
-                    // 🔥 FIXED: Also check admin storage
-                    const list = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
-                    const adminRecord = list.find(r => r.refNo === ref);
-                    if (adminRecord) {
-                        return {
-                            personal: { fullName: adminRecord.name || 'N/A' },
-                            contact: { mobile: adminRecord.phone || 'N/A' },
-                            preferences: { accountType: adminRecord.type || 'Savings' }
-                        };
-                    }
-                    return {};
+                    const response = await fetch(`http://localhost:5000/api/accounts/${ref}`);
+                    if (response.ok) return await response.json();
+                    throw new Error('Not found');
                 } catch (e) {
                     console.error("Error getting record:", e);
                     return {};
                 }
             }
 
-            // 🔥 FIXED: Update admin record with complete data before PDF
-            function updateAdminRecord(ref, record) {
-                let adminAccounts = JSON.parse(localStorage.getItem("lndbSavingAccounts") || "[]");
-                const idx = adminAccounts.findIndex(a => a.refNo === ref);
-
-                if (idx >= 0) {
-                    adminAccounts[idx] = {
-                        ...adminAccounts[idx],
-                        name: record.personal.fullName || 'Applicant',
-                        phone: record.contact.mobile || 'Pending',
-                        // Keep other admin fields
-                    };
-                    localStorage.setItem("lndbSavingAccounts", JSON.stringify(adminAccounts));
-                    console.log("✅ ADMIN UPDATED:", ref);
-                }
-            }
-
-            // PDF Generator (unchanged except admin update call)
             async function buildAndDownloadPDF() {
                 const ref = displayRef;
-                const record = getFullSavingsRecord(ref);
-
-                // 🔥 FIXED: Update admin BEFORE PDF generation
-                updateAdminRecord(ref, record);
+                const record = await getFullSavingsRecord(ref);
 
                 const { jsPDF } = window.jspdf;
-                // ... rest of PDF code remains SAME ...
-                // (keeping your existing PDF generation code)
-
                 const pdf = new jsPDF("p", "mm", "a4");
-                // [Your existing PDF code here - no changes needed]
+
+                pdf.text(`LNDB Savings Account Application - Ref: ${ref}`, 20, 20);
+                pdf.text(`Name: ${record.fullName || 'N/A'}`, 20, 40);
+                pdf.text(`Mobile: ${record.mobile || 'N/A'}`, 20, 50);
+                pdf.text(`Email: ${record.email || 'N/A'}`, 20, 60);
+                pdf.text(`Account Type: ${record.accountType || 'Savings'}`, 20, 70);
+                pdf.text(`Status: ${record.status || 'Pending'}`, 20, 80);
+                pdf.text(`Applied: ${new Date().toLocaleString()}`, 20, 90);
 
                 pdf.save(`LNDB_Savings_Account_${ref}.pdf`);
             }
 
-            // Button events (unchanged)
             const pdfBtn = document.getElementById("pdfBtn");
             if (pdfBtn) {
                 pdfBtn.addEventListener("click", async function () {
