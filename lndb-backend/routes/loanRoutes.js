@@ -3,34 +3,37 @@ const Loan = require("../models/Loan");
 const router = express.Router();
 
 /* =====================================================
-   ✅ APPLY LOAN (5 Types: Business/Car/Education/Gold/Home)
+   ✅ FIXED POST /apply - Handles ownerName → applicantName
 ===================================================== */
 router.post("/apply", async (req, res) => {
     try {
-        console.log("📤 Loan Application:", req.body);
+        console.log("📥 RAW DATA:", req.body);
 
         const loanType = req.body.loanType;
-
         const typeMapping = {
             "Business Loan": "businessLoan",
             "Car Loan": "carLoan",
             "Education Loan": "educationLoan",
             "Gold Loan": "goldLoan",
-            "Home Loan": "homeLoan"  // ✅ HOME LOAN ADDED!
+            "Home Loan": "homeLoan"
         };
 
         if (!loanType || !typeMapping[loanType]) {
             return res.status(400).json({
                 success: false,
-                error: "Invalid loan type. Supported: Business Loan, Car Loan, Education Loan, Gold Loan, Home Loan"
+                error: "Invalid loan type"
             });
         }
 
         const applicationType = typeMapping[loanType];
 
+        /* 🔥 CRITICAL FIX: applicantName always required! */
+        let nameField = req.body.applicantName || req.body.ownerName || req.body.name || "Customer";
+
         /* ---------- Common Fields ---------- */
         let loanData = {
-            refNo: req.body.refNo,
+            refNo: req.body.refNo || `LN${Date.now()}${Math.floor(Math.random() * 1000)}`,
+            applicantName: nameField,  // ✅ ALWAYS SET
             email: req.body.email,
             phone: req.body.phone,
             loanAmount: Number(req.body.amount || req.body.loanAmount),
@@ -42,38 +45,39 @@ router.post("/apply", async (req, res) => {
 
         /* ---------- Loan Specific Fields ---------- */
         if (applicationType === "businessLoan") {
-            loanData.ownerName = req.body.ownerName || req.body.name;
+            loanData.ownerName = req.body.ownerName || nameField;
             loanData.businessName = req.body.businessName;
             loanData.businessType = req.body.businessType;
         }
 
         if (applicationType === "carLoan") {
-            loanData.applicantName = req.body.applicantName || req.body.name;
             loanData.carBrand = req.body.carBrand;
             loanData.carModel = req.body.carModel;
             loanData.carPrice = Number(req.body.carPrice);
         }
 
         if (applicationType === "educationLoan") {
-            loanData.studentName = req.body.studentName || req.body.name;
+            loanData.studentName = req.body.studentName || nameField;
             loanData.course = req.body.course;
             loanData.institution = req.body.institution;
         }
 
         if (applicationType === "goldLoan") {
-            loanData.applicantName = req.body.applicantName || req.body.name;
             loanData.goldWeight = Number(req.body.goldWeight);
             loanData.goldPurity = req.body.goldPurity;
         }
 
-        if (applicationType === "homeLoan") {  // ✅ HOME LOAN ADDED!
-            loanData.applicantName = req.body.applicantName || req.body.name;
+        if (applicationType === "homeLoan") {
             loanData.propertyType = req.body.propertyType;
             loanData.propertyValue = Number(req.body.propertyValue);
             loanData.loanPurpose = req.body.loanPurpose;
         }
 
-        const loan = await Loan.create(loanData);
+        console.log("📤 SAVING:", loanData);
+
+        // ✅ Use new Loan() + save() instead of create()
+        const loan = new Loan(loanData);
+        await loan.save();
 
         console.log(`✅ ${loanType} saved | Ref: ${loan.refNo}`);
 
@@ -85,7 +89,7 @@ router.post("/apply", async (req, res) => {
         });
 
     } catch (error) {
-        console.error("❌ Loan Error:", error);
+        console.error("❌ FULL ERROR:", error);
 
         if (error.code === 11000) {
             return res.status(409).json({
@@ -110,7 +114,7 @@ router.post("/apply", async (req, res) => {
 });
 
 /* =====================================================
-   ✅ GET ALL LOANS (Admin) - 5 Types Support
+   ✅ GET ALL LOANS - Admin Panel
 ===================================================== */
 router.get("/", async (req, res) => {
     try {
@@ -118,22 +122,20 @@ router.get("/", async (req, res) => {
         const skip = (page - 1) * limit;
 
         let query = {};
-
         if (status) query.status = status;
-
         if (loanType) {
             const typeMap = {
                 "Business Loan": "businessLoan",
                 "Car Loan": "carLoan",
                 "Education Loan": "educationLoan",
                 "Gold Loan": "goldLoan",
-                "Home Loan": "homeLoan"  // ✅ HOME LOAN ADDED!
+                "Home Loan": "homeLoan"
             };
             query.applicationType = typeMap[loanType];
         }
 
         const loans = await Loan.find(query)
-            .sort({ createdAt: -1 })
+            .sort({ submittedOn: -1 })
             .skip(Number(skip))
             .limit(Number(limit))
             .select("-__v");
@@ -158,42 +160,18 @@ router.get("/", async (req, res) => {
 });
 
 /* =====================================================
-   ✅ GET SINGLE LOAN
+   ✅ ADMIN STATUS UPDATE - /:id/approved & /:id/rejected
 ===================================================== */
-router.get("/:id", async (req, res) => {
+router.put("/:id/:status(approved|rejected)", async (req, res) => {
     try {
-        const loan = await Loan.findOne({
-            $or: [{ _id: req.params.id }, { refNo: req.params.id }]
-        }).select("-__v");
+        const { id, status } = req.params;
 
-        if (!loan) {
-            return res.status(404).json({
-                success: false,
-                error: "Loan not found"
-            });
-        }
-
-        res.json({ success: true, data: loan });
-
-    } catch (error) {
-        console.error("❌ Single loan error:", error);
-        res.status(500).json({
-            success: false,
-            error: "Failed to fetch loan"
-        });
-    }
-});
-
-/* =====================================================
-   ✅ APPROVE LOAN
-===================================================== */
-router.put("/:id/approve", async (req, res) => {
-    try {
         const loan = await Loan.findByIdAndUpdate(
-            req.params.id,
+            id,
             {
-                status: "approved",
-                approvedAt: new Date(),
+                status,
+                ...(status === "approved" && { approvedAt: new Date() }),
+                ...(status === "rejected" && { rejectedAt: new Date() }),
                 updatedAt: new Date()
             },
             { new: true, runValidators: true }
@@ -208,49 +186,12 @@ router.put("/:id/approve", async (req, res) => {
 
         res.json({
             success: true,
-            message: `${loan.loanType} approved successfully!`,
+            message: `${loan.loanType} ${status} successfully!`,
             data: loan
         });
 
     } catch (error) {
-        console.error("❌ Approve error:", error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-/* =====================================================
-   ✅ REJECT LOAN
-===================================================== */
-router.put("/:id/reject", async (req, res) => {
-    try {
-        const loan = await Loan.findByIdAndUpdate(
-            req.params.id,
-            {
-                status: "rejected",
-                rejectedAt: new Date(),
-                updatedAt: new Date()
-            },
-            { new: true, runValidators: true }
-        ).select("-__v");
-
-        if (!loan) {
-            return res.status(404).json({
-                success: false,
-                error: "Loan not found"
-            });
-        }
-
-        res.json({
-            success: true,
-            message: `${loan.loanType} rejected successfully!`,
-            data: loan
-        });
-
-    } catch (error) {
-        console.error("❌ Reject error:", error);
+        console.error("❌ Status Update Error:", error);
         res.status(500).json({
             success: false,
             error: error.message
