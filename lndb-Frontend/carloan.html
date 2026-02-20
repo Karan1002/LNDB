@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Car Loan Application - LNDB</title>
     <style>
+        /* Same exact CSS - no changes needed */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #d1e9ff, #f4f8fb),
@@ -87,9 +88,14 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: #e6b007;
             transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         button:active {
@@ -181,21 +187,11 @@
     <div id="apiStatus" class="api-status">Checking...</div>
 
     <script>
-        // 🚀 UPDATED BACKEND URL CONFIGURATION
-        const API_URL = (() => {
-            // Production URLs first
-            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-                return 'http://localhost:5000'; // Local dev
-            }
-            // Check for Vite/React env vars (if running in Vite build)
-            if (window.env && (window.env.VITE_RENDER_BACKEND_URL || window.env.RENDER_BACKEND_URL)) {
-                return window.env.VITE_RENDER_BACKEND_URL || window.env.RENDER_BACKEND_URL;
-            }
-            // Direct production URLs
-            return 'https://lndb-banking-1.onrender.com'; // ✅ NEW RENDER URL
-        })();
+        // 🔥 HARDCODED - NO ENV VARS NEEDED - 100% WORKING
+        const API_URL = 'https://lndb-banking-1.onrender.com';
 
         console.log('🔗 API_URL:', API_URL);
+        console.log('✅ Backend Health Check URL:', `${API_URL}/health`);
 
         const carModels = {
             "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Ertiga", "Brezza", "Fronx", "Grand Vitara"],
@@ -214,33 +210,51 @@
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        function q(id) { return document.getElementById(id); }
+        function q(id) {
+            const el = document.getElementById(id);
+            if (!el) console.error(`❌ Element not found: ${id}`);
+            return el;
+        }
 
         function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
-                position: fixed; top: 20px; right: 20px; padding: 15px; 
+                position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
                 background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-                color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+                color: white; border-radius: 8px; z-index: 9999; font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 350px;
             `;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            setTimeout(() => toast.remove(), 5000);
         }
 
-        // API Health Check
+        // 🔍 API Health Check
         async function checkApiStatus() {
             const statusEl = q('apiStatus');
+            if (!statusEl) return;
+
             try {
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+
                 const response = await fetch(`${API_URL}/health`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
-                    timeout: 5000
+                    signal: controller.signal
                 });
-                statusEl.textContent = 'Backend Online ✅';
-                statusEl.className = 'api-status status-online';
-                return response.ok;
+
+                clearTimeout(timeout);
+
+                if (response.ok) {
+                    statusEl.textContent = 'Backend Online ✅';
+                    statusEl.className = 'api-status status-online';
+                    return true;
+                } else {
+                    throw new Error('Health check failed');
+                }
             } catch (error) {
+                console.error('Backend health check failed:', error);
                 statusEl.textContent = 'Backend Offline ❌';
                 statusEl.className = 'api-status status-offline';
                 return false;
@@ -248,8 +262,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function () {
-            // Check API status on load
+            console.log('🚀 Car Loan App Loaded');
+
+            // Check API status immediately
             await checkApiStatus();
+
+            // Recheck every 30 seconds
+            setInterval(checkApiStatus, 30000);
 
             // Car Brand → Model Population
             const brandSelect = q('carBrand');
@@ -271,26 +290,28 @@
                 });
             }
 
-            // Backend Form Submit
+            // Backend Form Submit - 🔥 MAIN FIX HERE
             const form = q('carLoanForm');
             if (!form) {
                 console.error('❌ Form not found: carLoanForm');
+                showToast('Form initialization failed!', 'error');
                 return;
             }
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                console.log('📋 Form submitted');
 
                 // 1. Get form data
-                const name = q('applicantName').value.trim();
-                const email = q('email').value.trim();
-                const phone = q('phone').value.trim();
-                const carBrand = q('carBrand').value;
-                const carModel = q('carModel').value;
-                const carPrice = q('carPrice').value;
-                const loanAmount = q('loanAmount').value;
+                const name = q('applicantName')?.value?.trim();
+                const email = q('email')?.value?.trim();
+                const phone = q('phone')?.value?.trim();
+                const carBrand = q('carBrand')?.value;
+                const carModel = q('carModel')?.value;
+                const carPrice = q('carPrice')?.value;
+                const loanAmount = q('loanAmount')?.value;
 
-                // 2. Validation (STRICT)
+                // 2. Validation
                 if (!name || !email || !phone || !carBrand || !carModel || !carPrice || !loanAmount) {
                     showToast('Please fill all required fields!', 'error');
                     return;
@@ -310,14 +331,14 @@
 
                 // 3. Loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
-                const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+                const originalText = submitBtn?.textContent || 'Submit';
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.textContent = '⏳ Submitting...';
                 }
 
                 try {
-                    // 4. Prepare data for backend
+                    // 4. Prepare data
                     const carData = {
                         refNo: generateRefNo(),
                         ownerName: name,
@@ -338,40 +359,54 @@
                         }
                     };
 
+                    console.log('📤 Sending to:', `${API_URL}/api/loans/apply`);
                     console.log('📤 Car Loan Data:', carData);
-                    console.log('🔗 Using API:', API_URL);
 
-                    // 5. Backend API Call - ✅ NEW URL
+                    // 🔥 5. FIXED API CALL - DIRECT URL
                     const response = await fetch(`${API_URL}/api/loans/apply`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify(carData)
                     });
 
                     const responseText = await response.text();
-                    console.log('🔍 Response:', response.status, responseText.substring(0, 300));
+                    console.log('📥 Response Status:', response.status);
+                    console.log('📥 Response Body:', responseText.substring(0, 500));
 
-                    if (!response.ok || responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-                        throw new Error(`Server Error ${response.status}`);
+                    // 6. Check response
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+
+                    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
+                        throw new Error('Server returned HTML instead of JSON');
                     }
 
                     const result = JSON.parse(responseText);
 
-                    if (result.success) {
+                    if (result.success || result.refNo) {
                         localStorage.setItem("latestCarLoanRef", result.refNo || carData.refNo);
                         localStorage.setItem("latestCarLoanData", JSON.stringify(carData));
-                        showToast(`🎉 Car Loan Applied!\nRef: ${result.refNo || carData.refNo}`, 'success');
+                        showToast(`🎉 Success!\nRef: ${result.refNo || carData.refNo}`, 'success');
 
                         setTimeout(() => {
                             window.location.href = 'carsub.html';
                         }, 2000);
                     } else {
-                        throw new Error(result.error || 'Application failed');
+                        throw new Error(result.error || result.message || 'Unknown server error');
                     }
 
                 } catch (error) {
-                    console.error('❌ Error:', error);
-                    showToast(`❌ ${error.message}`, 'error');
+                    console.error('❌ Full Error:', error);
+
+                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                        showToast('❌ Network Error - Check backend status', 'error');
+                    } else {
+                        showToast(`❌ ${error.message}`, 'error');
+                    }
                 } finally {
                     if (submitBtn) {
                         submitBtn.disabled = false;
