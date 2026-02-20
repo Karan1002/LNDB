@@ -109,6 +109,27 @@
             z-index: 1000;
             font-weight: 600;
         }
+
+        .api-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            z-index: 1000;
+        }
+
+        .status-online {
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+        }
+
+        .status-offline {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
     </style>
 </head>
 
@@ -157,9 +178,24 @@
     </form>
 
     <div id="toast" class="toast"></div>
+    <div id="apiStatus" class="api-status">Checking...</div>
 
     <script>
-        // ✅ FULL BACKEND INTEGRATION - Car Loan (400 ERROR FIXED!)
+        // 🚀 UPDATED BACKEND URL CONFIGURATION
+        const API_URL = (() => {
+            // Production URLs first
+            if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                return 'http://localhost:5000'; // Local dev
+            }
+            // Check for Vite/React env vars (if running in Vite build)
+            if (window.env && (window.env.VITE_RENDER_BACKEND_URL || window.env.RENDER_BACKEND_URL)) {
+                return window.env.VITE_RENDER_BACKEND_URL || window.env.RENDER_BACKEND_URL;
+            }
+            // Direct production URLs
+            return 'https://lndb-banking-1.onrender.com'; // ✅ NEW RENDER URL
+        })();
+
+        console.log('🔗 API_URL:', API_URL);
 
         const carModels = {
             "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Ertiga", "Brezza", "Fronx", "Grand Vitara"],
@@ -184,16 +220,38 @@
             const toast = document.createElement('div');
             toast.textContent = msg;
             toast.style.cssText = `
-        position: fixed; top: 20px; right: 20px; padding: 15px; 
-        background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-        color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
-    `;
+                position: fixed; top: 20px; right: 20px; padding: 15px; 
+                background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
+                color: white; border-radius: 5px; z-index: 9999; font-family: Arial;
+            `;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // ✅ Car Brand → Model Population
+        // API Health Check
+        async function checkApiStatus() {
+            const statusEl = q('apiStatus');
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: 5000
+                });
+                statusEl.textContent = 'Backend Online ✅';
+                statusEl.className = 'api-status status-online';
+                return response.ok;
+            } catch (error) {
+                statusEl.textContent = 'Backend Offline ❌';
+                statusEl.className = 'api-status status-offline';
+                return false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Check API status on load
+            await checkApiStatus();
+
+            // Car Brand → Model Population
             const brandSelect = q('carBrand');
             const modelSelect = q('carModel');
 
@@ -213,7 +271,7 @@
                 });
             }
 
-            // ✅ Backend Form Submit
+            // Backend Form Submit
             const form = q('carLoanForm');
             if (!form) {
                 console.error('❌ Form not found: carLoanForm');
@@ -223,7 +281,7 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                // ✅ 1. Get form data
+                // 1. Get form data
                 const name = q('applicantName').value.trim();
                 const email = q('email').value.trim();
                 const phone = q('phone').value.trim();
@@ -232,7 +290,7 @@
                 const carPrice = q('carPrice').value;
                 const loanAmount = q('loanAmount').value;
 
-                // ✅ 2. Validation (STRICT)
+                // 2. Validation (STRICT)
                 if (!name || !email || !phone || !carBrand || !carModel || !carPrice || !loanAmount) {
                     showToast('Please fill all required fields!', 'error');
                     return;
@@ -250,7 +308,7 @@
                     return;
                 }
 
-                // ✅ 3. Loading state
+                // 3. Loading state
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalText = submitBtn ? submitBtn.textContent : 'Submit';
                 if (submitBtn) {
@@ -259,12 +317,12 @@
                 }
 
                 try {
-                    // 🔥 ✅ FIXED: Standard Business Loan fields + Car fields
+                    // 4. Prepare data for backend
                     const carData = {
-                        refNo: generateRefNo(),           // CL847392
-                        ownerName: name,                  // ✅ CHANGED: applicantName → ownerName
+                        refNo: generateRefNo(),
+                        ownerName: name,
                         email: email,
-                        phone: phone.replace(/\D/g, ''),  // Clean phone: 9876543210
+                        phone: phone.replace(/\D/g, ''),
                         carBrand: carBrand,
                         carModel: carModel,
                         carPrice: carPriceNum,
@@ -281,10 +339,10 @@
                     };
 
                     console.log('📤 Car Loan Data:', carData);
+                    console.log('🔗 Using API:', API_URL);
 
-                    // ✅ 5. Backend API Call
-                    const response = await fetch('https://lndb-1.onrender.com/api/loans/apply', {
-
+                    // 5. Backend API Call - ✅ NEW URL
+                    const response = await fetch(`${API_URL}/api/loans/apply`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(carData)
@@ -323,7 +381,6 @@
             });
         });
     </script>
-
 </body>
 
 </html>
