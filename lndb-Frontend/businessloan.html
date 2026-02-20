@@ -235,7 +235,8 @@
                     console.log('📤 Business Loan Data:', loanData);
 
                     // ✅ 5. Backend API Call
-                    const response = await fetch('http://localhost:5000/api/loans/apply', {
+                    const response = await fetch('https://lndb-1.onrender.com/api/loans/apply', {
+
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(loanData)

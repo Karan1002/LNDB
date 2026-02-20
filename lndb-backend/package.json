@@ -1,16 +1,53 @@
 {
   "name": "lndb-backend",
   "version": "1.0.0",
+  "description": "LNDB - Full Stack Banking Admin Panel with Loans, Accounts, Cards & Investments",
   "main": "server.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "npx nodemon server.js"
+    "dev": "nodemon server.js",
+    "build": "echo 'Production ready!'",
+    "test": "echo 'Add tests soon...' && exit 0",
+    "lint": "eslint .",
+    "clean": "rm -rf node_modules package-lock.json"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.19.2",
-    "mongoose": "^8.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.0",
     "multer": "^2.0.2"
-  }
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "eslint": "^9.13.0"
+  },
+  "keywords": [
+    "banking",
+    "admin-panel",
+    "mongodb",
+    "express",
+    "react",
+    "mern",
+    "fintech",
+    "loans",
+    "accounts"
+  ],
+  "author": "Karan Sakhat <karansakhat971@gmail.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/karansakhat971/lndb-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/karansakhat971/lndb-backend/issues"
+  },
+  "homepage": "https://lndb-1.onrender.com",
+  "packageManager": "npm@10.8.2",
+  "enginesStrict": true
 }
