@@ -1,7 +1,4 @@
-// ================================
-// LNDB Backend - FULLY PRODUCTION READY ✅
-// ATOM ATLAS + RENDER FIXED
-// ================================
+// server.js - FULLY FIXED FOR PRODUCTION ✅
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -16,160 +13,103 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
-// ================================
-// 🔹 CORS CONFIG - Dynamic + Local + Render + Vercel
-// ================================
-const allowedOrigins = [
-  // Local Development
-  "http://127.0.0.1:5500",
-  "http://localhost:5500",
-  "http://localhost:3000",
-  "http://localhost:8080",
-
-  // Production Frontend URLs
-  "https://lndb-1.onrender.com",
-  "https://lndb-frontend.vercel.app"
-];
-
+// 🔥 FIXED CORS - Added Vercel + Wildcard for all subdomains
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
-    }
-  },
+  origin: [
+    "http://localhost:3000",
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://lndb-frontend.vercel.app",
+    "https://lndb-zp1n-37axnpq2d-karas-projects-0e89f8c3.vercel.app",
+    "https://lndb-banking-1.onrender.com"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// ================================
-// 🔹 Body Parser + Security
-// ================================
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ================================
-// 🔹 Health / Test Endpoints
-// ================================
+// Health endpoints
 app.get("/", (req, res) => {
-  const PORT = process.env.PORT || 5000;
   res.json({
-    message: "🚀 LNDB Backend LIVE with ADMIN PANEL! ✅",
-    environment: process.env.NODE_ENV || "development",
-    port: PORT,
-    timestamp: new Date().toISOString(),
-    cors_origin: req.headers.origin,
-    mongodb_status: mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected",
-    routes: {
-      admin: "/api/admin/*",
-      loans: "/api/loans/apply (POST)",
-      accounts: "/api/accounts",
-      investments: "/api/investments",
-      cards: "/api/cards",
-      health: "/health"
-    }
+    message: "LNDB Backend LIVE ✅",
+    environment: process.env.NODE_ENV,
+    port: process.env.PORT || 5000,
+    mongodb: mongoose.connection.readyState === 1 ? "Connected" : "Connecting",
+    timestamp: new Date().toISOString()
   });
 });
 
 app.get("/health", (req, res) => {
   res.json({
-    status: "healthy ✅",
-    mongodb: mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected",
-    port: process.env.PORT || 5000,
-    cors_origin: req.headers.origin,
-    timestamp: new Date().toISOString(),
-    mongo_uri_set: !!process.env.MONGO_URI
+    status: "healthy",
+    mongodb: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    timestamp: new Date().toISOString()
   });
 });
 
-// ================================
-// 🔹 API Routes
-// ================================
+// API Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/cards", cardRoutes);
 app.use("/api/investments", investmentRoutes);
 
-// ================================
-// 🔥 FIXED MongoDB Atlas Connection - Mongoose 8+ READY
-// ================================
+// MongoDB Connection
 const connectDB = async () => {
   try {
     const MONGO_URI = process.env.MONGO_URI;
 
     if (!MONGO_URI) {
-      console.error("❌ MONGO_URI not found in environment variables!");
+      console.error("❌ MONGO_URI missing!");
       return;
     }
 
-    console.log("🔄 Connecting to MongoDB Atlas...");
-
     await mongoose.connect(MONGO_URI, {
-      // ✅ REMOVED deprecated options (Mongoose 8+)
-      serverSelectionTimeoutMS: 60000,  // 60s - Render cold starts
+      serverSelectionTimeoutMS: 60000,
       socketTimeoutMS: 60000,
-      maxPoolSize: 5,                   // Render free tier
-      bufferMaxEntries: 0,              // No buffering
-      family: 4,                        // IPv4 only (faster)
-      authSource: 'admin',              // Atlas default
-      retryWrites: true,
-      w: 'majority'
+      maxPoolSize: 5,
+      bufferMaxEntries: 0,
+      family: 4
     });
 
-    console.log("✅ MongoDB Atlas Connected - Admin Panel Ready!");
+    console.log("✅ MongoDB Connected!");
 
   } catch (error) {
-    console.error("❌ MongoDB Connection Error:");
-    console.error("Error Name:", error.name);
-    console.error("Error Message:", error.message);
-    console.log("⚠️ Check: 1) MONGO_URI 2) Atlas IP Whitelist (0.0.0.0/0) 3) Atlas User Password");
-
-    // 🔄 Auto-retry every 10s (Render cold starts)
+    console.error("❌ MongoDB Error:", error.message);
     setTimeout(connectDB, 10000);
   }
 };
 
-// 🔥 CONNECT ON STARTUP
 connectDB();
 
-// ================================
-// 🔹 Error Handling Middleware
-// ================================
+// Error handling
 app.use((err, req, res, next) => {
-  console.error("❌ ERROR:", err.stack);
+  console.error("ERROR:", err);
   res.status(500).json({
-    error: "Something went wrong!",
-    message: process.env.NODE_ENV === 'production' ? 'Server error' : err.message
+    success: false,
+    error: "Server error"
   });
 });
 
-// ================================
-// 🔹 Server Start - Dynamic for Render
-// ================================
+// Start server
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || "0.0.0.0";
+const HOST = "0.0.0.0";
 
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server LIVE on ${HOST}:${PORT}`);
-  console.log(`🔍 Health Check: http://${HOST}:${PORT}/health`);
-  console.log("🌐 CORS Origins: Local + Render + Vercel");
-  console.log("📊 MongoDB Status:", mongoose.connection.readyState === 1 ? "✅ Connected" : "🔄 Connecting...");
+  console.log(`🚀 Server on ${HOST}:${PORT}`);
+  console.log(`🔍 Health: http://${HOST}:${PORT}/health`);
 });
 
-// ================================
-// 🔹 Graceful Shutdown
-// ================================
+// Graceful shutdown
 const gracefulShutdown = async () => {
-  console.log("🔴 Graceful shutdown...");
   await mongoose.connection.close();
-  console.log("Server stopped");
   process.exit(0);
 };
 
-process.on("SIGINT", gracefulShutdown);   // Ctrl+C
-process.on("SIGTERM", gracefulShutdown);  // Render termination
+process.on("SIGINT", gracefulShutdown);
+process.on("SIGTERM", gracefulShutdown);
 
 module.exports = app;
