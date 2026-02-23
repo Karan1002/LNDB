@@ -187,233 +187,151 @@
     <div id="apiStatus" class="api-status">Checking...</div>
 
     <script>
-        // 🔥 HARDCODED - NO ENV VARS NEEDED - 100% WORKING
-        const API_URL = 'https://lndb-banking-1.onrender.com';
+        /* ================= CONFIG ================= */
 
-        console.log('🔗 API_URL:', API_URL);
-        console.log('✅ Backend Health Check URL:', `${API_URL}/health`);
+        // Auto detect backend URL (works for local + production)
+        const API_URL =
+            location.hostname === "localhost"
+                ? "http://localhost:5000"
+                : "https://lndb-banking-1.onrender.com";
 
-        const carModels = {
-            "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Ertiga", "Brezza", "Fronx", "Grand Vitara"],
-            "Hyundai": ["i10 Nios", "i20", "Aura", "Venue", "Creta", "Verna", "Alcazar"],
-            "Tata Motors": ["Tiago", "Tigor", "Altroz", "Punch", "Nexon", "Harrier", "Safari"],
-            "Mahindra": ["Bolero", "XUV300", "XUV700", "Thar", "Scorpio-N"],
-            "Toyota": ["Glanza", "Urban Cruiser Taisor", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
-            "Honda": ["Amaze", "City", "Elevate"],
-            "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
-            "MG Motor": ["Astor", "Hector", "Hector Plus", "ZS EV", "Gloster"],
-            "Skoda": ["Slavia", "Kushaq", "Superb", "Octavia"],
-            "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"]
-        };
+        console.log("API URL:", API_URL);
+
+        /* ================= UTIL ================= */
+
+        function q(id) {
+            return document.getElementById(id);
+        }
+
+        function showToast(msg, type = "info") {
+            const t = document.createElement("div");
+            t.textContent = msg;
+            t.style.cssText = `
+    position:fixed;top:20px;right:20px;padding:15px 20px;
+    background:${type === "error" ? "#dc3545" : "#28a745"};
+    color:white;border-radius:8px;z-index:9999;font-weight:600;
+  `;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
 
         function generateRefNo() {
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        function q(id) {
-            const el = document.getElementById(id);
-            if (!el) console.error(`❌ Element not found: ${id}`);
-            return el;
-        }
+        /* ================= HEALTH CHECK ================= */
 
-        function showToast(msg, type = 'info') {
-            const toast = document.createElement('div');
-            toast.textContent = msg;
-            toast.style.cssText = `
-                position: fixed; top: 20px; right: 20px; padding: 15px 20px; 
-                background: ${type === 'error' ? '#dc3545' : '#28a745'}; 
-                color: white; border-radius: 8px; z-index: 9999; font-weight: 600;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 350px;
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
-        }
-
-        // 🔍 API Health Check
         async function checkApiStatus() {
-            const statusEl = q('apiStatus');
-            if (!statusEl) return;
+            const el = q("apiStatus");
+            if (!el) return;
 
             try {
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 5000);
+                const res = await fetch(`${API_URL}/health`);
+                if (!res.ok) throw new Error();
 
-                const response = await fetch(`${API_URL}/health`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' },
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeout);
-
-                if (response.ok) {
-                    statusEl.textContent = 'Backend Online ✅';
-                    statusEl.className = 'api-status status-online';
-                    return true;
-                } else {
-                    throw new Error('Health check failed');
-                }
-            } catch (error) {
-                console.error('Backend health check failed:', error);
-                statusEl.textContent = 'Backend Offline ❌';
-                statusEl.className = 'api-status status-offline';
+                el.textContent = "Backend Online ✅";
+                el.className = "api-status status-online";
+                return true;
+            }
+            catch {
+                el.textContent = "Backend Offline ❌";
+                el.className = "api-status status-offline";
                 return false;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', async function () {
-            console.log('🚀 Car Loan App Loaded');
+        /* ================= APP START ================= */
 
-            // Check API status immediately
+        document.addEventListener("DOMContentLoaded", async () => {
+
             await checkApiStatus();
-
-            // Recheck every 30 seconds
             setInterval(checkApiStatus, 30000);
 
-            // Car Brand → Model Population
-            const brandSelect = q('carBrand');
-            const modelSelect = q('carModel');
+            const carModels = {
+                "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire"],
+                "Hyundai": ["i20", "Creta", "Verna"],
+                "Tata Motors": ["Nexon", "Punch", "Safari"],
+                "Mahindra": [
+                    "Bolero", "Scorpio", "Scorpio-N", "Thar", "XUV300", "XUV400", "XUV700"
+                ],
 
-            if (brandSelect && modelSelect) {
-                brandSelect.addEventListener("change", () => {
-                    const selectedBrand = brandSelect.value;
-                    modelSelect.innerHTML = '<option value="">-- Select Car Model --</option>';
+                // 🔥 NEW BRANDS ADDED
+                "Toyota": [
+                    "Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"
+                ],
 
-                    if (carModels[selectedBrand]) {
-                        carModels[selectedBrand].forEach(model => {
-                            const option = document.createElement("option");
-                            option.value = model;
-                            option.textContent = model;
-                            modelSelect.appendChild(option);
-                        });
-                    }
+                "Honda": [
+                    "Amaze", "City", "Elevate", "WR-V"
+                ],
+
+                "Kia": [
+                    "Sonet", "Seltos", "Carens", "EV6"
+                ],
+
+                "Volkswagen": [
+                    "Polo", "Virtus", "Taigun", "Tiguan"
+                ]
+            };
+
+            const brand = q("carBrand");
+            const model = q("carModel");
+
+            brand.addEventListener("change", () => {
+                model.innerHTML = '<option value="">-- Select Car Model --</option>';
+                (carModels[brand.value] || []).forEach(m => {
+                    const o = document.createElement("option");
+                    o.value = m;
+                    o.textContent = m;
+                    model.appendChild(o);
                 });
-            }
+            });
 
-            // Backend Form Submit - 🔥 MAIN FIX HERE
-            const form = q('carLoanForm');
-            if (!form) {
-                console.error('❌ Form not found: carLoanForm');
-                showToast('Form initialization failed!', 'error');
-                return;
-            }
+            /* ================= FORM SUBMIT ================= */
 
-            form.addEventListener('submit', async (e) => {
+            const form = q("carLoanForm");
+
+            form.addEventListener("submit", async e => {
                 e.preventDefault();
-                console.log('📋 Form submitted');
 
-                // 1. Get form data
-                const name = q('applicantName')?.value?.trim();
-                const email = q('email')?.value?.trim();
-                const phone = q('phone')?.value?.trim();
-                const carBrand = q('carBrand')?.value;
-                const carModel = q('carModel')?.value;
-                const carPrice = q('carPrice')?.value;
-                const loanAmount = q('loanAmount')?.value;
+                const data = {
+                    refNo: generateRefNo(),
+                    ownerName: q("applicantName").value.trim(),
+                    email: q("email").value.trim(),
+                    phone: q("phone").value.trim(),
+                    carBrand: brand.value,
+                    carModel: model.value,
+                    carPrice: +q("carPrice").value,
+                    loanAmount: +q("loanAmount").value,
+                    loanType: "Car Loan",
+                    applicationType: "carLoan"
+                };
 
-                // 2. Validation
-                if (!name || !email || !phone || !carBrand || !carModel || !carPrice || !loanAmount) {
-                    showToast('Please fill all required fields!', 'error');
-                    return;
-                }
-
-                if (!/^[0-9]{10}$/.test(phone.replace(/\D/g, ''))) {
-                    showToast('Phone must be exactly 10 digits!', 'error');
-                    return;
-                }
-
-                const loanAmt = parseInt(loanAmount);
-                const carPriceNum = parseInt(carPrice);
-                if (isNaN(loanAmt) || loanAmt <= 0 || isNaN(carPriceNum) || carPriceNum <= 0) {
-                    showToast('Enter valid amounts!', 'error');
-                    return;
-                }
-
-                // 3. Loading state
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalText = submitBtn?.textContent || 'Submit';
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = '⏳ Submitting...';
-                }
+                const btn = form.querySelector("button");
+                btn.disabled = true;
+                btn.textContent = "Submitting...";
 
                 try {
-                    // 4. Prepare data
-                    const carData = {
-                        refNo: generateRefNo(),
-                        ownerName: name,
-                        email: email,
-                        phone: phone.replace(/\D/g, ''),
-                        carBrand: carBrand,
-                        carModel: carModel,
-                        carPrice: carPriceNum,
-                        loanAmount: loanAmt,
-                        loanType: 'Car Loan',
-                        status: 'pending',
-                        applicationType: 'carLoan',
-                        submittedOn: new Date().toISOString(),
-                        carDetails: {
-                            brand: carBrand,
-                            model: carModel,
-                            price: carPriceNum
-                        }
-                    };
-
-                    console.log('📤 Sending to:', `${API_URL}/api/loans/apply`);
-                    console.log('📤 Car Loan Data:', carData);
-
-                    // 🔥 5. FIXED API CALL - DIRECT URL
-                    const response = await fetch(`${API_URL}/api/loans/apply`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(carData)
+                    const res = await fetch(`${API_URL}/api/loans/apply`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
                     });
 
-                    const responseText = await response.text();
-                    console.log('📥 Response Status:', response.status);
-                    console.log('📥 Response Body:', responseText.substring(0, 500));
+                    if (!res.ok) throw new Error("Server error");
 
-                    // 6. Check response
-                    if (!response.ok) {
-                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                    }
+                    const result = await res.json();
 
-                    if (responseText.includes('<!DOCTYPE') || responseText.includes('<html')) {
-                        throw new Error('Server returned HTML instead of JSON');
-                    }
+                    showToast("Application submitted! Ref: " + (result.refNo || data.refNo));
+                    form.reset();
 
-                    const result = JSON.parse(responseText);
-
-                    if (result.success || result.refNo) {
-                        localStorage.setItem("latestCarLoanRef", result.refNo || carData.refNo);
-                        localStorage.setItem("latestCarLoanData", JSON.stringify(carData));
-                        showToast(`🎉 Success!\nRef: ${result.refNo || carData.refNo}`, 'success');
-
-                        setTimeout(() => {
-                            window.location.href = 'carsub.html';
-                        }, 2000);
-                    } else {
-                        throw new Error(result.error || result.message || 'Unknown server error');
-                    }
-
-                } catch (error) {
-                    console.error('❌ Full Error:', error);
-
-                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-                        showToast('❌ Network Error - Check backend status', 'error');
-                    } else {
-                        showToast(`❌ ${error.message}`, 'error');
-                    }
-                } finally {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalText;
-                    }
+                } catch (err) {
+                    showToast("Backend not reachable", "error");
                 }
+
+                btn.disabled = false;
+                btn.textContent = "Apply Now";
             });
+
         });
     </script>
 </body>
