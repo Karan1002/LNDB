@@ -223,38 +223,48 @@
         }
 
 
-        // Replace your fetch with this:
-        async function submitCarLoan() {
-            const formData = {
-                applicantName: document.getElementById('applicantName').value,
-                email: document.getElementById('email').value,
-                phoneNumber: document.getElementById('phoneNumber').value,
-                carBrand: document.getElementById('carBrand').value
-            };
+        // Replace your existing fetch/health check with this:
+        async function checkBackendStatus() {
+            const statusDiv = document.querySelector('.backend-status'); // Update selector
 
             try {
-                // ✅ Test backend first
-                const health = await fetch('https://your-render-url.onrender.com/health');
-                if (!health.ok) throw new Error('Backend offline');
+                // 5 second timeout
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 5000);
 
-                const response = await fetch('https://your-render-url.onrender.com/api/loans/car-apply', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                const response = await fetch('/health', {
+                    method: 'GET',
+                    signal: controller.signal,
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
-                const result = await response.json();
+                const data = await response.json();
 
-                if (result.success) {
-                    alert('✅ Car loan applied successfully!');
-                    document.querySelector('form').reset();
-                } else {
-                    alert('❌ ' + result.message);
+                if (data.status === 'healthy') {
+                    statusDiv.innerHTML = '✅ Backend Online';
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    return true;
                 }
+
             } catch (error) {
-                console.error('Error:', error);
-                alert('Backend offline or network error');
+                console.error('Backend check failed:', error);
             }
+
+            statusDiv.innerHTML = '❌ Backend Offline';
+            statusDiv.style.background = '#f8d7da';
+            statusDiv.style.color = '#721c24';
+            return false;
+        }
+
+        // Form submit mein pehle backend check karo:
+        async function submitCarLoan() {
+            const isBackendOnline = await checkBackendStatus();
+            if (!isBackendOnline) {
+                return;
+            }
+
+            // Rest of your form logic...
         }
 
 
