@@ -1,4 +1,4 @@
-// server.js - FULLY FIXED FOR PRODUCTION ✅
+// server.js - FULLY FIXED FOR PRODUCTION ✅ (Updated Feb 2026)
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -13,7 +13,7 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
-// 🔥 FIXED CORS - Added Vercel + Wildcard for all subdomains
+// CORS Configuration
 app.use(cors({
   origin: [
     "http://localhost:3000",
@@ -31,23 +31,34 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Health endpoints
+// Health Endpoints
 app.get("/", (req, res) => {
   res.json({
     message: "LNDB Backend LIVE ✅",
-    environment: process.env.NODE_ENV,
+    environment: process.env.NODE_ENV || "development",
     port: process.env.PORT || 5000,
-    mongodb: mongoose.connection.readyState === 1 ? "Connected" : "Connecting",
+    mongodb: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
     timestamp: new Date().toISOString()
   });
 });
 
-app.get("/health", (req, res) => {
-  res.json({
-    status: "healthy",
-    mongodb: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
-    timestamp: new Date().toISOString()
-  });
+app.get("/health", async (req, res) => {
+  try {
+    // Real DB ping for accurate health status
+    await mongoose.connection.db.admin().ping();
+    res.json({
+      status: "healthy",
+      mongodb: "Connected",
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: "unhealthy",
+      mongodb: "Disconnected",
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API Routes
@@ -57,59 +68,75 @@ app.use("/api/loans", loanRoutes);
 app.use("/api/cards", cardRoutes);
 app.use("/api/investments", investmentRoutes);
 
-// MongoDB Connection
+// MongoDB Connection (FIXED: Removed deprecated bufferMaxEntries)
 const connectDB = async () => {
   try {
     const MONGO_URI = process.env.MONGO_URI;
 
     if (!MONGO_URI) {
-      console.error("❌ MONGO_URI missing!");
-      return;
+      console.error("❌ MONGO_URI missing from .env file!");
+      process.exit(1);
     }
 
     await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 60000,
-      socketTimeoutMS: 60000,
-      maxPoolSize: 5,
-      bufferMaxEntries: 0,
-      family: 4
+      serverSelectionTimeoutMS: 10000,  // Fast timeout
+      socketTimeoutMS: 45000,
+      maxPoolSize: process.env.NODE_ENV === 'production' ? 3 : 5,
+      family: 4,  // Force IPv4
+      // ✅ Removed: bufferMaxEntries (deprecated/unsupported in modern drivers)
     });
 
-    console.log("✅ MongoDB Connected!");
+    console.log("✅ MongoDB Connected Successfully!");
+    console.log(`📊 Database: ${mongoose.connection.name}`);
+    console.log(`🔗 Host: ${mongoose.connection.host}:${mongoose.connection.port}`);
 
   } catch (error) {
-    console.error("❌ MongoDB Error:", error.message);
-    setTimeout(connectDB, 10000);
+    console.error("❌ MongoDB Connection Error:", error.message);
+    console.log("🔄 Retrying in 5 seconds...");
+    setTimeout(connectDB, 5000);
   }
 };
 
-connectDB();
-
-// Error handling
+// Global error handling middleware
 app.use((err, req, res, next) => {
-  console.error("ERROR:", err);
+  console.error("🚨 SERVER ERROR:", err.stack);
   res.status(500).json({
     success: false,
-    error: "Server error"
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === 'production' ? "Something went wrong" : err.message
   });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-const HOST = "0.0.0.0";
-
-app.listen(PORT, HOST, () => {
-  console.log(`🚀 Server on ${HOST}:${PORT}`);
-  console.log(`🔍 Health: http://${HOST}:${PORT}/health`);
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found"
+  });
 });
 
-// Graceful shutdown
+// Initialize DB connection BEFORE starting server
+connectDB();
+
+// Start Server
+const PORT = process.env.PORT || 5000;
+const HOST = process.env.NODE_ENV === 'production' ? "0.0.0.0" : "localhost";
+
+app.listen(PORT, HOST, () => {
+  console.log(`🚀 LNDB Server running on ${HOST}:${PORT}`);
+  console.log(`🔍 Health Check: http://${HOST}:${PORT}/health`);
+  console.log(`📱 Root: http://${HOST}:${PORT}/`);
+});
+
+// Graceful Shutdown
 const gracefulShutdown = async () => {
+  console.log("\n🛑 Shutting down gracefully...");
   await mongoose.connection.close();
+  console.log("✅ MongoDB connection closed.");
   process.exit(0);
 };
 
-process.on("SIGINT", gracefulShutdown);
-process.on("SIGTERM", gracefulShutdown);
+process.on("SIGINT", gracefulShutdown);   // Ctrl+C
+process.on("SIGTERM", gracefulShutdown);  // Kill command
 
 module.exports = app;
