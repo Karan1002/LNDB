@@ -187,35 +187,27 @@
     <div id="apiStatus" class="api-status">Checking...</div>
 
     <script>
-        /* ================= CONFIG ================= */
         const API_URL = "https://lndb-banking-1.onrender.com";
         console.log("🌐 API URL:", API_URL);
 
-        /* ================= UTIL ================= */
         const q = id => document.getElementById(id);
 
         function showToast(msg, type = "success") {
             const t = document.createElement("div");
             t.textContent = msg;
-            t.style.cssText = `
-        position:fixed; top:20px; right:20px; padding:14px 22px;
-        background:${type === "error" ? "#dc3545" : "#28a745"}; color:#fff;
-        border-radius:10px; z-index:9999; font-weight:600;
-        box-shadow:0 5px 15px rgba(0,0,0,.2);
-    `;
+            t.style.cssText = `position:fixed;top:20px;right:20px;padding:14px 22px;background:${type === "error" ? "#dc3545" : "#28a745"};color:#fff;border-radius:10px;z-index:9999;font-weight:600;box-shadow:0 5px 15px rgba(0,0,0,.2);`;
             document.body.appendChild(t);
             setTimeout(() => t.remove(), 3500);
         }
 
-        function generateRefNo() {
-            return "CL" + Math.floor(100000 + Math.random() * 900000);
-        }
+        function generateRefNo() { return "CL" + Math.floor(100000 + Math.random() * 900000); }
 
-        /* ================= BACKEND STATUS ================= */
+        // ✅ FIXED BACKEND CHECK
         async function checkBackendStatus() {
-            const statusDiv = document.getElementById('apiStatus');
+            const statusDiv = document.getElementById('apiStatus'); // ✅ FIX 1
+
             if (!statusDiv) {
-                console.warn('⚠️ apiStatus div missing');
+                console.warn('⚠️ Add <div id="apiStatus" class="api-status">Checking...</div>');
                 return false;
             }
 
@@ -223,9 +215,9 @@
 
             try {
                 const controller = new AbortController();
-                setTimeout(() => controller.abort(), 8000);
+                setTimeout(() => controller.abort(), 10000); // ✅ FIX 2: Full URL
 
-                const response = await fetch(`${API_URL}/health`, {
+                const response = await fetch(`${API_URL}/health`, { // ✅ 10sec timeout
                     method: 'GET',
                     signal: controller.signal
                 });
@@ -246,61 +238,45 @@
             return false;
         }
 
-        // ✅ FIXED: Simple wrapper
-        const checkApiStatus = () => checkBackendStatus();
-
-        /* ================= APP START - NO ERRORS ================= */
         document.addEventListener("DOMContentLoaded", async () => {
             console.log("🚀 App initialized");
 
-            // ✅ SAFE: Direct call, no await issues
+            // ✅ FIXED 3: Direct calls only
             await checkBackendStatus();
-
-            // ✅ FIXED: Direct backend check in interval
             setInterval(checkBackendStatus, 30000);
 
-            /* ================= CAR DATA - COMPLETE ================= */
+            // CAR DATA (complete)
             const carModels = {
-                "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Brezza", "Ertiga"],
-                "Hyundai": ["i20", "Creta", "Verna", "Venue", "Alcazar"],
-                "Tata Motors": ["Nexon", "Punch", "Safari", "Harrier", "Altroz"],
-                "Mahindra": ["Bolero", "Scorpio", "Scorpio-N", "Thar", "XUV300", "XUV400", "XUV700"],
-                "Toyota": ["Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
-                "Honda": ["Amaze", "City", "Elevate", "WR-V"],
-                "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
-                "MG Motor": ["Hector", "Astor", "Gloster", "ZST", "Comet EV"],
-                "Skoda": ["Slavia", "Kushaq", "Kodiaq"]
+                "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Brezza"],
+                "Hyundai": ["i20", "Creta", "Verna", "Venue"],
+                "Tata Motors": ["Nexon", "Punch", "Safari"],
+                "Mahindra": ["Bolero", "Scorpio", "Thar", "XUV700"],
+                "Toyota": ["Glanza", "Innova Crysta", "Fortuner"],
+                "Honda": ["Amaze", "City"],
+                "Kia": ["Sonet", "Seltos"],
+                "MG Motor": ["Hector", "Astor"],
+                "Skoda": ["Slavia", "Kushaq"],
+                "Volkswagen": ["Polo", "Taigun"]
             };
 
-            const brand = q("carBrand");
-            const model = q("carModel");
+            const brand = q("carBrand"), model = q("carModel");
 
             brand.addEventListener("change", () => {
                 model.innerHTML = '<option value="">-- Select Car Model --</option>';
                 if (!brand.value || !carModels[brand.value]) return;
-
                 carModels[brand.value].forEach(m => {
                     const o = document.createElement("option");
-                    o.value = m;
-                    o.textContent = m;
+                    o.value = o.textContent = m;
                     model.appendChild(o);
                 });
             });
 
-            /* ================= FORM SUBMIT ================= */
-            const form = q("carLoanForm");
-            form.addEventListener("submit", async e => {
+            // FORM SUBMIT
+            q("carLoanForm").addEventListener("submit", async e => {
                 e.preventDefault();
-
-                const btn = form.querySelector("button");
+                const btn = e.target.querySelector("button");
                 btn.disabled = true;
                 btn.textContent = "Submitting...";
-
-                // Backend check before submit
-                const isOnline = await checkBackendStatus();
-                if (!isOnline) {
-                    showToast("⚠️ Backend offline, but trying anyway...", "error");
-                }
 
                 const data = {
                     refNo: generateRefNo(),
@@ -326,17 +302,13 @@
                         signal: controller.signal
                     });
 
-                    const text = await res.text();
-                    const result = JSON.parse(text);
-
+                    const result = JSON.parse(await res.text());
                     if (!res.ok) throw new Error(result.message || "Server Error");
 
                     showToast(`✅ Success! Ref: ${result.refNo}`);
-                    form.reset();
+                    e.target.reset();
                     model.innerHTML = '<option value="">-- Select Car Model --</option>';
-
                 } catch (err) {
-                    console.error("Submit error:", err);
                     showToast(err.message || "Network error", "error");
                 }
 
@@ -345,6 +317,7 @@
             });
         });
     </script>
+
 
 </body>
 
