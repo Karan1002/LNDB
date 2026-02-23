@@ -219,19 +219,20 @@
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-        /* ================= BACKEND STATUS CHECK ================= */
-        // ✅ FIXED: Correct selector + Full API URL + checkApiStatus added
         async function checkBackendStatus() {
-            const statusDiv = document.getElementById('apiStatus'); // ✅ FIXED: Correct ID
+            const statusDiv = document.getElementById('apiStatus');
+
+            if (!statusDiv) return false;
+
+            statusDiv.innerHTML = '🔄 Checking backend...'; // Loading state
 
             try {
                 const controller = new AbortController();
-                setTimeout(() => controller.abort(), 5000);
+                setTimeout(() => controller.abort(), 8000); // 8 sec timeout (Render ke liye)
 
-                const response = await fetch(`${API_URL}/health`, { // ✅ FIXED: Full URL
+                const response = await fetch(`${API_URL}/health`, {
                     method: 'GET',
-                    signal: controller.signal,
-                    headers: { 'Content-Type': 'application/json' }
+                    signal: controller.signal
                 });
 
                 const data = await response.json();
@@ -245,15 +246,11 @@
                 console.error('Backend check failed:', error);
             }
 
-            statusDiv.innerHTML = '❌ Backend Offline';
+            statusDiv.innerHTML = '⚠️ Backend Slow/Offline';
             statusDiv.className = 'api-status status-offline';
-            return false;
+            return false; // Form submit block mat karo
         }
 
-        // ✅ NEW: Wrapper function for DOMContentLoaded
-        async function checkApiStatus() {
-            return await checkBackendStatus();
-        }
 
         /* ================= APP START ================= */
 
@@ -274,8 +271,11 @@
                 "Toyota": ["Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
                 "Honda": ["Amaze", "City", "Elevate", "WR-V"],
                 "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
-                "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"]
+                "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"],
+                "MG Motor": ["Hector", "Astor", "Gloster"],      // ✅ ADD
+                "Skoda": ["Slavia", "Kushaq"]                     // ✅ ADD
             };
+
 
             const brand = q("carBrand");
             const model = q("carModel");
