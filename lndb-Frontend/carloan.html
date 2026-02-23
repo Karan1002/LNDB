@@ -189,11 +189,8 @@
     <script>
         /* ================= CONFIG ================= */
 
-        // Auto detect backend URL
         const API_URL = "https://lndb-banking-1.onrender.com";
-
         console.log("🌐 API URL:", API_URL);
-
 
         /* ================= UTIL ================= */
 
@@ -222,17 +219,16 @@
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
-
-        // Replace your existing fetch/health check with this:
+        /* ================= BACKEND STATUS CHECK ================= */
+        // ✅ FIXED: Correct selector + Full API URL + checkApiStatus added
         async function checkBackendStatus() {
-            const statusDiv = document.querySelector('.backend-status'); // Update selector
+            const statusDiv = document.getElementById('apiStatus'); // ✅ FIXED: Correct ID
 
             try {
-                // 5 second timeout
                 const controller = new AbortController();
                 setTimeout(() => controller.abort(), 5000);
 
-                const response = await fetch('/health', {
+                const response = await fetch(`${API_URL}/health`, { // ✅ FIXED: Full URL
                     method: 'GET',
                     signal: controller.signal,
                     headers: { 'Content-Type': 'application/json' }
@@ -242,39 +238,31 @@
 
                 if (data.status === 'healthy') {
                     statusDiv.innerHTML = '✅ Backend Online';
-                    statusDiv.style.background = '#d4edda';
-                    statusDiv.style.color = '#155724';
+                    statusDiv.className = 'api-status status-online';
                     return true;
                 }
-
             } catch (error) {
                 console.error('Backend check failed:', error);
             }
 
             statusDiv.innerHTML = '❌ Backend Offline';
-            statusDiv.style.background = '#f8d7da';
-            statusDiv.style.color = '#721c24';
+            statusDiv.className = 'api-status status-offline';
             return false;
         }
 
-        // Form submit mein pehle backend check karo:
-        async function submitCarLoan() {
-            const isBackendOnline = await checkBackendStatus();
-            if (!isBackendOnline) {
-                return;
-            }
-
-            // Rest of your form logic...
+        // ✅ NEW: Wrapper function for DOMContentLoaded
+        async function checkApiStatus() {
+            return await checkBackendStatus();
         }
-
 
         /* ================= APP START ================= */
 
         document.addEventListener("DOMContentLoaded", async () => {
+            console.log("🚀 App initialized");
 
+            // ✅ FIXED: Now checkApiStatus exists
             await checkApiStatus();
             setInterval(checkApiStatus, 30000);
-
 
             /* ================= CAR DATA ================= */
 
@@ -305,13 +293,19 @@
                 });
             });
 
-
             /* ================= FORM SUBMIT ================= */
 
             const form = q("carLoanForm");
 
             form.addEventListener("submit", async e => {
                 e.preventDefault();
+
+                // ✅ Backend check before submit
+                const isBackendOnline = await checkBackendStatus();
+                if (!isBackendOnline) {
+                    showToast("Backend unavailable! Please try again.", "error");
+                    return;
+                }
 
                 const btn = form.querySelector("button");
                 btn.disabled = true;
@@ -355,7 +349,7 @@
                     if (!res.ok)
                         throw new Error(result.message || "Server Error");
 
-                    showToast("Application Submitted ✔ Ref: " + result.refNo);
+                    showToast("✅ Application Submitted! Ref: " + result.refNo);
                     form.reset();
                     model.innerHTML = '<option value="">-- Select Car Model --</option>';
 
@@ -367,9 +361,9 @@
                 btn.disabled = false;
                 btn.textContent = "Apply Now";
             });
-
         });
     </script>
+
 </body>
 
 </html>
