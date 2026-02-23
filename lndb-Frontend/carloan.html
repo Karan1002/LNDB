@@ -188,27 +188,19 @@
 
     <script>
         /* ================= CONFIG ================= */
-
         const API_URL = "https://lndb-banking-1.onrender.com";
         console.log("🌐 API URL:", API_URL);
 
         /* ================= UTIL ================= */
-
         const q = id => document.getElementById(id);
 
         function showToast(msg, type = "success") {
             const t = document.createElement("div");
             t.textContent = msg;
             t.style.cssText = `
-        position:fixed;
-        top:20px;
-        right:20px;
-        padding:14px 22px;
-        background:${type === "error" ? "#dc3545" : "#28a745"};
-        color:#fff;
-        border-radius:10px;
-        z-index:9999;
-        font-weight:600;
+        position:fixed; top:20px; right:20px; padding:14px 22px;
+        background:${type === "error" ? "#dc3545" : "#28a745"}; color:#fff;
+        border-radius:10px; z-index:9999; font-weight:600;
         box-shadow:0 5px 15px rgba(0,0,0,.2);
     `;
             document.body.appendChild(t);
@@ -219,16 +211,19 @@
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
 
+        /* ================= BACKEND STATUS ================= */
         async function checkBackendStatus() {
             const statusDiv = document.getElementById('apiStatus');
+            if (!statusDiv) {
+                console.warn('⚠️ apiStatus div missing');
+                return false;
+            }
 
-            if (!statusDiv) return false;
-
-            statusDiv.innerHTML = '🔄 Checking backend...'; // Loading state
+            statusDiv.innerHTML = '🔄 Checking...';
 
             try {
                 const controller = new AbortController();
-                setTimeout(() => controller.abort(), 8000); // 8 sec timeout (Render ke liye)
+                setTimeout(() => controller.abort(), 8000);
 
                 const response = await fetch(`${API_URL}/health`, {
                     method: 'GET',
@@ -246,25 +241,25 @@
                 console.error('Backend check failed:', error);
             }
 
-            statusDiv.innerHTML = '⚠️ Backend Slow/Offline';
+            statusDiv.innerHTML = '⚠️ Backend Offline';
             statusDiv.className = 'api-status status-offline';
-            return false; // Form submit block mat karo
+            return false;
         }
 
+        // ✅ FIXED: Simple wrapper
+        const checkApiStatus = () => checkBackendStatus();
 
-        /* ================= APP START ================= */
-
+        /* ================= APP START - NO ERRORS ================= */
         document.addEventListener("DOMContentLoaded", async () => {
             console.log("🚀 App initialized");
 
-            // ✅ CORRECT - Recursive setTimeout
-            await checkApiStatus();
-            setTimeout(async () => {
-                await checkApiStatus();
-                setTimeout(arguments.callee, 30000); // Har 30 sec repeat
-            }, 30000);
+            // ✅ SAFE: Direct call, no await issues
+            await checkBackendStatus();
 
-            /* ================= CAR DATA ================= */
+            // ✅ FIXED: Direct backend check in interval
+            setInterval(checkBackendStatus, 30000);
+
+            /* ================= CAR DATA - COMPLETE ================= */
             const carModels = {
                 "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Brezza", "Ertiga"],
                 "Hyundai": ["i20", "Creta", "Verna", "Venue", "Alcazar"],
@@ -273,19 +268,16 @@
                 "Toyota": ["Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
                 "Honda": ["Amaze", "City", "Elevate", "WR-V"],
                 "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
-                "MG Motor": ["Hector", "Astor", "Gloster", "ZST", "Comet EV"],        // ✅ FIXED
-                "Skoda": ["Slavia", "Kushaq", "Kodiaq"]                                // ✅ FIXED
+                "MG Motor": ["Hector", "Astor", "Gloster", "ZST", "Comet EV"],
+                "Skoda": ["Slavia", "Kushaq", "Kodiaq"]
             };
-
-
 
             const brand = q("carBrand");
             const model = q("carModel");
 
             brand.addEventListener("change", () => {
                 model.innerHTML = '<option value="">-- Select Car Model --</option>';
-
-                if (!brand.value) return;
+                if (!brand.value || !carModels[brand.value]) return;
 
                 carModels[brand.value].forEach(m => {
                     const o = document.createElement("option");
@@ -296,22 +288,19 @@
             });
 
             /* ================= FORM SUBMIT ================= */
-
             const form = q("carLoanForm");
-
             form.addEventListener("submit", async e => {
                 e.preventDefault();
-
-                // ✅ Backend check before submit
-                const isBackendOnline = await checkBackendStatus();
-                if (!isBackendOnline) {
-                    showToast("Backend unavailable! Please try again.", "error");
-                    return;
-                }
 
                 const btn = form.querySelector("button");
                 btn.disabled = true;
                 btn.textContent = "Submitting...";
+
+                // Backend check before submit
+                const isOnline = await checkBackendStatus();
+                if (!isOnline) {
+                    showToast("⚠️ Backend offline, but trying anyway...", "error");
+                }
 
                 const data = {
                     refNo: generateRefNo(),
@@ -326,11 +315,9 @@
                     applicationType: "carLoan"
                 };
 
-                console.log("📤 Sending:", data);
-
                 try {
                     const controller = new AbortController();
-                    const timeout = setTimeout(() => controller.abort(), 10000);
+                    setTimeout(() => controller.abort(), 15000);
 
                     const res = await fetch(`${API_URL}/api/loans/apply`, {
                         method: "POST",
@@ -339,25 +326,18 @@
                         signal: controller.signal
                     });
 
-                    clearTimeout(timeout);
-
                     const text = await res.text();
-                    console.log("📥 Raw response:", text);
+                    const result = JSON.parse(text);
 
-                    let result;
-                    try { result = JSON.parse(text); }
-                    catch { throw new Error("Invalid JSON from server"); }
+                    if (!res.ok) throw new Error(result.message || "Server Error");
 
-                    if (!res.ok)
-                        throw new Error(result.message || "Server Error");
-
-                    showToast("✅ Application Submitted! Ref: " + result.refNo);
+                    showToast(`✅ Success! Ref: ${result.refNo}`);
                     form.reset();
                     model.innerHTML = '<option value="">-- Select Car Model --</option>';
 
                 } catch (err) {
-                    console.error("❌ Submit error:", err);
-                    showToast(err.message || "Backend not reachable", "error");
+                    console.error("Submit error:", err);
+                    showToast(err.message || "Network error", "error");
                 }
 
                 btn.disabled = false;
