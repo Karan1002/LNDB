@@ -1,5 +1,4 @@
-// server.js - FULLY FIXED FOR PRODUCTION ✅ (Updated Feb 2026)
-
+// server.js - FIXED: bufferMaxEntries REMOVED ✅
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -13,16 +12,21 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
-// CORS Configuration
+// Dynamic Frontend URL
+const FRONTEND_URL = process.env.NODE_ENV === 'production'
+  ? (process.env.RENDER_FRONTEND_URL || process.env.VERCEL_FRONTEND_URL)
+  : 'http://localhost:3000';
+
+// ✅ FIXED CORS - No duplicates
 app.use(cors({
   origin: [
     "http://localhost:3000",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
-    "https://lndb-frontend.vercel.app",
-    "https://lndb-zp1n-37axnpq2d-karas-projects-0e89f8c3.vercel.app",
-    "https://lndb-banking-1.onrender.com"
-  ],
+    process.env.VERCEL_FRONTEND_URL,
+    process.env.RENDER_FRONTEND_URL,
+    FRONTEND_URL
+  ].filter(Boolean),
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -31,7 +35,7 @@ app.use(cors({
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Health Endpoints
+// Health endpoints
 app.get("/", (req, res) => {
   res.json({
     message: "LNDB Backend LIVE ✅",
@@ -44,7 +48,6 @@ app.get("/", (req, res) => {
 
 app.get("/health", async (req, res) => {
   try {
-    // Real DB ping for accurate health status
     await mongoose.connection.db.admin().ping();
     res.json({
       status: "healthy",
@@ -55,88 +58,66 @@ app.get("/health", async (req, res) => {
     res.status(503).json({
       status: "unhealthy",
       mongodb: "Disconnected",
-      error: err.message,
       timestamp: new Date().toISOString()
     });
   }
 });
 
-// API Routes
+// Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use("/api/loans", loanRoutes);
 app.use("/api/cards", cardRoutes);
 app.use("/api/investments", investmentRoutes);
 
-// MongoDB Connection (FIXED: Removed deprecated bufferMaxEntries)
+// 🚨 CRITICAL FIX: bufferMaxEntries COMPLETELY REMOVED
 const connectDB = async () => {
   try {
     const MONGO_URI = process.env.MONGO_URI;
 
     if (!MONGO_URI) {
-      console.error("❌ MONGO_URI missing from .env file!");
+      console.error("❌ MONGO_URI missing!");
       process.exit(1);
     }
 
     await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 10000,  // Fast timeout
+      // ✅ NO bufferMaxEntries - completely removed!
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       maxPoolSize: process.env.NODE_ENV === 'production' ? 3 : 5,
-      family: 4,  // Force IPv4
-      // ✅ Removed: bufferMaxEntries (deprecated/unsupported in modern drivers)
+      family: 4  // IPv4 only
     });
 
-    console.log("✅ MongoDB Connected Successfully!");
-    console.log(`📊 Database: ${mongoose.connection.name}`);
-    console.log(`🔗 Host: ${mongoose.connection.host}:${mongoose.connection.port}`);
+    console.log("✅ MongoDB Connected!");
+    console.log(`📊 DB: ${mongoose.connection.name}`);
 
   } catch (error) {
-    console.error("❌ MongoDB Connection Error:", error.message);
-    console.log("🔄 Retrying in 5 seconds...");
+    console.error("❌ MongoDB Error:", error.message);
     setTimeout(connectDB, 5000);
   }
 };
 
-// Global error handling middleware
+// Error handlers
 app.use((err, req, res, next) => {
-  console.error("🚨 SERVER ERROR:", err.stack);
-  res.status(500).json({
-    success: false,
-    message: "Internal Server Error",
-    error: process.env.NODE_ENV === 'production' ? "Something went wrong" : err.message
-  });
+  console.error("🚨 ERROR:", err.stack);
+  res.status(500).json({ success: false, message: "Server error" });
 });
 
-// 404 handler
 app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found"
-  });
+  res.status(404).json({ success: false, message: "Route not found" });
 });
 
-// Initialize DB connection BEFORE starting server
 connectDB();
 
-// Start Server
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.NODE_ENV === 'production' ? "0.0.0.0" : "localhost";
 
 app.listen(PORT, HOST, () => {
-  console.log(`🚀 LNDB Server running on ${HOST}:${PORT}`);
-  console.log(`🔍 Health Check: http://${HOST}:${PORT}/health`);
-  console.log(`📱 Root: http://${HOST}:${PORT}/`);
+  console.log(`🚀 Server: http://${HOST}:${PORT}`);
+  console.log(`🔍 Health: http://${HOST}:${PORT}/health`);
 });
 
-// Graceful Shutdown
-const gracefulShutdown = async () => {
-  console.log("\n🛑 Shutting down gracefully...");
+process.on("SIGINT", async () => {
   await mongoose.connection.close();
-  console.log("✅ MongoDB connection closed.");
   process.exit(0);
-};
-
-process.on("SIGINT", gracefulShutdown);   // Ctrl+C
-process.on("SIGTERM", gracefulShutdown);  // Kill command
-
-module.exports = app;
+});
