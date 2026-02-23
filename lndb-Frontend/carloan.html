@@ -257,9 +257,12 @@
         document.addEventListener("DOMContentLoaded", async () => {
             console.log("🚀 App initialized");
 
-            // ✅ FIXED: Now checkApiStatus exists
+            // ✅ CORRECT - Recursive setTimeout
             await checkApiStatus();
-            setInterval(checkApiStatus, 30000);
+            setTimeout(async () => {
+                await checkApiStatus();
+                setTimeout(arguments.callee, 30000); // Har 30 sec repeat
+            }, 30000);
 
             /* ================= CAR DATA ================= */
             const carModels = {
