@@ -262,19 +262,18 @@
             setInterval(checkApiStatus, 30000);
 
             /* ================= CAR DATA ================= */
-
             const carModels = {
-                "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire"],
-                "Hyundai": ["i20", "Creta", "Verna"],
-                "Tata Motors": ["Nexon", "Punch", "Safari"],
+                "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Brezza", "Ertiga"],
+                "Hyundai": ["i20", "Creta", "Verna", "Venue", "Alcazar"],
+                "Tata Motors": ["Nexon", "Punch", "Safari", "Harrier", "Altroz"],
                 "Mahindra": ["Bolero", "Scorpio", "Scorpio-N", "Thar", "XUV300", "XUV400", "XUV700"],
                 "Toyota": ["Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
                 "Honda": ["Amaze", "City", "Elevate", "WR-V"],
                 "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
-                "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"],
-                "MG Motor": ["Hector", "Astor", "Gloster"],      // ✅ ADD
-                "Skoda": ["Slavia", "Kushaq"]                     // ✅ ADD
+                "MG Motor": ["Hector", "Astor", "Gloster", "ZST", "Comet EV"],        // ✅ FIXED
+                "Skoda": ["Slavia", "Kushaq", "Kodiaq"]                                // ✅ FIXED
             };
+
 
 
             const brand = q("carBrand");
