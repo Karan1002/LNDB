@@ -189,35 +189,42 @@
     <script>
         /* ================= CONFIG ================= */
 
-        // Auto detect backend URL (works for local + production)
+        // Auto detect backend URL
         const API_URL =
             location.hostname === "localhost"
                 ? "http://localhost:5000"
                 : "https://lndb-banking-1.onrender.com";
 
-        console.log("API URL:", API_URL);
+        console.log("🌐 API URL:", API_URL);
+
 
         /* ================= UTIL ================= */
 
-        function q(id) {
-            return document.getElementById(id);
-        }
+        const q = id => document.getElementById(id);
 
-        function showToast(msg, type = "info") {
+        function showToast(msg, type = "success") {
             const t = document.createElement("div");
             t.textContent = msg;
             t.style.cssText = `
-    position:fixed;top:20px;right:20px;padding:15px 20px;
-    background:${type === "error" ? "#dc3545" : "#28a745"};
-    color:white;border-radius:8px;z-index:9999;font-weight:600;
-  `;
+        position:fixed;
+        top:20px;
+        right:20px;
+        padding:14px 22px;
+        background:${type === "error" ? "#dc3545" : "#28a745"};
+        color:#fff;
+        border-radius:10px;
+        z-index:9999;
+        font-weight:600;
+        box-shadow:0 5px 15px rgba(0,0,0,.2);
+    `;
             document.body.appendChild(t);
-            setTimeout(() => t.remove(), 4000);
+            setTimeout(() => t.remove(), 3500);
         }
 
         function generateRefNo() {
             return "CL" + Math.floor(100000 + Math.random() * 900000);
         }
+
 
         /* ================= HEALTH CHECK ================= */
 
@@ -226,19 +233,32 @@
             if (!el) return;
 
             try {
-                const res = await fetch(`${API_URL}/health`);
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 5000);
+
+                const res = await fetch(`${API_URL}/health`, {
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeout);
+
                 if (!res.ok) throw new Error();
+
+                const data = await res.json();
+                console.log("✅ Health:", data);
 
                 el.textContent = "Backend Online ✅";
                 el.className = "api-status status-online";
                 return true;
             }
-            catch {
+            catch (err) {
+                console.warn("❌ Health check failed:", err.message);
                 el.textContent = "Backend Offline ❌";
                 el.className = "api-status status-offline";
                 return false;
             }
         }
+
 
         /* ================= APP START ================= */
 
@@ -247,30 +267,18 @@
             await checkApiStatus();
             setInterval(checkApiStatus, 30000);
 
+
+            /* ================= CAR DATA ================= */
+
             const carModels = {
                 "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire"],
                 "Hyundai": ["i20", "Creta", "Verna"],
                 "Tata Motors": ["Nexon", "Punch", "Safari"],
-                "Mahindra": [
-                    "Bolero", "Scorpio", "Scorpio-N", "Thar", "XUV300", "XUV400", "XUV700"
-                ],
-
-                // 🔥 NEW BRANDS ADDED
-                "Toyota": [
-                    "Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"
-                ],
-
-                "Honda": [
-                    "Amaze", "City", "Elevate", "WR-V"
-                ],
-
-                "Kia": [
-                    "Sonet", "Seltos", "Carens", "EV6"
-                ],
-
-                "Volkswagen": [
-                    "Polo", "Virtus", "Taigun", "Tiguan"
-                ]
+                "Mahindra": ["Bolero", "Scorpio", "Scorpio-N", "Thar", "XUV300", "XUV400", "XUV700"],
+                "Toyota": ["Glanza", "Urban Cruiser", "Innova Crysta", "Innova Hycross", "Fortuner", "Hilux"],
+                "Honda": ["Amaze", "City", "Elevate", "WR-V"],
+                "Kia": ["Sonet", "Seltos", "Carens", "EV6"],
+                "Volkswagen": ["Polo", "Virtus", "Taigun", "Tiguan"]
             };
 
             const brand = q("carBrand");
@@ -278,13 +286,17 @@
 
             brand.addEventListener("change", () => {
                 model.innerHTML = '<option value="">-- Select Car Model --</option>';
-                (carModels[brand.value] || []).forEach(m => {
+
+                if (!brand.value) return;
+
+                carModels[brand.value].forEach(m => {
                     const o = document.createElement("option");
                     o.value = m;
                     o.textContent = m;
                     model.appendChild(o);
                 });
             });
+
 
             /* ================= FORM SUBMIT ================= */
 
@@ -293,6 +305,10 @@
             form.addEventListener("submit", async e => {
                 e.preventDefault();
 
+                const btn = form.querySelector("button");
+                btn.disabled = true;
+                btn.textContent = "Submitting...";
+
                 const data = {
                     refNo: generateRefNo(),
                     ownerName: q("applicantName").value.trim(),
@@ -300,32 +316,44 @@
                     phone: q("phone").value.trim(),
                     carBrand: brand.value,
                     carModel: model.value,
-                    carPrice: +q("carPrice").value,
-                    loanAmount: +q("loanAmount").value,
+                    carPrice: Number(q("carPrice").value),
+                    loanAmount: Number(q("loanAmount").value),
                     loanType: "Car Loan",
                     applicationType: "carLoan"
                 };
 
-                const btn = form.querySelector("button");
-                btn.disabled = true;
-                btn.textContent = "Submitting...";
+                console.log("📤 Sending:", data);
 
                 try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 10000);
+
                     const res = await fetch(`${API_URL}/api/loans/apply`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify(data),
+                        signal: controller.signal
                     });
 
-                    if (!res.ok) throw new Error("Server error");
+                    clearTimeout(timeout);
 
-                    const result = await res.json();
+                    const text = await res.text();
+                    console.log("📥 Raw response:", text);
 
-                    showToast("Application submitted! Ref: " + (result.refNo || data.refNo));
+                    let result;
+                    try { result = JSON.parse(text); }
+                    catch { throw new Error("Invalid JSON from server"); }
+
+                    if (!res.ok)
+                        throw new Error(result.message || "Server Error");
+
+                    showToast("Application Submitted ✔ Ref: " + result.refNo);
                     form.reset();
+                    model.innerHTML = '<option value="">-- Select Car Model --</option>';
 
                 } catch (err) {
-                    showToast("Backend not reachable", "error");
+                    console.error("❌ Submit error:", err);
+                    showToast(err.message || "Backend not reachable", "error");
                 }
 
                 btn.disabled = false;
